@@ -4,24 +4,23 @@
 
 %Saidas: Sinal reamostrado: (outputSignal)
 
-function y = ResampleSignal(x1,x2,x3)
-
-    %Input Arguments
-    resampleFactor = x1; %REAL
-    halfFilterCoeffs = x2; %INTEGER
-    inputSignal = x3; %VECTOR
+function y = ResampleSignal(samplingFrequency,resampleFactor,halfFilterCoeffs,inputSignal)
     
     %Definitions
     signalSize = length(inputSignal);
     filterCenter = 0;
-    currentSampleIndex = 0;
-    newPeriod = (1/resampleFactor);
+    currentSampleIndex = 1;
+    newFrequency = samplingFrequency*resampleFactor;
+    newFrequency
+    signalSize
+    newPeriod = (1/newFrequency);
 
     %Outputs
     outputSignal = zeros (1,signalSize);
     
+    
     %Code
-    while filterCenter < signalSize
+    while filterCenter <= signalSize
         if (CheckInteger(filterCenter))
             outputSignal(currentSampleIndex) = inputSignal(currentSampleIndex);
         else
@@ -32,10 +31,10 @@ function y = ResampleSignal(x1,x2,x3)
             while (counter < halfFilterCoeffs) %Calcula 2 termos por vez, do centro da sinc até as extremidades
                 leftConvolutionIndex = floor(filterCenter) - counter;
                 rightConvolutionIndex = ceil(filterCenter) + counter;
-                if ( > 0) %Calcula lado esquerdo da sinc
+                if ( leftConvolutionIndex > 0) %Calcula lado esquerdo da sinc
                     sample = sample + inputSignal(leftConvolutionIndex)*sinc(gapLeft);
                 end
-                if ((convolutionIndex ) < signalSize) %Calcula lado direito da sinc
+                if (rightConvolutionIndex < signalSize) %Calcula lado direito da sinc
                     sample = sample + inputSignal(rightConvolutionIndex)*sinc(gapRight);
                 end
                 counter = counter + 1; % percorre os pontos de encontro entre a sinc e o sinal.
