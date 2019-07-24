@@ -1,0 +1,6 @@
+RELATIVE ERROR = (Resampled_signal - ideal_signal)/resampled_signal
+
+
+256 points, resampled sine (48kHz to exp(1)*48kHz) -> -1.6e-03 -> SNR ~ 60dB
+512 points, resampled sine (48kHz to exp(1)*48kHz) -> -7.9e-04 -> SNR ~ 80dB
+2048 points, resampled sine (48kHz to exp(1)*48kHz) -> -1.9e-04 -> SNR ~ 80dB

@@ -22,14 +22,13 @@ function y = ResampleSignal(inputSignal,resampleFactor,filterCoeffs)
             if CheckInteger(newSamplePosition) % se a amostra na nova taxa coincide com a amostra na taxa antiga
                 outputSignal(resampledIndex) = inputSignal(newSamplePosition);
             else
-                leftClosestSample = floor(newSamplePosition);
-                rightClosestSample = ceil(newSamplePosition);
-                leftGap = newSamplePosition - leftClosestSample;
-                rightGap = rightClosestSample - newSamplePosition;
+                
+                leftGap = newSamplePosition - floor(newSamplePosition);
+                rightGap = ceil(newSamplePosition) - newSamplePosition;
 
                 while convolutionIndex <= round(filterCoeffs/2)
-                    convolutionIndex_left = leftClosestSample - (convolutionIndex-1); % do centro da sinc para esq
-                    convolutionIndex_right = rightClosestSample + (convolutionIndex-1); % do centro da sinc para dir
+                    convolutionIndex_left = (newSamplePosition - leftGap) - (convolutionIndex-1);
+                    convolutionIndex_right = (newSamplePosition + rightGap) + (convolutionIndex-1);
                     if convolutionIndex_left > 0
                         sample = sample + inputSignal(convolutionIndex_left)*sinc(-leftGap - (convolutionIndex-1));
                     end
