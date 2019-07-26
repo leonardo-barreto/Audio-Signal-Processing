@@ -13,7 +13,7 @@ function y = ResampleSignal(inputSignal,resampleFactor,filterCoeffs)
     newPeriod = (1/resampleFactor);
 
     %Outputs
-    outputSignal = zeros(1,inputSignalSize); % Para prevenir erros de undefined variable
+    outputSignal = zeros(1,min(inputSignalSize,ceil(inputSignalSize*resampleFactor))); % Para prevenir erros de undefined variable
    
     %Code
     while newSamplePosition <= inputSignalSize % percorre o sinal de entrada no novo período de amostragem
