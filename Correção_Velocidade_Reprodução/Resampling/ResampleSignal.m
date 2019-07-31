@@ -33,7 +33,7 @@ function y = ResampleSignal(inputSignal,resampleFactor,filterCoeffs)
                     if convolutionIndex_left > 0
                         sample = sample + inputSignal(convolutionIndex_left)*sinc(-leftGap - (convolutionIndex-1));
                     end
-                    if  convolutionIndex_right < inputSignalSize
+                    if  convolutionIndex_right <= inputSignalSize
                         sample = sample + inputSignal(convolutionIndex_right)*sinc(rightGap + (convolutionIndex-1));
                     end
                     convolutionIndex = convolutionIndex + 1;
