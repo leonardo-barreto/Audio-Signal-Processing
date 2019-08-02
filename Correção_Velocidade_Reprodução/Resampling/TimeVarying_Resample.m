@@ -16,7 +16,7 @@ function y = TimeVarying_Resample(inputSignal,originalSamplingRate,resampleFacto
     DEBUG_ERRORS = 1;
     DEBUG_FULL = 2;
 
-    numberOfBlocks = length(inputSignal)/blockSize;
+    numberOfBlocks = ceil(length(inputSignal)/blockSize);
     if (~CheckInteger(numberOfBlocks))
         numberOfBlocks = ceil(numberOfBlocks);
         numberOfSamples = blockSize*numberOfBlocks;
