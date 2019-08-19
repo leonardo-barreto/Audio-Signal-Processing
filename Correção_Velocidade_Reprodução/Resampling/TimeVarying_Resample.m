@@ -16,7 +16,7 @@ function y = TimeVarying_Resample(inputSignal,originalSamplingRate,resampleFacto
     DEBUG_ERRORS = 1;
     DEBUG_FULL = 2;
 
-    numberOfBlocks = ceil(length(inputSignal)/blockSize);
+    numberOfBlocks = length(inputSignal)/blockSize;
     if (~CheckInteger(numberOfBlocks))
         numberOfBlocks = ceil(numberOfBlocks);
         numberOfSamples = blockSize*numberOfBlocks;
@@ -31,11 +31,11 @@ function y = TimeVarying_Resample(inputSignal,originalSamplingRate,resampleFacto
     end
     
     inputPeriod = 1/originalSamplingRate; %período de amostragem original
-    windowIndex = 1; %índice que se move a cada janela processada.
+    blockIndex = 1; %índice que se move a cada bloco processado.
 
     newSamplePosition = 1; %posição da nova amostra a ser posicionada: se move no tempo.
 
-    resampledIndex = 1; %índice do sinal de saída, que se move em todas as diferentes taxas.
+    resampledIndex = 1; %índice do sinal de saída, que se move em amostras.
 
     %Outputs
     outputSignal = zeros(1,2); % Para prevenir erros de undefined variable
@@ -46,9 +46,9 @@ function y = TimeVarying_Resample(inputSignal,originalSamplingRate,resampleFacto
     end
 
 
-    while windowIndex <= numberOfBlocks
+    while blockIndex <= numberOfBlocks
 
-        [stepSize,numberOfSteps,currentPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,inputPeriod,blockSize);
+        [stepSize,numberOfSteps,currentPeriod] = GenerateNormalizedParameters(resampleFactors,blockIndex,inputPeriod,blockSize);
 
         currentStep = 0;
 
@@ -86,7 +86,7 @@ function y = TimeVarying_Resample(inputSignal,originalSamplingRate,resampleFacto
             currentStep = currentStep + 1;
             resampledIndex = resampledIndex + 1;
         end
-        windowIndex = windowIndex + 1;
+        blockIndex = blockIndex + 1;
     end
 
     y = outputSignal;
