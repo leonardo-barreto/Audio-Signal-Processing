@@ -1,29 +1,23 @@
-function [normalizedStepSize,numberOfSteps,normalizedCurrentPeriod,normalizedNextPeriod] = GenerateNormalizedParameters(resampleFactors,blockIndex,originalPeriod,blockSize)
-
-    blockLength = (blockSize-1)*originalPeriod; %tempo do bloco de influência de cada fator.
+function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod,normalizedNextPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,originalPeriod,blockSize)
 
     resampleFactorsAdjusted = [1,resampleFactors,resampleFactors(length(resampleFactors))];
-
-
-    currentPeriod = originalPeriod/resampleFactorsAdjusted(blockIndex);
-
-    if (blockIndex < length(resampleFactors))
-        nextPeriod = originalPeriod/resampleFactorsAdjusted(blockIndex+1);
-    else
-        nextPeriod = currentPeriod;
-    end
+    %Adiciona 1 para interpolar com o 1o fator, e repete o último para não interpolar nada na segunda metade da última janela.
+    currentPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex);
+    nextPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex+1);
 
     a = currentPeriod + nextPeriod;
-    b = 3*currentPeriod - nextPeriod - 2*blockSize*originalPeriod + 2*originalPeriod;
-    c = 2*originalPeriod(1 - blockSize);
-    
-    numberOfSteps = floor((-b + sqrt(b^2 - 4*a*c))/2*a);
+    b = 3*currentPeriod - nextPeriod - 2*blockSize + 2;
+    c = 2*(1 - blockSize);
 
-    stepSize = (nextPeriod - currentPeriod)/(numberOfSteps + 1);
+    delta = power(b,2) - 4*a*c;
+    
+    numberNewSamples = floor(-b + sqrt(delta)/2*a);
+
+    stepSize = (nextPeriod - currentPeriod)/(numberNewSamples + 1);
     
     normalizedStepSize = stepSize/originalPeriod;
-    normalizedCurrentPeriod = 1/resampleFactorsAdjusted(blockIndex);
-    normalizedNextPeriod = 1/resampleFactorsAdjusted(blockIndex + 1);
+    normalizedCurrentPeriod = 1/resampleFactorsAdjusted(windowIndex);
+    normalizedNextPeriod = 1/resampleFactorsAdjusted(windowIndex + 1);
 
 end
 
