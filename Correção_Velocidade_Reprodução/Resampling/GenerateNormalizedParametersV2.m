@@ -1,23 +1,32 @@
-function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod,normalizedNextPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,originalPeriod,blockSize)
+function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParametersV2(resampleFactors,windowIndex,originalPeriod,blockSize)
 
-    resampleFactorsAdjusted = [1,resampleFactors,resampleFactors(length(resampleFactors))];
-    %Adiciona 1 para interpolar com o 1o fator, e repete o último para não interpolar nada na segunda metade da última janela.
-    currentPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex);
-    nextPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex+1);
+    %This adds 1 as a default first factor and repeats the last factor in the end.
+    %This is used for the edges of the signal (to reach the first factor and to transition out of the last one.)
+    %This is necessary because resampling blocks are defined in-between two subsequent window centers, and factors associated with these centers.
+    resampleFactorsAdjusted(1) = 1;
+    resampleFactorsAdjusted(2:length(resampleFactors)+1) = resampleFactors;
+    resampleFactorsAdjusted(length(resampleFactorsAdjusted)+1) = resampleFactors(length(resampleFactors));
+
+    currentPeriod = 1/resampleFactorsAdjusted(windowIndex);
+    nextPeriod = 1/resampleFactorsAdjusted(windowIndex+1);
+
+    %if (currentPeriod != nextPeriod)
+     %   disp ('Transition!')
+      %  X = sprintf('Current Period: %d', currentPeriod);
+       % disp(X)
+       % X = sprintf('Next Period: %d', nextPeriod);
+       % disp(X)
+    %end
 
     a = currentPeriod + nextPeriod;
     b = 3*currentPeriod - nextPeriod - 2*blockSize + 2;
     c = 2*(1 - blockSize);
 
-    delta = power(b,2) - 4*a*c;
-    
-    numberNewSamples = floor(-b + sqrt(delta)/2*a);
-
+    numberNewSamples = floor(max(roots([a b c])));
     stepSize = (nextPeriod - currentPeriod)/(numberNewSamples + 1);
     
-    normalizedStepSize = stepSize/originalPeriod;
-    normalizedCurrentPeriod = 1/resampleFactorsAdjusted(windowIndex);
-    normalizedNextPeriod = 1/resampleFactorsAdjusted(windowIndex + 1);
+    normalizedStepSize = stepSize;
+    normalizedCurrentPeriod = currentPeriod;
 
 end
 

@@ -15,8 +15,6 @@ function y = TimeVarying_ResampleV2(inputSignal,originalSamplingRate,resampleFac
     DEBUG_OFF = 0;
     DEBUG_ERRORS = 1;
     DEBUG_FULL = 2;
-
-    windowCenter = (windowSize/2) + 1;
     
     blockSize = windowSize;
 
