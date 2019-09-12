@@ -1,4 +1,4 @@
-function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParametersV2(resampleFactors,windowIndex,originalPeriod,blockSize)
+function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParametersV2(resampleFactors,windowIndex,originalPeriod,blockSize,DEBUG)
 
     %This adds 1 as a default first factor and repeats the last factor in the end.
     %This is used for the edges of the signal (to reach the first factor and to transition out of the last one.)
@@ -10,13 +10,15 @@ function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = Generat
     currentPeriod = 1/resampleFactorsAdjusted(windowIndex);
     nextPeriod = 1/resampleFactorsAdjusted(windowIndex+1);
 
-    %if (currentPeriod != nextPeriod)
-     %   disp ('Transition!')
-      %  X = sprintf('Current Period: %d', currentPeriod);
-       % disp(X)
-       % X = sprintf('Next Period: %d', nextPeriod);
-       % disp(X)
-    %end
+    if DEBUG == 1
+        if (currentPeriod ~= nextPeriod)
+            disp ('Transition!')
+            X = sprintf('Current Period: %d', currentPeriod);
+             disp(X)
+            X = sprintf('Next Period: %d', nextPeriod);
+            disp(X)
+        end
+    end
 
     a = currentPeriod + nextPeriod;
     b = 3*currentPeriod - nextPeriod - 2*blockSize + 2;
