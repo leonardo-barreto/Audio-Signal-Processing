@@ -1,4 +1,4 @@
-function [normalizedStepSize,numberOfSteps,normalizedPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,inputPeriod,blockSize)
+function [normalizedStepSize,numberOfSteps,normalizedPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,inputPeriod,blockSize,DEBUG)
 
     blockLength = blockSize*inputPeriod; %tempo do bloco de influência de cada fator.
 
