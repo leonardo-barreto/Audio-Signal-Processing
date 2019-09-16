@@ -68,7 +68,7 @@ function y = TimeVarying_ResampleV3(inputSignal,originalSamplingRate,resampleFac
 
         blockCurrentNewSample = 1;
 
-        while (blockCurrentNewSample <= blockNewSamples & newSamplePosition <= inputSignalSize)
+        while (blockCurrentNewSample <= (blockNewSamples+1) & newSamplePosition <= inputSignalSize)
             
             if newSamplePosition > inputSignalSize 
                 error('New sample position exceeds the limit.');
