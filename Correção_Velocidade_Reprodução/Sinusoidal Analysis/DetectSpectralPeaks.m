@@ -1,4 +1,4 @@
-function detectedFinalPeaks = DetectSpectralPeaks(inputFrameSpectrum,totalFreqBins,samplingRate,windowSize,DEBUG)
+function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,samplingRate,DEBUG,DEBUG_FRAME)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -9,45 +9,37 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrameSpectrum,totalFreqBi
     % Finally, the frequency values are enhanced by use of the DFT1 method.
     %
 
+    powerSpectrumDB = inputFrame.powerSpectrumDB;
+    freqComponents = inputFrame.freqComponents;
+    totalFreqBins = inputFrame.totalFreqBins;
 
-    % Starts with an all-zero. This way, peaks have their correct bin number in the end.
-    initialPeaks = zeros(1,1:totalFreqBins); 
+    % All-peaks detection (all local maxima)
+    initialPeaks = zeros(1,totalFreqBins); 
 
-    for freqCounter 2:(totalFreqBins-1)
-        if inputFrameSpectrum (freqCounter) > inputFrameSpectrum (freqCounter-1) && 
-           inputFrameSpectrum (freqCounter) > inputFrameSpectrum (freqCounter+1)
+    for freqCounter = 2:(totalFreqBins-1)
+        if (powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter-1) && powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter+1))
             
-           initialPeaks(freqCounter) = inputFrameSpectrum(freqCounter);
-
+           initialPeaks(freqCounter) = powerSpectrumDB(freqCounter);
         end
-    end
-
-    if DEBUG == 1
-        %Plots all peaks.
-        figure
-        for freqCounter 1:totalFreqBins
-            if (initialPeaks(freqCounter))
-                stem(freqCounter,initialPeaks(freqCounter));
-                hold on;
-            else
-                plot(freqCounter,inputFrameSpectrum(freqCounter));
-                hold on;
-            end
-        end
-        title('Initially Detected Peaks');
-        xlabel('Frequency');
-        ylabel('Power');
-        hold off;
     end
 
     % TPSW starting point.
-    
 
+    lengthSW = 50;
+    gapSizeSW = 5;
+    rejectionFactor = 1;
+    deltaTPSW = 10; % THIS MUST BE IN dB.
 
+    spectrumNoiseThreshold = TPSW_Filtering(inputFrame,lengthSW,gapSizeSW,rejectionFactor,deltaTPSW,DEBUG,DEBUG_FRAME);
 
-    % Frequency enhancement using the DFT1
-    enhancedPeaks_DFT1 = EnhanceFrequency_DFT1(enhancedPeaks_TPSW,samplingRate);
+    % Final peak detection
 
-    detectedFinalPeaks = enhancedPeaks_DFT1;
-    
+    detectedFinalPeaks = zeros(1,totalFreqBins);
+
+    for freqCounter = 1:totalFreqBins
+        if initialPeaks(freqCounter) > spectrumNoiseThreshold(freqCounter)
+            detectedFinalPeaks(freqCounter) = initialPeaks(freqCounter);
+        end
+    end
+
 end
