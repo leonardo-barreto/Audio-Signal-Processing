@@ -33,29 +33,32 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     signalFrame.freqComponents = freqComponents; %frequency components vector
 
 
-    %Random frame chosen for plots (temporary)
-    DEBUG_FRAME = floor(rand(1,1)*(signalFrame.totalFrames-1) + 1);
+    %Random frame chosen for DEBUG (temporary)
+    if DEBUG == 1
+        DEBUG_FRAME = floor(rand(1,1)*(signalFrame.totalFrames-1) + 1);
+    end
 
     % Calling Peak Detection
 
     detectedPeaksMatrix = zeros(totalFreqBins,totalFrames);
 
-    if DEBUG == 1
+    if (DEBUG == 1)
         for frameCounter = 1:totalFrames
             signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
             signalFrame.currentFrame = frameCounter;
-            detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,samplingRate,1,DEBUG_FRAME);
+            if DEBUG_FRAME == signalFrame.currentFrame
+                detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,1);
+            else
+                detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,0);
+            end
         end
     else
         for frameCounter = 1:totalFrames
             signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
             signalFrame.currentFrame = frameCounter;
-            detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,samplingRate,0,0);
+            detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,0);
         end
     end
-
-    %TEMPORARY
-    y = detectedPeaksMatrix;
 
     if DEBUG == 1
         powerSpectrumDB = powerMatrixDB(:,DEBUG_FRAME);
@@ -70,15 +73,6 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
             end
         end
 
-            %if (initialPeaks(freqCounter))
-             %   stem(freqComponents(freqCounter),initialPeaks(freqCounter));
-            %elseif (detectedPeaks(freqCounter))
-            %    stem(freqComponents(freqCounter),detectedPeaks(freqCounter),'filled');
-            %else
-            %    plot(freqComponents(freqCounter),powerSpectrumDB(freqCounter));
-            %end
-        %end
-
         X = sprintf('Peak Detection of frame %i of %i',DEBUG_FRAME,totalFrames);
         title(X);
         xlabel('Frequency (kHz)');
@@ -88,6 +82,8 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
         hold off;
     end
 
+    %TEMPORARY
+    y = detectedPeaksMatrix;
     
 
 end

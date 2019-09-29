@@ -1,5 +1,0 @@
-function PlotWindowData(windowIndex)
-
-
-    
-end

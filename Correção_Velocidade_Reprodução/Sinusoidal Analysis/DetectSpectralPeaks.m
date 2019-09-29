@@ -1,4 +1,4 @@
-function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,samplingRate,DEBUG,DEBUG_FRAME)
+function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -23,21 +23,25 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,samplingRate,DEBUG,
         end
     end
 
-    % TPSW starting point.
+    % Background Noise threshold estimation.
 
-    lengthSW = 50;
-    gapSizeSW = 5;
-    rejectionFactor = 1;
-    deltaTPSW = 10; % THIS MUST BE IN dB.
+    % TPSW METHOD
+    parametersTPSW = {};
+    parametersTPSW.lengthSW = 50;
+    parametersTPSW.gapSizeSW = 5;
+    parametersTPSW.rejectionFactor = 1;
+    parametersTPSW.deltaTPSW = 10; % THIS MUST BE IN dB.
 
-    spectrumNoiseThreshold = TPSW_Filtering(inputFrame,lengthSW,gapSizeSW,rejectionFactor,deltaTPSW,DEBUG,DEBUG_FRAME);
+    spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
+
+    
 
     % Final peak detection
 
     detectedFinalPeaks = zeros(1,totalFreqBins);
 
     for freqCounter = 1:totalFreqBins
-        if initialPeaks(freqCounter) > spectrumNoiseThreshold(freqCounter)
+        if initialPeaks(freqCounter) > spectrumThreshold(freqCounter)
             detectedFinalPeaks(freqCounter) = initialPeaks(freqCounter);
         end
     end
