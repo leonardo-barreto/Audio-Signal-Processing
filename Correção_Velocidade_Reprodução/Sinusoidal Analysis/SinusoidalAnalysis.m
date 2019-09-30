@@ -1,4 +1,4 @@
-function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,DEBUG)
+function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,thresholdMethod,DEBUG)
 
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -14,12 +14,10 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
 
     % STFT and spectrogram stage
 
-    %if DEBUG == 1
-        %[spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,1);
-    %else
-        [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc);
-    %end
+    fprintf('\n\nSinusoidal Analysis started.\n Sampling Rate: %i\n Window: %s of size %i and %i%% overlap\n FFT Points: %i\n Threshold Method: %s\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints,thresholdMethod);
 
+    [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+    
     powerMatrixDB = 10*log(powerMatrix);
 
     totalFreqBins = length(freqComponents);

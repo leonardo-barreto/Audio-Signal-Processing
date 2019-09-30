@@ -1,8 +1,7 @@
-function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc)
+function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints)
 
     % This function computes a signal's STFT (by FFT). It includes windowing and spectrogram generation.
     
-    fftPoints = windowSize; %DFT is calculated through all points of the window.
 
     overlapSize = (overlapPerc/100)*windowSize; %This converts the overlap percentage to actual overlap size.
 
@@ -15,7 +14,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
             error('Invalid window type. Valid options are ''hann'' or ''hamming''.');
     end
 
-    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,fftPoints,samplingRate,'power','onesided');
+    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,2*fftPoints,samplingRate,'power','onesided');
 
     spectrgMatrix = s;
     freqComponents = f;

@@ -26,14 +26,19 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
     % Background Noise threshold estimation.
 
     % TPSW METHOD
-    parametersTPSW = {};
-    parametersTPSW.lengthSW = 50;
-    parametersTPSW.gapSizeSW = 5;
-    parametersTPSW.rejectionFactor = 1;
-    parametersTPSW.deltaTPSW = 10; % THIS MUST BE IN dB.
+    %parametersTPSW = {};
+    %parametersTPSW.lengthSW = 50;
+    %parametersTPSW.gapSizeSW = 5;
+    %parametersTPSW.rejectionFactor = ;
+    %parametersTPSW.deltaTPSW = 10; % THIS MUST BE IN dB.
 
-    spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
+    %spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
 
+    %SSE METHOD
+
+    numberCoeffsSSE = 10;
+
+    spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
     
 
     % Final peak detection
