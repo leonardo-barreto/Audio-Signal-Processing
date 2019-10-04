@@ -1,4 +1,4 @@
-function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
+function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputFrame,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -13,16 +13,6 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
     freqComponents = inputFrame.freqComponents;
     totalFreqBins = inputFrame.totalFreqBins;
 
-    % All-peaks detection (all local maxima)
-    initialPeaks = zeros(1,totalFreqBins); 
-
-    for freqCounter = 2:(totalFreqBins-1)
-        if (powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter-1) && powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter+1))
-            
-           initialPeaks(freqCounter) = powerSpectrumDB(freqCounter);
-        end
-    end
-
     % Background Noise threshold estimation.
 
     % TPSW METHOD
@@ -36,16 +26,26 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
 
     %SSE METHOD
 
-    numberCoeffsSSE = 10;
+    numberCoeffsSSE = 50;
 
     spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
     
+    % All-peaks detection (all local maxima)
+    initialPeaks = zeros(1,totalFreqBins); 
+
+    for freqCounter = 2:(totalFreqBins-1)
+        if (powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter-1) && powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter+1))
+            
+           initialPeaks(freqCounter) = powerSpectrumDB(freqCounter);
+        end
+    end
 
     % Final peak detection
 
     detectedFinalPeaks = zeros(1,totalFreqBins);
+    detectedPeakPositions = find(initialPeaks);
 
-    for freqCounter = 1:totalFreqBins
+    for freqCounter = detectedPeakPositions
         if initialPeaks(freqCounter) > spectrumThreshold(freqCounter)
             detectedFinalPeaks(freqCounter) = initialPeaks(freqCounter);
         end

@@ -1,2 +1,2 @@
-function y = PartialTracking()
+function y = PartialTracking(frequencyMatrix,powerMatrixDB)
 end

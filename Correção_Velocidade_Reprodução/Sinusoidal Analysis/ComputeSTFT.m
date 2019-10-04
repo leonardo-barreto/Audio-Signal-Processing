@@ -3,7 +3,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
     % This function computes a signal's STFT (by FFT). It includes windowing and spectrogram generation.
     
 
-    overlapSize = (overlapPerc/100)*windowSize; %This converts the overlap percentage to actual overlap size.
+    overlapSize = floor((overlapPerc/100)*windowSize); %This converts the overlap percentage to actual overlap size.
 
     switch windowType
         case 'hann' 
@@ -14,7 +14,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
             error('Invalid window type. Valid options are ''hann'' or ''hamming''.');
     end
 
-    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,2*fftPoints,samplingRate,'power','onesided');
+    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,2*fftPoints-1,samplingRate,'power','onesided');
 
     spectrgMatrix = s;
     freqComponents = f;
