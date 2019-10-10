@@ -1,4 +1,4 @@
-function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputFrame,DEBUG)
+function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -12,21 +12,23 @@ function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputF
     powerSpectrumDB = inputFrame.powerSpectrumDB;
     freqComponents = inputFrame.freqComponents;
     totalFreqBins = inputFrame.totalFreqBins;
+    totalFrames = inputFrame.totalFrames;
+    currentFrame = inputFrame.currentFrame;
 
     % Background Noise threshold estimation.
 
-    % TPSW METHOD
-    %parametersTPSW = {};
-    %parametersTPSW.lengthSW = 50;
-    %parametersTPSW.gapSizeSW = 5;
-    %parametersTPSW.rejectionFactor = ;
-    %parametersTPSW.deltaTPSW = 10; % THIS MUST BE IN dB.
+    %TPSW METHOD
+    parametersTPSW = {};
+    parametersTPSW.lengthSW = 50;
+    parametersTPSW.gapSizeSW = 5;
+    parametersTPSW.rejectionFactor = 2;
+    parametersTPSW.deltaTPSW = 5; % THIS MUST BE IN dB.
 
-    %spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
+    spectrumThresholdTPSW = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
 
     %SSE METHOD
 
-    numberCoeffsSSE = 50;
+    numberCoeffsSSE = 100;
 
     spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
     
@@ -50,5 +52,28 @@ function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputF
             detectedFinalPeaks(freqCounter) = initialPeaks(freqCounter);
         end
     end
+
+    if DEBUG == 1
+        detectedPeakPositions = find(detectedFinalPeaks);
+
+        figure
+        hold on;
+        plot(freqComponents,powerSpectrumDB,'G');
+        plot(freqComponents,spectrumThreshold, 'R');
+        plot(freqComponents,spectrumThresholdTPSW,'B');
+        
+        for freqCounter = detectedPeakPositions
+            plot(freqComponents(freqCounter),detectedFinalPeaks(freqCounter),'r*');
+        end
+
+        X = sprintf('Peak Detection of frame %i of %i',currentFrame,totalFrames);
+        title(X);
+        xlabel('Frequency (kHz)');
+        ylabel('Power (dB)');
+        legend ('Power Spectrum','SSE Threshold','TPSW Threshold','Detected Peaks(SSE)');
+
+        hold off;
+    end
+
 
 end

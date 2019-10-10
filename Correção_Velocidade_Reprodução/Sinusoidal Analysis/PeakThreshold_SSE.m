@@ -3,7 +3,6 @@ function spectrumFinalThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,D
     % This function takes a signal frame's power spectrum and executes a Spectrum Stochastic Estimating
     % process aiming at constructing a threshold for proeminent peak detection.
     %
-    %
 
     %Gathering frame data
     currentFrame = inputFrame.currentFrame;
@@ -31,22 +30,4 @@ function spectrumFinalThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,D
     %Discarding the mirrored edges and returning back to original size
     spectrumFinalThreshold = spectrumFinalThreshold((length(startMirror)+1):extendedLength-length(endMirror));
 
-    if DEBUG == 1
-
-        spectrumS_filtered = spectrumS_filtered((length(startMirror)+1):extendedLength-length(endMirror));
-        spectrumR_inverted = spectrumR_inverted((length(startMirror)+1):extendedLength-length(endMirror));
-        spectrumR_inverted_filtered = spectrumR_inverted_filtered((length(startMirror)+1):extendedLength-length(endMirror));
-
-        figure;
-        hold on;
-        plot(freqComponents,powerSpectrumDB,'B');
-        plot(freqComponents,spectrumFinalThreshold,'R');
-
-        X = sprintf ('SSE Threshold of frame %i of %i. N_{SSE} = %i',currentFrame,inputFrame.totalFrames,numberCoeffsSSE);
-        title(X);
-        legend('Power Spectrum(DB)','Final Threshold');
-        hold off;
-
-    end   
-    
 end

@@ -16,9 +16,10 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
 
     fprintf('\nSinusoidal Analysis started.\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n FFT Points: %i\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints);
 
-    [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+    [spectrgMatrix,freqComponents_cyclical,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
     
     powerMatrixDB = 10*log(powerMatrix);
+    freqComponents = (samplingRate/2*pi).*freqComponents_cyclical;
 
     totalFreqBins = length(freqComponents);
     totalFrames = length(timeInstants);
@@ -29,7 +30,6 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     signalFrame.currentFrame = 1; %Current frame
     signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
     signalFrame.freqComponents = freqComponents; %frequency components vector
-
 
     % Calling Peak Detection
 
@@ -59,28 +59,6 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
             detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,0);
         end
 
-    end
-
-    if DEBUG == 1
-        powerSpectrumDB = powerMatrixDB(:,DEBUG_FRAME);
-        detectedPeaks = detectedPeaksMatrix(:,DEBUG_FRAME);
-        detectedPeakPositions = find(detectedPeaksMatrix(:,DEBUG_FRAME));
-
-        figure
-        plot(freqComponents,powerSpectrumDB,'B');
-        hold on;
-        
-        for freqCounter = detectedPeakPositions
-            plot(freqComponents(freqCounter),detectedPeaks(freqCounter),'r*');
-        end
-
-        X = sprintf('Peak Detection of frame %i of %i',DEBUG_FRAME,totalFrames);
-        title(X);
-        xlabel('Frequency (kHz)');
-        ylabel('Power (dB)');
-        legend ('Power Spectrum','Detected Peaks');
-
-        hold off;
     end
 
     %TEMPORARY

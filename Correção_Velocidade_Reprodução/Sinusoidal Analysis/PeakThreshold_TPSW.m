@@ -77,18 +77,6 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
         stem(n,splitWindow,'filled');
         X = sprintf('Total length of split window: %i (N = %i and M = %i)',totalLengthSW,lengthSW,gapSizeSW);
         title(X);
-
-        figure;
-        hold on;
-        plot(freqComponents,powerSpectrumDB,'B');
-        plot(freqComponents,spectrumTPSW,'R');
-        plot(freqComponents,spectrumSubstituted,'G');
-        plot(freqComponents,spectrumFinalThreshold,'K');
-        X = sprintf ('TPSW Threshold of frame %i of %i',currentFrame,inputFrame.totalFrames);
-        title(X);
-        legend('Power Spectrum(DB)','TPSW-Filtered Spectrum','Substitution Results','Final Threshold');
-        hold off;
-
     end   
     
 end

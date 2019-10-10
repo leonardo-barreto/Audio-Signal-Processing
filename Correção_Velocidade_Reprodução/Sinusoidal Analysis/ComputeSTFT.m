@@ -14,7 +14,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
             error('Invalid window type. Valid options are ''hann'' or ''hamming''.');
     end
 
-    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,2*fftPoints-1,samplingRate,'power','onesided');
+    [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,2*fftPoints-1,'power','onesided');
 
     spectrgMatrix = s;
     freqComponents = f;
