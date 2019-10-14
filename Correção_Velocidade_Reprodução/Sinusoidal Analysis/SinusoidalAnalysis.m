@@ -24,14 +24,14 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     totalFreqBins = length(freqComponents);
     totalFrames = length(timeInstants);
 
-    %Building a signal frame as a structure with its fields
+    % Building a signal frame as a peak detection entity
     signalFrame = {};
     signalFrame.totalFrames = totalFrames; %Total number of signal frames
     signalFrame.currentFrame = 1; %Current frame
     signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
     signalFrame.freqComponents = freqComponents; %frequency components vector
 
-    % Calling Peak Detection
+    % Peak Detection
 
     fprintf('\nPeak Detection Started.\n');
 
@@ -64,7 +64,39 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     %TEMPORARY
     y = detectedPeaksMatrix;
 
+    % Sinusoidal Tracking
+
     amplitudeMatrixDB = 10*log(abs(spectrgMatrix));
+    MAXTRACKS = 100; %Maximum of tracks per frame.
+
+    %Building what is a sinusoidal track
+    sinusoidalTrack = {};
+    sinusoidalTrack.amplitudeEvolution = zeros(totalFrames); %Contains the amplitude values of the track through its existence.
+    sinusoidalTrack.frequencyEvolution = zeros(totalFrames); %Contains the frequency values of the track through its existence.
+    sinusoidalTrack.startFrame = 0; %Starting frame for the track
+    sinusoidalTrack.finalFrame = 0; %Ending frame for the track
+    sinusoidalTrack.hysteresis = 0; %Hysteresis counter
+    
+
+    %Building a signal frame as a sinusoidal tracking entity
+    signalFrame = {};
+    signalFrame.totalFrames = totalFrames; %Total number of signal frames
+    signalFrame.currentFrame = 1; %Current frame
+    signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
+    signalFrame.freqComponents = freqComponents; %frequency components vector
+
+    signalFrame.sinusoidalTracks(1:MAXTRACKS) = sinusoidalTrack;
+
+
+    sinusoidalTracksMatrix = zeros(totalFreqBins,totalFrames);
+    
+    for frameCounter = 1:totalFrames
+        signalFrame.amplitudeSpectrumDB = (amplitudeMatrixDB(:,frameCounter));
+        signalFrame.currentFrame = frameCounter;
+        sinusoidalTracksMatrix(:,frameCounter) = DetectSinusoidalTracks(signalFrame,0);
+    end
+
+    
     
 
 end

@@ -19,16 +19,16 @@ function detectedFinalPeaks = DetectSpectralPeaks(inputFrame,DEBUG)
 
     %TPSW METHOD
     parametersTPSW = {};
-    parametersTPSW.lengthSW = 50;
-    parametersTPSW.gapSizeSW = 5;
-    parametersTPSW.rejectionFactor = 2;
+    parametersTPSW.lengthSW = 51;
+    parametersTPSW.gapSizeSW = 8;
+    parametersTPSW.rejectionFactor = 4;
     parametersTPSW.deltaTPSW = 5; % THIS MUST BE IN dB.
 
     spectrumThresholdTPSW = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
 
     %SSE METHOD
 
-    numberCoeffsSSE = 100;
+    numberCoeffsSSE = 101;
 
     spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
     
