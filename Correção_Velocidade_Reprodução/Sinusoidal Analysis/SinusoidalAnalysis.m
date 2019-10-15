@@ -1,4 +1,4 @@
-function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
+function [y,x] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
 
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -8,7 +8,7 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     %
     %   3rd - Peak Detection
     %
-    %   4th - Tracking of sinusoidal components
+    %   4th - Construction of sinusoidal tracks
     %
 
 
@@ -31,11 +31,12 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
     signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
     signalFrame.freqComponents = freqComponents; %frequency components vector
 
-    % ------------------------------------- Peak Detection ------------------------------------
+    % ---------------------------------------------- Peak Detection ------------------------------------------------
 
     fprintf('\nPeak Detection Started.\n');
 
     detectedPeaksMatrix = zeros(totalFreqBins,totalFrames);
+    detectedPeakPositions = [];
 
     if DEBUG == 1
         %Random frame chosen for DEBUG (temporary)
@@ -45,9 +46,9 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
             signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
             signalFrame.currentFrame = frameCounter;
             if DEBUG_FRAME == signalFrame.currentFrame
-                detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,1);
+                [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,1);
             else
-                detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,0);
+                [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,0);
             end
         end
 
@@ -56,47 +57,49 @@ function y = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,o
         for frameCounter = 1:totalFrames
             signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
             signalFrame.currentFrame = frameCounter;
-            detectedPeaksMatrix(:,frameCounter) = DetectSpectralPeaks(signalFrame,0);
+            [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,0);
         end
 
     end
 
-    %TEMPORARY
-    y = detectedPeaksMatrix;
-
-    % ---------------------------- Sinusoidal Tracking ------------------------------------
+    % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
     MAXTRACKSPERFRAME = 100; % Maximum of tracks per frame.
-    magnitudeMatrixDB = 10*log(abs(spectrgMatrix));
+
+    %magnitudeMatrixDB = 10*log(abs(spectrgMatrix));
 
     % Building what is a template sinusoidal track
     templateTrack = {};
-    templateTrack.amplitudeEvolution = zeros(totalFrames); % Contains the amplitude values of the track through its existence.
+    templateTrack.powerEvolution = zeros(totalFrames); % Contains the power values of the track through its existence.
+    templateTrack.currentPower = 0;
     templateTrack.frequencyEvolution = zeros(totalFrames); % Contains the frequency values of the track through its existence.
     templateTrack.startFrame = 0; % Starting frame of the track (0 if non-existent)
     templateTrack.finalFrame = 0; % Ending frame of the track (0 if non-existent or active)
     templateTrack.length = 0; % length of the track (0 if non-existent)
     templateTrack.hysteresis = 0; % Hysteresis counter
-    templateTrack.status = 'inactive'; % Track Status: inactive, active or asleep.
-
-    %Creating one track
-    singleTrack = templateTrack;
-
-    % Array that holds all of the signal's tracks
-    currentTracks(1) = singleTrack;
+    templateTrack.status = 'inactive'; % Track Status: 0 = active, 1 = inactive or 2 = asleep.
+    
+    % Array that holds all of the signal's tracks.
+    % This array starts off at one track, and is extended as the signal demands new tracks, maintaining
+    % the information of tracks that ended. Later, another part of the algorithm will gather the starting
+    % and ending frames of each track and organize them.
+    currentTracks(1) = templateTrack;
 
     % Extending the signal frame built earlier to include some tracking parameters.
     signalFrame.currentFrame = 1; % Reset to signal start
     signalFrame.totalTracks = 0; % Total number of tracks in the frame.
     
     for frameCounter = 1:totalFrames
-        signalFrame.magnitudeSpectrumDB = (magnitudeMatrixDB(:,frameCounter));
         signalFrame.currentFrame = frameCounter;
+        signalFrame.spectrumPeaks = detectedPeaksMatrix(:,frameCounter);
+        signalFrame.peakPositions = detectedPeakPositions(:,frameCounter);
         signalFrame.totalTracks = 0;
-        currentTracks = PartialTracking(signalFrame,currentTracks,MAXTRACKSPERFRAME,1);
+        currentTracks = PartialTracking(signalFrame,currentTracks,templateTrack,MAXTRACKSPERFRAME,1);
     end
 
     
-    
+    %TEMPORARY
+    y = detectedPeaksMatrix;
+    x = detectedPositionMatrix;
 
 end
