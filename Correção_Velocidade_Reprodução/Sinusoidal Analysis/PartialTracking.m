@@ -1,59 +1,71 @@
-function y = PartialTracking(inputFrame,currentTracks,templateTrack,MAXTRACKS,DEBUG)
-
-% STARTING TRACK PARAMETER CANDIDATES
-%
-% FREQUENCY TOLERANCE
-% STARTING AMPLITUDE
-% 
-%
-%
-
-% ENDING TRACK PARAMETER CANDIDATES
-%
-% MAGNITUDE DECAY
-% LENGTH OF TRACK
-% CURRENT AMPLITUDE
-% 
-%
-%
+function currentTracks = PartialTracking(inputFrame,currentTracks,DEBUG)
 
 % Gathering frame data
-    
-framePeaks = inputFrame.spectrumPeaks;
-framePeakPositions = inputFrame.peakPositions;
-freqComponents = inputFrame.freqComponents;
-totalFreqBins = inputFrame.totalFreqBins;
-totalFrames = inputFrame.totalFrames;
+
 currentFrame = inputFrame.currentFrame;
-totalTracks = inputFrame.totalTracks;
+framePeakPowers = inputFrame.spectrumPeaks;
+framePeakFreqs = inputFrame.peakFrequencies;
+freqComponents = inputFrame.freqComponents;
+totalFrames = inputFrame.totalFrames;
 
 % Defining parameters
 
-freqTolerance = 1;
-decayThreshold = 1;
-lengthThreshold = 1;
+maxTracksPerFrame = 100;
+
+freqTolerance = power(2,1/24); %quarter-tone (in Hz)
+maxHysteresis = 10; % in frames.
+decayThresh = 1;
+minLength = 10; % in frames
+maxPeakFrequency = 200000; %in Hz
 
 % ------------------------------------ Processing EXISTING Tracks ------------------------------------------
+if (~isempty(currentTracks))
 
-% Gathering active tracks
-activeIndexes = StructArrayMatch(currentTracks,'status','active');
+    % Gathering active tracks
+    activeIndexes = structArrayMatch(currentTracks,'status','active');
 
-%Gathering asleep tracks
-asleepIndexes = StructArrayMatch(currentTracks,'status','asleep');
+    %Gathering asleep tracks
+    asleepIndexes = structArrayMatch(currentTracks,'status','asleep');
 
-% Sort in order of power (descending)
-for index = 1:length(activeIndexes)
-    powerSort_Tracks(index) = currentTracks(activeIndexes(index)); 
+    % Sort in order of power (descending)
+    for index = 1:length(activeIndexes)
+        activeTracks(index) = currentTracks(activeIndexes(index)); 
+    end
+
+    [powerSort_Tracks,powerSort_TrackIndexes] = sortStruct(activeTracks,'currentPower',-1);
+
 end
 
-[powerSort_Tracks,powerSort_TrackIndexes] = sortStruct(currentTracks,'currentPower',-1);
+% ------------------------------------ Gathering all frame peak information -------------------------------------
 
-% ------------------------------------ Gathering all peak information -------------------------------------
+%Discarding peaks above the max allowed frequency
+[peakFreqs,freqIndexes] = sort(framePeakFreqs,'ascend');
 
-[powerSort_Peaks,powerSort_PeakIndexes]
+peakFreqs(peakFreqs>maxPeakFrequency) = [];
+freqIndexes(length(peakFreqs)+1:length(freqIndexes)) = [];
 
-% ------------------------------------ New track candidates -----------------------------------------------
+for index = 1:length(freqIndexes)
+    peakPowers(index) = framePeakPowers(freqIndexes(index));
+end
 
-while (totalTracks <= MAXTRACKS)
+%Sorting peaks in descending order of power
+[peakPowers,peakIndexes] = sort(framePeakPowers,'descend');
+
+% -------------------------------------- Allocating new tracks if allowed-------------------------------------------
+
+
+totalActiveTracks = length(activeIndexes);
+totalTracks = length(currentTracks);
+peakIndex = 1;
+
+while (totalActiveTracks <= maxTracksPerFrame)
+    
+    currentTracks(totalTracks + 1) = createNewTrack(peakPowers(peakIndex),peakFrequencies(peakIndex),currentFrame);
+    
+    totalTracks = totalTracks + 1;
+    totalActiveTracks = totalActiveTracks + 1;
+
+end
+
     
 

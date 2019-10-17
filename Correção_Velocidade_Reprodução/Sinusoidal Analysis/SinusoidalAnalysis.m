@@ -35,44 +35,42 @@ function [y,x] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSi
 
     fprintf('\nPeak Detection Started.\n');
 
-    detectedPeaksMatrix = zeros(totalFreqBins,totalFrames);
-    detectedPeakPositions = [];
+    detectedPeaksMatrix = {};
+    detectedFrequenciesMatrix = {};
 
     if DEBUG == 1
         %Random frame chosen for DEBUG (temporary)
         DEBUG_FRAME = floor(rand(1,1)*(signalFrame.totalFrames-1) + 1);
 
         for frameCounter = 1:totalFrames
-            signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
+            signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
             signalFrame.currentFrame = frameCounter;
             if DEBUG_FRAME == signalFrame.currentFrame
-                [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,1);
+                [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,1);
             else
-                [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,0);
+                [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,0);
             end
         end
 
     else
 
         for frameCounter = 1:totalFrames
-            signalFrame.powerSpectrumDB = (powerMatrixDB(:,frameCounter));
+            signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
             signalFrame.currentFrame = frameCounter;
-            [detectedPeaksMatrix(:,frameCounter),detectedPositionMatrix(:,frameCounter)] = DetectSpectralPeaks(signalFrame,0);
+            [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,0);
         end
 
     end
 
     % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
-    MAXTRACKSPERFRAME = 100; % Maximum of tracks per frame.
-
     %magnitudeMatrixDB = 10*log(abs(spectrgMatrix));
 
     % Building what is a template sinusoidal track
     templateTrack = {};
-    templateTrack.powerEvolution = zeros(totalFrames); % Contains the power values of the track through its existence.
-    templateTrack.currentPower = 0;
-    templateTrack.frequencyEvolution = zeros(totalFrames); % Contains the frequency values of the track through its existence.
+    templateTrack.powerEvolution = []; % Contains the power values of the track through its existence.
+    templateTrack.currentPower = [];
+    templateTrack.frequencyEvolution = []; % Contains the frequency values of the track through its existence.
     templateTrack.startFrame = 0; % Starting frame of the track (0 if non-existent)
     templateTrack.finalFrame = 0; % Ending frame of the track (0 if non-existent or active)
     templateTrack.length = 0; % length of the track (0 if non-existent)
@@ -83,18 +81,19 @@ function [y,x] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSi
     % This array starts off at one track, and is extended as the signal demands new tracks, maintaining
     % the information of tracks that ended. Later, another part of the algorithm will gather the starting
     % and ending frames of each track and organize them.
-    currentTracks(1) = templateTrack;
+    currentTracks = {};
 
     % Extending the signal frame built earlier to include some tracking parameters.
     signalFrame.currentFrame = 1; % Reset to signal start
     signalFrame.totalTracks = 0; % Total number of tracks in the frame.
     
     for frameCounter = 1:totalFrames
+
         signalFrame.currentFrame = frameCounter;
-        signalFrame.spectrumPeaks = detectedPeaksMatrix(:,frameCounter);
-        signalFrame.peakPositions = detectedPeakPositions(:,frameCounter);
-        signalFrame.totalTracks = 0;
-        currentTracks = PartialTracking(signalFrame,currentTracks,templateTrack,MAXTRACKSPERFRAME,1);
+        signalFrame.spectrumPeaks = detectedPeaksMatrix{frameCounter};
+        signalFrame.peakFrequencies = detectedFrequenciesMatrix{frameCounter};
+
+        currentTracks = PartialTracking(signalFrame,currentTracks,1);
     end
 
     

@@ -1,12 +1,11 @@
-function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputFrame,DEBUG)
+function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inputFrame,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
-    % Firstly, an initial all-peaks approach is taken.
+    % Firstly, a threshold estimation method is applied.
     %
-    % Secondly, a variable-length TPSW filtering builds a variable threshold.
+    % Secondly, the peaks are detected based on the threshold.
     %
-    % Finally, the frequency values are enhanced by use of the DFT1 method.
     %
 
     % Gathering frame data
@@ -34,7 +33,10 @@ function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputF
 
     spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
     
-    % All-peaks detection (all local maxima)
+    
+    % Peak Detection
+
+    %Finding all local maxima
     initialPeaks = NaN(1,totalFreqBins); 
 
     for freqCounter = 2:(totalFreqBins-1)
@@ -44,18 +46,24 @@ function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputF
         end
     end
 
-    % Final peak detection
-
-    detectedFinalPeaks = NaN(1,totalFreqBins);
+    %Eliminating everything below the threshold
+    detectedPeaks = NaN(1,totalFreqBins);
     detectedPeakPositions = find(isfinite(initialPeaks));
 
     for freqCounter = detectedPeakPositions
         if initialPeaks(freqCounter) > spectrumThreshold(freqCounter)
-            detectedFinalPeaks(freqCounter) = initialPeaks(freqCounter);
+            detectedPeaks(freqCounter) = initialPeaks(freqCounter);
         end
     end
 
-    detectedPeakPositions = find(isfinite(detectedFinalPeaks));
+    % Eliminating unecessary elements and outputting arrays of size equal to the number of detected peaks
+
+    detectedPeakPositions = find(isfinite(detectedPeaks));
+    
+    for positionIndex = 1:length(detectedPeakPositions)
+        detectedPeakFrequencies(positionIndex) = freqComponents(detectedPeakPositions(positionIndex));
+        detectedFinalPeaks(positionIndex) = detectedPeaks(detectedPeakPositions(positionIndex));
+    end
 
     if DEBUG == 1
 
@@ -66,7 +74,7 @@ function [detectedFinalPeaks,detectedPeakPositions] = DetectSpectralPeaks(inputF
         plot(freqComponents,spectrumThresholdTPSW,'B');
         
         for freqCounter = detectedPeakPositions
-            plot(freqComponents(freqCounter),detectedFinalPeaks(freqCounter),'r*');
+            plot(freqComponents(freqCounter),detectedPeaks(freqCounter),'r*');
         end
 
         X = sprintf('Peak Detection of frame %i of %i',currentFrame,totalFrames);

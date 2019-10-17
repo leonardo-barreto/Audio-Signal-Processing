@@ -1,7 +1,5 @@
 function extractedArray = getArrayFields(structArray,fieldName,arrayElements)
 
-    innerIndex = 1;
-    extractedIndexes(1) = 0;
     extractedArray(1) = 0;
 
     if nargin > 2
