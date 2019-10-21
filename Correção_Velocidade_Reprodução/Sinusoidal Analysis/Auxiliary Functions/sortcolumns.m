@@ -7,7 +7,16 @@ switch nargin
     case 2
         [elements,indexes] = sortrows(transpose(matrix),row);
     case 3
-        [elements,indexes] = sortrows(transpose(matrix),row,direction);
+        if strcmp(direction,'ascend')
+            [elements,indexes] = sortrows(transpose(matrix),row);
+        elseif strcmp(direction,'descend')
+            [elements,indexes] = sortrows(transpose(matrix),row);
+            elements = flip(elements);
+        else
+            error('Direction must be ''ascend'' or ''descend''');
+        end
+    otherwise
+        error('Too many or too little arguments. 1 to 3 allowed.');
 
 end
 

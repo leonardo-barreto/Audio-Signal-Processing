@@ -1,4 +1,4 @@
-function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,spectrumSize,DEBUG)
+function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
 
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -13,10 +13,8 @@ function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,w
 
 
     % -------------------------------------- STFT and spectrogram stage -------------------------------------------
-
-        fftPoints = 2*spectrumSize; % Needs to account for double-sided spectrum.
         
-        fprintf('\nSinusoidal Analysis started.\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n Spectrum size: %i (%i FFT points)\n', samplingRate,windowType,windowSize,overlapPerc,spectrumSize,fftPoints);
+        fprintf('\nSinusoidal Analysis started.\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n FFT Points: %i\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints,fftPoints);
 
         [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
         

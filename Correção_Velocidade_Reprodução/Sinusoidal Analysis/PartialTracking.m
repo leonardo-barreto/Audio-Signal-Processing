@@ -4,7 +4,8 @@ function currentTracks = PartialTracking(inputFrame,currentTracks,DEBUG)
 
         maxTracksPerFrame = 100;
 
-        freqTolerance = (power(2,1/24)-1); %quarter-tone (in Hz)
+        freqTolerance = (power(2,1/24)-1); %about 3% (quarter-tone)
+        %freqTolerance = 0.10;
         maxHysteresis = 3; % in frames.
         minLength = 10; % in frames
         maxTrackFrequency = 20000; %in Hz
@@ -169,7 +170,7 @@ function currentTracks = PartialTracking(inputFrame,currentTracks,DEBUG)
         totalTracks = length(currentTracks);
 
         if DEBUG == 1
-            fprintf('This should allow for %i new tracks.\n',maxTracksPerFrame-totalActiveTracks);
+            fprintf('\nThis should allow for %i new tracks.\n',maxTracksPerFrame-totalActiveTracks);
         end
 
         peakIndex = 1;

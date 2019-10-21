@@ -1,4 +1,4 @@
-function organizedTracks = PlotTracks(trackArray);
+function organizedTracks = PlotTracks(frameArray,trackArray);
 
     organizedTracks = sortStruct(trackArray,'startFrame',1);
 
@@ -19,14 +19,18 @@ function organizedTracks = PlotTracks(trackArray);
             error('Hmm. Wrong.');
         end
 
-        plot(trackFrames,trackFrequencies,'LineWidth',2);
+        timeRes = frameArray(1).timeInstants(10)-frameArray(1).timeInstants(9);
+        trackTimes = 0:timeRes:frameArray(1).timeInstants(end)+10;
+        trackTimes = trackTimes(trackStart:trackEnd);
+
+        plot(trackTimes,trackFrequencies,'LineWidth',2);
 
     end
     y = gca;
     set(y,'yscale','log')
     X = sprintf('Sinusoidal tracking');
     title(X);
-    xlabel('Frames');
+    xlabel('Time(s)');
     ylabel('Frequency (Hz)');
     hold off;
 
