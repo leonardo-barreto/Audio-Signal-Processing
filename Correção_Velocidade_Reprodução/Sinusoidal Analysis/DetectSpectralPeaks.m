@@ -26,15 +26,15 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
             parametersTPSW.lengthSW = 51;
             parametersTPSW.gapSizeSW = 8;
             parametersTPSW.rejectionFactor = 4;
-            parametersTPSW.deltaTPSW = 0.005; % THIS MUST BE IN dB.
+            parametersTPSW.deltaTPSW = 30; % THIS MUST BE IN dB.
 
-            spectrumThresholdTPSW = PeakThreshold_TPSW(inputFrame,parametersTPSW,0);
+            spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,0);
 
         %SSE METHOD
 
             numberCoeffsSSE = 101;
 
-            spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
+            spectrumThresholdSSE = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
         
     
     % Peak Detection
@@ -59,38 +59,45 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
                 end
             end
 
+        %Eliminating NaN elements
+            detectedPeakPositions = find(isfinite(detectedPeaks));
+            detectedFinalPeaks = detectedPeaks(detectedPeakPositions);
+            detectedPeakFrequencies = freqComponents(detectedPeakPositions);
+
     % Enhancing the peaks and eliminating NaN elements to output arrays of size equal to the number of detected peaks.
 
         ENHANCEMENT = 1; 
 
-        if ENHANCEMENT == 1
-            detectedPeakPositions = find(isfinite(detectedPeaks));
-            detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints);
-            detectedFinalPeaks = detectedPeakMatrix(1,:);
-            detectedPeakFrequencies = detectedPeakMatrix(2,:);
-        else
-            detectedPeakPositions = find(isfinite(detectedPeaks));
-            detectedFinalPeaks = detectedPeaks(detectedPeakPositions);
-            detectedPeakFrequencies = transpose(freqComponents(detectedPeakPositions));
+        if(~isempty(detectedPeakPositions))
+
+            if ENHANCEMENT == 1
+                if currentFrame == 1
+                    fprintf('\nThis is frame %i\n', currentFrame);
+                    detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,0);
+                else
+                    detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,0);
+                end
+                detectedFinalPeaks = detectedPeakMatrix(1,:);
+                detectedPeakFrequencies = detectedPeakMatrix(2,:);
+            else
+                detectedPeakFrequencies = freqComponents(detectedPeakPositions);
+            end
+
         end
 
 
     if DEBUG == 1  
-
         figure
         hold on;
         plot(freqComponents,powerSpectrumDB,'G');
-        plot(freqComponents,spectrumThreshold, 'R');
-        plot(freqComponents,spectrumThresholdTPSW,'B');
+        plot(freqComponents,spectrumThresholdSSE, 'R');
+        plot(freqComponents,spectrumThreshold,'B');
 
         for freqCounter = detectedPeakPositions
             plot(freqComponents(freqCounter),detectedPeaks(freqCounter),'r*');
         end
 
         if ENHANCEMENT == 1
-
-            fprintf('\nNumber of not-enhanced peaks: %i\n',length(detectedPeakPositions));
-            fprintf('Number of enhanced peaks: %i power and %i frequency\n\n',length(detectedFinalPeaks),length(detectedPeakFrequencies));
 
             for freqCounter = 1:length(detectedPeakPositions)
                 plot(detectedPeakFrequencies(freqCounter),detectedFinalPeaks(freqCounter),'k*');

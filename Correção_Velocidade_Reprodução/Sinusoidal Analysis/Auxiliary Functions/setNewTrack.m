@@ -1,11 +1,27 @@
 function newTrack = setNewTrack(peakParameters,currentFrame)
-    newTrack = {};
-    newTrack.powerEvolution = peakParameters(1); % Contains the power values of the track through its existence.
-    newTrack.currentPower = peakParameters(1);
-    newTrack.frequencyEvolution = peakParameters(2); % Contains the frequency values of the track through its existence.
-    newTrack.startFrame = currentFrame; % Starting frame of the track (0 if non-existent)
-    newTrack.finalFrame = 0; % Ending frame of the track (0 if non-existent or active)
-    newTrack.length = 1; % length of the track (0 if non-existent)
-    newTrack.hysteresis = 0; % Hysteresis counter
-    newTrack.status = 'active'; % Track Status: 0 = active, 1 = inactive or 2 = asleep.
+
+    if nargin == 0 %Creates empty track
+        newTrack = {};
+        newTrack.powerEvolution = [];; % Contains the power values of the track through its existence.
+        newTrack.currentPower = [];
+        newTrack.frequencyEvolution = []; % Contains the frequency values of the track through its existence.
+        newTrack.currentFrequency = [];
+        newTrack.startFrame = 0; % Starting frame of the track (0 if non-existent)
+        newTrack.finalFrame = 0; % Ending frame of the track (0 if non-existent or active)
+        newTrack.length = 0; % length of the track (0 if non-existent)
+        newTrack.hysteresis = 0; % Hysteresis counter
+        newTrack.status = 0;
+    else
+        newTrack = {};
+        newTrack.powerEvolution = peakParameters(1); % Contains the power values of the track through its existence.
+        newTrack.currentPower = peakParameters(1);
+        newTrack.frequencyEvolution = peakParameters(2); % Contains the frequency values of the track through its existence.
+        newTrack.currentFrequency = peakParameters(2);
+        newTrack.startFrame = currentFrame; % Starting frame of the track (0 if non-existent)
+        newTrack.finalFrame = currentFrame; % Ending frame of the track (0 if non-existent or active)
+        newTrack.length = 1; % length of the track (0 if non-existent)
+        newTrack.hysteresis = 0; % Hysteresis counter
+        newTrack.status = 1; % Track Status: 0 = inactive, 1 = active, 2 = asleep.
+    end
+
 end 
