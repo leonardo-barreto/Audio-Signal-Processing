@@ -1,20 +1,19 @@
-function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
+function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
 
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
     %   1st - STFT
     %
-    %   2nd - Frequency Enhancement
-    %
-    %   3rd - Peak Detection
+    %   3rd - Peak Detection and frequency Enhancement
     %
     %   4th - Construction of sinusoidal tracks
     %
 
+    fprintf('\n\n------- SINUSOIDAL ANALYSIS STARTED ------\n\n');
 
     % -------------------------------------- STFT and spectrogram stage -------------------------------------------
         
-        fprintf('\nSinusoidal Analysis started.\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n FFT Points: %i\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints,fftPoints);
+        fprintf('Short-Time Fourier Transform starting...\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n FFT Points: %i\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints);
 
         [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
         
@@ -29,9 +28,14 @@ function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,w
         signalFrame.currentFrame = 1; %Current frame
         signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
         signalFrame.freqComponents = freqComponents; %frequency components vector
-        signalFrame.timeInstants = timeInstants;
-        signalFrame.samplingRate = samplingRate;
-        signalFrame.fftPoints = fftPoints;
+        
+
+        %Outputting general parameters.
+        sinAnalysisParameters.samplingRate = samplingRate;
+        sinAnalysisParameters.timeInstants = timeInstants;
+        sinAnalysisParameters.windowSize = windowSize;
+        sinAnalysisParameters.totalFrames = totalFrames;
+        sinAnalysisParameters.hopSize = floor(((100-overlapPerc)/100)*windowSize);
 
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
@@ -42,19 +46,17 @@ function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,w
 
         if DEBUG == 1
             %Random frame chosen for DEBUG (temporary)
-            DEBUG_FRAME = floor(rand(1,1)*(signalFrame.totalFrames-1) + 1);
-
-            %DEBUG_FRAME = ra;
+            DEBUG_FRAME = randi(totalFrames);
 
             for frameCounter = 1:totalFrames
                 signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
                 signalFrame.currentFrame = frameCounter;
                 frameArray(frameCounter) = signalFrame;
                 if DEBUG_FRAME == signalFrame.currentFrame
-                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,1);
+                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,1);
                 else
                     frameArray(frameCounter) = signalFrame;
-                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,0);
+                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,0);
                 end
             end
 
@@ -64,7 +66,7 @@ function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,w
                 signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
                 signalFrame.currentFrame = frameCounter;
                 frameArray(frameCounter) = signalFrame;
-                [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,0);
+                [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,0);
             end
 
         end
@@ -73,24 +75,24 @@ function [frameArray] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,w
             frameArray(index).peakMatrix = [detectedPeaksMatrix{index};detectedFrequenciesMatrix{index}];
         end
 
-    % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
+     % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
-        %fprintf('\nSinusoidal tracking starting...\n');
-
-        % Extending the signal frame built earlier to include some tracking parameters.
-            %signalFrame.currentFrame = 2; % Reset to signal start
+        fprintf('\nSinusoidal tracking starting...\n');
 
         % Array that holds all of the signal's tracks.
         % This array starts with an empty track, and is extended as the signal demands new tracks, maintaining
         % the information of tracks that ended. Later, another part of the algorithm will gather the starting
         % and ending frames of each track and organize them.
-            %if signalFrame.currentFrame == 1
-                %currentTracks = setNewTrack();
-            %end
+        signalTrackArray = [];
+        signalTrackArray = setNewTrack();
+        
 
-        %Actual tracking
-            %for frameCounter = 1:totalFrames
-                %currentTracks = PartialTracking(frameArray(2),currentTracks,0);
-            %end
+        for frameCounter = 1:totalFrames
+
+            signalTrackArray = PartialTracking(frameArray(frameCounter),signalTrackArray,DEBUG);
+
+        end
+    
+    fprintf('\n\n------- SINUSOIDAL ANALYSIS FINISHED ------\n\n');
 
 end

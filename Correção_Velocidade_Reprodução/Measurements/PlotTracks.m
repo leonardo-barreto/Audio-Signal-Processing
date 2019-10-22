@@ -1,8 +1,8 @@
-function organizedTracks = PlotTracks(frameArray,trackArray);
+function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArray);
+
+    timeInstants = sinAnalysisParameters.timeInstants;
 
     organizedTracks = sortStruct(trackArray,'startFrame',1);
-
-    fprintf('\nFound %i tracks.\n',length(organizedTracks));
 
     figure;
     hold on;
@@ -19,11 +19,11 @@ function organizedTracks = PlotTracks(frameArray,trackArray);
             error('Hmm. Wrong.');
         end
 
-        timeRes = frameArray(1).timeInstants(10)-frameArray(1).timeInstants(9);
-        trackTimes = 0:timeRes:frameArray(1).timeInstants(end)+10;
+        timeRes = sinAnalysisParameters.timeInstants(10)-sinAnalysisParameters.timeInstants(9);
+        trackTimes = 0:timeRes:sinAnalysisParameters.timeInstants(end)+2; %2 just a tolerance.
         trackTimes = trackTimes(trackStart:trackEnd);
 
-        plot(trackTimes,trackFrequencies,'LineWidth',2);
+        plot(trackTimes,trackFrequencies./1000,'LineWidth',2);
 
     end
     y = gca;
@@ -31,7 +31,7 @@ function organizedTracks = PlotTracks(frameArray,trackArray);
     X = sprintf('Sinusoidal tracking');
     title(X);
     xlabel('Time(s)');
-    ylabel('Frequency (Hz)');
+    ylabel('Frequency (kHz)');
     hold off;
 
 end

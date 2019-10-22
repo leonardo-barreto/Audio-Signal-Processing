@@ -1,4 +1,4 @@
-function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inputFrame,samplingRate,DEBUG)
+function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inputFrame,samplingRate,fftPoints,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -6,6 +6,7 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
     %
     % Secondly, the peaks are detected based on the threshold.
     %
+    % Finally, the peaks are submitted to a parabolic interpolation aiming to correct its frequency and power.
     %
 
     % Gathering frame data
@@ -15,9 +16,6 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
         totalFreqBins = inputFrame.totalFreqBins;
         totalFrames = inputFrame.totalFrames;
         currentFrame = inputFrame.currentFrame;
-        samplingRate = inputFrame.samplingRate;
-        fftPoints = inputFrame.fftPoints;
-    
 
     % Background Noise threshold estimation.
 
@@ -71,9 +69,8 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
         if(~isempty(detectedPeakPositions))
 
             if ENHANCEMENT == 1
-                if currentFrame == 1
-                    fprintf('\nThis is frame %i\n', currentFrame);
-                    detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,0);
+                if DEBUG == 1
+                    detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,1);
                 else
                     detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,0);
                 end
@@ -89,18 +86,18 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
     if DEBUG == 1  
         figure
         hold on;
-        plot(freqComponents,powerSpectrumDB,'G');
-        plot(freqComponents,spectrumThresholdSSE, 'R');
-        plot(freqComponents,spectrumThreshold,'B');
+        plot(freqComponents./1000,powerSpectrumDB,'G');
+        plot(freqComponents./1000,spectrumThresholdSSE, 'R');
+        plot(freqComponents./1000,spectrumThreshold,'B');
 
         for freqCounter = detectedPeakPositions
-            plot(freqComponents(freqCounter),detectedPeaks(freqCounter),'r*');
+            plot(freqComponents(freqCounter)/1000,detectedPeaks(freqCounter),'r*');
         end
 
         if ENHANCEMENT == 1
 
             for freqCounter = 1:length(detectedPeakPositions)
-                plot(detectedPeakFrequencies(freqCounter),detectedFinalPeaks(freqCounter),'k*');
+                plot(detectedPeakFrequencies(freqCounter)/1000,detectedFinalPeaks(freqCounter),'k*');
             end
 
         end
@@ -109,7 +106,7 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
             title(X);
             xlabel('Frequency (kHz)');
             ylabel('Power (dB)');
-            legend ('Power Spectrum','SSE Threshold','TPSW Threshold','Detected Peaks(SSE)');
+            legend ('Power Spectrum','SSE Threshold','TPSW Threshold','Detected Peaks(before refinement)','Detected Peaks (after refinement)');
 
             hold off;
     

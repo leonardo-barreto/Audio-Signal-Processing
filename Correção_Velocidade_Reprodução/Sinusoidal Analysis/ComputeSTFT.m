@@ -15,13 +15,13 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
     end
 
     if METHOD == 0
-        disp(' Method used: MATLAB spectrogram.');
+        fprintf(' Method used: MATLAB spectrogram.\n');
         overlapSize = floor((overlapPerc/100)*windowSize); %This converts the overlap percentage to actual overlap size.
         [s,f,t,ps] = spectrogram (inputSignal,windowFunction,overlapSize,fftPoints,'power','onesided');
         freqComponents = transpose((samplingRate/2*pi).*f);
         powerMatrix = ps;
     else
-        disp(' Method used: stft function from MathWorks site.');
+        fprintf(' Method used: stft function from MathWorks site.\n');
         hopSize = floor(((100-overlapPerc)/100)*windowSize); %This converts the overlap percentage to hop size.
         [s, f, t] = stft(inputSignal,windowFunction,hopSize,fftPoints,samplingRate);
         freqComponents = f;
