@@ -17,7 +17,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
 
         [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
         
-        powerMatrixDB = 10*log(powerMatrix); 
+        powerMatrixDB = 10*log10(powerMatrix); 
 
         totalFreqBins = length(freqComponents);
         totalFrames = length(timeInstants);
@@ -47,6 +47,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         if DEBUG == 1
             %Random frame chosen for DEBUG (temporary)
             DEBUG_FRAME = randi(totalFrames);
+            %DEBUG_FRAME = 2;
 
             for frameCounter = 1:totalFrames
                 signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
@@ -89,8 +90,12 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
 
         for frameCounter = 1:totalFrames
 
-            signalTrackArray = PartialTracking(frameArray(frameCounter),signalTrackArray,DEBUG);
+            signalTrackArray = PartialTracking2020(frameArray(frameCounter),signalTrackArray,2);
 
+        end
+
+        if DEBUG == 1
+            organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,signalTrackArray);
         end
     
     fprintf('\n\n------- SINUSOIDAL ANALYSIS FINISHED ------\n\n');

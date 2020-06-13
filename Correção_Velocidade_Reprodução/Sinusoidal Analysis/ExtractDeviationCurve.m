@@ -1,4 +1,4 @@
-function deviationCurve = ExtractDeviationCurve (frameArray,signalTracks,DEBUG)
+function deviationCurve = ExtractDeviationCurve (frameArray,sinAnalysisParameters,signalTracks,DEBUG)
 
     fprintf('\n\n------- DEVIATION CURVE EXTRACTION STARTED ------\n\n');
 
@@ -59,6 +59,15 @@ function deviationCurve = ExtractDeviationCurve (frameArray,signalTracks,DEBUG)
         title('Deviation curve of each track around its own mean frequency');
         hcol = colorbar;
         ylabel(hcol, 'Deviation from mean frequency (%)');
+
+        figure(2);
+        plot(sinAnalysisParameters.timeInstants,deviationCurve,'LineWidth',3);
+        X = sprintf('Curva de desvio relativo de pitch');
+        title(X,'FontSize', 30);
+        xlabel('Tempo (s)','FontSize', 30);
+        ylabel('Frequencia relativa a media','FontSize', 30);
+        set(gca,'FontSize', 30)
+        %ylim([min(deviationCurve) max(deviationCurve)])
     end
 
     fprintf('------- DEVIATION CURVE EXTRACTED ------\n\n');

@@ -33,7 +33,7 @@ function resampledSignal = CorrectVariationsMain(inputSignal,samplingRate)
         temp = PlotTracks(frameArray,sinAnalysisParameters,signalTrackArray);
     end
     
-    resampleFactors = ExtractDeviationCurve (frameArray,signalTrackArray,DEBUG);
+    resampleFactors = ExtractDeviationCurve (frameArray,sinAnalysisParameters,signalTrackArray,DEBUG);
     timeRes = sinAnalysisParameters.timeInstants(10)-sinAnalysisParameters.timeInstants(9);
     trackTimes = 0:timeRes:sinAnalysisParameters.timeInstants(end)+2;
     figure;
@@ -58,3 +58,4 @@ function resampledSignal = CorrectVariationsMain(inputSignal,samplingRate)
 
 end
 
+    

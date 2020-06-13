@@ -2,7 +2,7 @@ function newTrack = setNewTrack(peakParameters,currentFrame)
 
     if nargin == 0 %Creates empty track
         newTrack = {};
-        newTrack.powerEvolution = [];; % Contains the power values of the track through its existence.
+        newTrack.powerEvolution = []; % Contains the power values of the track through its existence.
         newTrack.currentPower = [];
         newTrack.frequencyEvolution = []; % Contains the frequency values of the track through its existence.
         newTrack.currentFrequency = [];

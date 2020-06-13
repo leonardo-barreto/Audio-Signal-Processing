@@ -1,5 +1,11 @@
 function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArray);
 
+    if (~size(trackArray,2))
+        organizedTracks = [];
+        fprintf('\nWell... no tracks.\n');
+        return;
+    end
+
     timeInstants = sinAnalysisParameters.timeInstants;
 
     organizedTracks = sortStruct(trackArray,'startFrame',1);
@@ -7,31 +13,35 @@ function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArra
     figure;
     hold on;
 
+    colorVector = ['r-','b-','g-','m-','k-'];
+
+
     for trackIndex = 1:length(organizedTracks)
 
         trackStart = organizedTracks(trackIndex).startFrame;
         trackEnd = organizedTracks(trackIndex).finalFrame;
-        trackFrames = trackStart:1:trackEnd;
         trackFrequencies = organizedTracks(trackIndex).frequencyEvolution;
+        trackTimes = timeInstants(trackStart:trackEnd);
 
-        if (length(trackFrames) ~= length(trackFrequencies))
+        if (length(trackTimes) ~= length(trackFrequencies))
             fprintf('\nThis is track %i\n',trackIndex);
+            fprintf('%i Track Times and %i trackFrequencies',length(trackTimes), length(trackFrequencies));
             error('Hmm. Wrong.');
         end
 
-        timeRes = sinAnalysisParameters.timeInstants(10)-sinAnalysisParameters.timeInstants(9);
-        trackTimes = 0:timeRes:sinAnalysisParameters.timeInstants(end)+2; %2 just a tolerance.
-        trackTimes = trackTimes(trackStart:trackEnd);
+        
 
-        plot(trackTimes,trackFrequencies./1000,'LineWidth',2);
+    plot(trackTimes,trackFrequencies,'LineWidth',5);
 
     end
     y = gca;
     set(y,'yscale','log')
-    X = sprintf('Sinusoidal tracking');
+    X = sprintf('Rastreamento de trilhas senoidais');
     title(X);
-    xlabel('Time(s)');
-    ylabel('Frequency (kHz)');
+    xlabel('Tempo (s)','FontSize', 30);
+    ylabel('Frequencia (Hz)','FontSize', 30);
+    set(y,'FontSize', 30)
+    %ylim([1997 2001])
     hold off;
 
 end

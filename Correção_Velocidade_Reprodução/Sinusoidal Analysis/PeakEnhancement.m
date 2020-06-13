@@ -19,10 +19,10 @@ function enhancedPeakMatrix = PeakEnhancement(powerSpectrumDB,peakPower,peakPosi
                 newPeakPower = A2 - ((d*(A1-A3))/4);
 
                 enhancedPeakMatrix(:,peakIndex) = [newPeakPower;newPeakFrequency];
-                if DEBUG == 1
-                    fprintf('\n kp = %d. A1 = %d A2 = %d A3 = %d d = %d.\n',kp,A1,A2,A3,d);
-                    fprintf('newPower = %d. newFrequency = %d\n',newPeakPower,newPeakFrequency);
-                end
+                %if DEBUG == 1
+                %    fprintf('\n kp = %d. A1 = %d A2 = %d A3 = %d d = %d.\n',kp,A1,A2,A3,d);
+                %    fprintf('newPower = %d. newFrequency = %d\n',newPeakPower,newPeakFrequency);
+                %end
 
             end
         end

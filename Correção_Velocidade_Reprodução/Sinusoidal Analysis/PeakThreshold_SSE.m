@@ -33,7 +33,7 @@ function spectrumFinalThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,D
     %Discarding the mirrored edges and returning back to original size
     spectrumFinalThreshold = spectrumFinalThreshold((length(startMirror)+1):extendedLength-length(endMirror));
 
-    spectrumFinalThreshold = 10*log10(spectrumFinalThreshold) + 40;
+    spectrumFinalThreshold = 10*log10(spectrumFinalThreshold);
 
     %maxPower = max(powerSpectrumDB);
     %powerThreshold = maxPower - 80;

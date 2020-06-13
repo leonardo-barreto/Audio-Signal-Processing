@@ -49,7 +49,7 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
         centerSamples = [1,timeInstants*originalSamplingRate,inputSignalSize];
 
     %Outputs
-        outputSignal = [];; %To prevent undefined variable errors.
+        outputSignal = []; %To prevent undefined variable errors.
 
     %Phase Correction
         if PHASE_CORRECT == 1

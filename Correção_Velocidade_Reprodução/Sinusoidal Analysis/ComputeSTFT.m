@@ -2,7 +2,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
 
     % This function computes a signal's STFT (by FFT).
 
-    DEBUG = 0;
+    DEBUG = 1;
     METHOD = 1;
 
     switch windowType
@@ -21,7 +21,7 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
         freqComponents = transpose((samplingRate/2*pi).*f);
         powerMatrix = ps;
     else
-        fprintf(' Method used: stft function from MathWorks site.\n');
+        fprintf(' Method used: stft function from Hristo Zhivomirov (MathWorks site).\n');
         hopSize = floor(((100-overlapPerc)/100)*windowSize); %This converts the overlap percentage to hop size.
         [s, f, t] = stft(inputSignal,windowFunction,hopSize,fftPoints,samplingRate);
         freqComponents = f;
@@ -33,20 +33,21 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
 
     if DEBUG == 1
         % plot the spectrogram
-        S = 20*log10(powerMatrix);
+        S = 10*log10(powerMatrix);
         figure(1)
         surf(t, f, S)
         shading interp
         axis tight
         view(0, 90)
-        set(gca, 'FontName', 'Times New Roman', 'FontSize', 14)
-        xlabel('Time, s')
-        ylabel('Frequency, Hz')
-        title('Amplitude spectrogram of the signal')
+        set(gca, 'FontSize', 30,'yscale','log')
+        xlabel('Tempo (s)','FontSize', 30)
+        ylabel('Frequencia (Hz)','FontSize', 30)
+        title('Espectrograma de potencia')
 
         hcol = colorbar;
-        set(hcol, 'FontName', 'Times New Roman', 'FontSize', 14)
-        ylabel(hcol, 'Magnitude, dB')
+        set(hcol, 'FontSize', 30)
+        ylabel(hcol, 'Potencia (dB)')
+        %ylim([0 3000])
     end
     
 
