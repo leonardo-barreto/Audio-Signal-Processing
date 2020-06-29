@@ -16,7 +16,7 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
     
         DEBUG_OFF = 0;
         DEBUG_FULL = 1;
-        PHASE_CORRECT = 0;
+        PHASE_CORRECT = 1;
 
     %Gathering Sinusoidal Analysis data.
 
@@ -30,10 +30,6 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
     
         inputSignalSize = length(inputSignal);
         originalPeriod = 1/originalSamplingRate; %Sampling period of the original signal.
-        frameIndex = 1; %Index of current frame (original signal).
-        newSamplePosition = 1; %New sample position: moves proportional to time (normalized by the original period).
-        resampledOutputIndex = 1; %Output signal index: moves without respect to time, just the overall samples.
-    
 
     if DEBUG == DEBUG_FULL
         X = sprintf('Input Signal Size: %i', inputSignalSize);
@@ -56,13 +52,17 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
             phaseCorrection = 0; %Factor that will correct the synchrony between processed blocks.
         end
 
-    %Code
+    %Resampling
+
+        frameIndex = 1; %Index of current frame (original signal).
+        newSamplePosition = 1; %New sample position: moves proportional to time (normalized by the original period).
+        resampledOutputIndex = 1; %Output signal index: moves without respect to time, just the overall samples.
 
         while (frameIndex <= totalFrames)
 
-            blockSize = centerSamples(frameIndex+1)-centerSamples(frameIndex);
+            blockSize = centerSamples(frameIndex+1)-centerSamples(frameIndex)-1;
 
-            [stepSize,blockNewSamples,currentPeriod] = GenerateNormalizedParametersV2(resampleFactors,frameIndex,originalPeriod,blockSize,DEBUG);
+            [stepSize,blockNewSamples,currentPeriod] = GenerateNormalizedParameters(resampleFactors,frameIndex,originalPeriod,blockSize,DEBUG);
 
             if DEBUG == DEBUG_FULL
                 X = sprintf('Current Frame: %i of %i', frameIndex, totalFrames);
@@ -82,7 +82,7 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
                     error('New sample position exceeds the limit.');
                 end
 
-                convolutionIndex = 1; %Internal index: moves from the center of sinc to borders to computate multiplications.
+                convolutionIndex = 0; %Internal index: moves from the center of sinc to borders to compute multiplications.
                 sample = 0; %Current sample's value.
 
                 if CheckInteger(newSamplePosition) % If newSamplePosition is an integer, it means it coincides with an original sample (time is normalized by originalPeriod!).
@@ -94,14 +94,14 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
                     rightGap = rightClosestSample - newSamplePosition;
 
                     while convolutionIndex <= round(filterCoeffs/2)
-                        convolutionIndex_left = leftClosestSample - (convolutionIndex-1); % From center to left
-                        convolutionIndex_right = rightClosestSample + (convolutionIndex-1); % From center to right
+                        convolutionIndex_left = leftClosestSample - convolutionIndex; % From center to left
+                        convolutionIndex_right = rightClosestSample + convolutionIndex; % From center to right
 
-                        if (convolutionIndex_left > 0 & convolutionIndex_left < inputSignalSize)
-                            sample = sample + inputSignal(convolutionIndex_left)*sinc(-leftGap - (convolutionIndex-1));
+                        if (convolutionIndex_left >= 1 & convolutionIndex_left < inputSignalSize)
+                            sample = sample + inputSignal(convolutionIndex_left)*sinc(-leftGap - convolutionIndex); %MATLAB's sinc zeroes itself each step of 1, so we can work in samples directly.
                         end
                         if convolutionIndex_right <= inputSignalSize
-                            sample = sample + inputSignal(convolutionIndex_right)*sinc(rightGap + (convolutionIndex-1));
+                            sample = sample + inputSignal(convolutionIndex_right)*sinc(rightGap + convolutionIndex);
                         end
                         convolutionIndex = convolutionIndex + 1;
                     end

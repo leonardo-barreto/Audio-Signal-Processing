@@ -1,27 +1,32 @@
-function [normalizedStepSize,numberOfSteps,normalizedPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,inputPeriod,blockSize,DEBUG)
+function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,originalPeriod,blockSize,DEBUG)
 
-    blockLength = blockSize*inputPeriod; %tempo do bloco de influência de cada fator.
+    %This repeats first and last factors.
+    %This is used for the edges of the signal (to reach the first factor and to transition out of the last one.)
+    %This is necessary because resampling blocks are defined in-between two subsequent window centers, and factors are associated with these centers.
+    resampleFactorsAdjusted = [resampleFactors(1) resampleFactors resampleFactors(end)];
 
-    currentPeriod = inputPeriod/resampleFactors(windowIndex);
+    currentPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex);
+    nextPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex+1);
 
-    if (windowIndex < length(resampleFactors))
-        nextPeriod = inputPeriod/resampleFactors(windowIndex+1);
-    else
-        nextPeriod = inputPeriod/resampleFactors(windowIndex);
-    end
-    
-
-    stepSize = ((nextPeriod^2) - (currentPeriod^2))/(2*blockLength-(currentPeriod+nextPeriod));
-
-        if stepSize > 0
-            numberOfSteps = floor(2*blockLength/(currentPeriod+nextPeriod));
-        else
-            numberOfSteps = ceil(2*blockLength/(currentPeriod+nextPeriod));
+    if DEBUG == 1
+        if (currentPeriod ~= nextPeriod)
+            disp ('Transition!')
+            X = sprintf('Current Period: %d', currentPeriod);
+             disp(X)
+            X = sprintf('Next Period: %d', nextPeriod);
+            disp(X)
         end
+    end
 
+    a = currentPeriod + nextPeriod;
+    b = 3*currentPeriod - nextPeriod - 2*blockSize*originalPeriod;
+    c = -2*blockSize*originalPeriod;
+
+    numberNewSamples = floor(max(roots([a b c])));
+    stepSize = (nextPeriod - currentPeriod)/(numberNewSamples + 1);
     
-    normalizedStepSize = stepSize/inputPeriod;
-    normalizedPeriod = 1/resampleFactors(windowIndex);
+    normalizedStepSize = stepSize/originalPeriod;
+    normalizedCurrentPeriod = currentPeriod/originalPeriod;
 
 end
 
