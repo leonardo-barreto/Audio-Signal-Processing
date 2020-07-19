@@ -1,4 +1,4 @@
-function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inputFrame,samplingRate,fftPoints,DEBUG)
+function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame,samplingRate,fftPoints,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -10,7 +10,7 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
     %
 
     %Parameters
-    peakProminence = 40; %in dB.
+    peakProminence = 40; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
 
     numberCoeffsSSE = 20;
     thresholdOffsetSSE = 0 ; %THIS MUST BE IN dB.
@@ -92,36 +92,7 @@ function [detectedFinalPeaks,detectedPeakFrequencies] = DetectSpectralPeaks(inpu
 
         end
 
-
-    if DEBUG == 1  
-        figure
-        hold on;
-        plot(freqComponents./1000,powerSpectrumDB,'G','LineWidth',2);
-        %plot(freqComponents./1000,spectrumThresholdSSE, 'R');
-        plot(freqComponents./1000,spectrumThreshold,'B','LineWidth',2);
-
-        %for freqCounter = detectedPeakPositions
-        %    plot(freqComponents(freqCounter)/1000,detectedPeaks(freqCounter),'r*');
-        %end
-
-        if ENHANCEMENT == 1
-
-            for freqCounter = 1:length(detectedPeakPositions)
-                plot(detectedPeakFrequencies(freqCounter)/1000,detectedFinalPeaks(freqCounter),'r.','markersize',30);
-            end
-
-        end
-
-        X = sprintf('Deteccao de picos do quadro %i de %i',currentFrame,totalFrames);
-            title(X,'FontSize', 30);
-            xlabel('Frequencia (kHz)','FontSize', 30);
-            ylabel('Potencia (dB)','FontSize', 30);
-            legend ('Espectro','Limiar SSE','Picos detectados');
-            set(gca,'FontSize', 30);
-            xlim([0 4.4])
-            hold off;
-    
-    end
+        detectedPeakMatrix = [detectedFinalPeaks;detectedPeakFrequencies];
 
 
 end

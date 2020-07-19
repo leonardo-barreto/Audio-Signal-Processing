@@ -27,7 +27,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         signalFrame.totalFrames = totalFrames; %Total number of signal frames
         signalFrame.currentFrame = 1; %Current frame
         signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
-        signalFrame.freqComponents = freqComponents; %frequency components vector
+        signalFrame.freqComponents = freqComponents'; %frequency components vector
         
 
         %Outputting general parameters.
@@ -37,44 +37,45 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         sinAnalysisParameters.totalFrames = totalFrames;
         sinAnalysisParameters.hopSize = floor(((100-overlapPerc)/100)*windowSize);
 
+        
+        fprintf(' Total frames: %i\n',sinAnalysisParameters.totalFrames);
+        fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
+        fprintf('\nShort-Time Fourier Transform Finished.\n');
+
+        if DEBUG == 1 %call plot
+            PlotSpectrogram(freqComponents,timeInstants,powerMatrixDB);
+        end
+
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
         fprintf('\nPeak Detection Starting...\n');
 
-        detectedPeaksMatrix = {};
-        detectedFrequenciesMatrix = {};
+        
+
+        for frameCounter = 1:totalFrames
+            signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
+            signalFrame.powerSpectrumThreshold = [];
+            signalFrame.peakMatrix = [];
+            signalFrame.currentFrame = frameCounter;
+            [signalFrame.peakMatrix,signalFrame.powerSpectrumThreshold] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,DEBUG);
+            frameArray(frameCounter) = signalFrame;
+        end
 
         if DEBUG == 1
-            %Random frame chosen for DEBUG (temporary)
-            DEBUG_FRAME = randi(totalFrames);
-            %DEBUG_FRAME = 2;
-
+            availableFrames = [];
             for frameCounter = 1:totalFrames
-                signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
-                signalFrame.currentFrame = frameCounter;
-                frameArray(frameCounter) = signalFrame;
-                if DEBUG_FRAME == signalFrame.currentFrame
-                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,1);
-                else
-                    frameArray(frameCounter) = signalFrame;
-                    [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,0);
+                if (~isempty(frameArray(frameCounter).peakMatrix))
+                    availableFrames(end+1) = frameCounter;
                 end
             end
 
-        else
-
-            for frameCounter = 1:totalFrames
-                signalFrame.powerSpectrumDB = powerMatrixDB(:,frameCounter);
-                signalFrame.currentFrame = frameCounter;
-                frameArray(frameCounter) = signalFrame;
-                [detectedPeaksMatrix{frameCounter},detectedFrequenciesMatrix{frameCounter}] = DetectSpectralPeaks(signalFrame,samplingRate,fftPoints,0);
-            end
-
+            %Random frame chosen for DEBUG
+            DEBUG_FRAME = availableFrames(randi(length(availableFrames)));
+            %DEBUG_FRAME = 8;
+            PlotPeakDetection(sinAnalysisParameters,DEBUG_FRAME,frameArray(DEBUG_FRAME));
         end
 
-        for index = 1:totalFrames
-            frameArray(index).peakMatrix = [detectedPeaksMatrix{index};detectedFrequenciesMatrix{index}];
-        end
+        fprintf('Peak Detection Finished.\n');
 
      % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
@@ -84,13 +85,14 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         % This array starts with an empty track, and is extended as the signal demands new tracks, maintaining
         % the information of tracks that ended. Later, another part of the algorithm will gather the starting
         % and ending frames of each track and organize them.
+
         signalTrackArray = [];
         signalTrackArray = setNewTrack();
         
 
         for frameCounter = 1:totalFrames
 
-            signalTrackArray = PartialTracking2020(frameArray(frameCounter),signalTrackArray,2);
+            signalTrackArray = PartialTracking(frameArray(frameCounter),signalTrackArray,2);
 
         end
 

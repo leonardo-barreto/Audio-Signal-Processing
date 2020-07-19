@@ -1,4 +1,4 @@
-function [elements,indexes] = sortcolumns(matrix,row,direction)
+function [elements,indexes] = sortcolumns2018b(matrix,row,direction)
 
 switch nargin
 

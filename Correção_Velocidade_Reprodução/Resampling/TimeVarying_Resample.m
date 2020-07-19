@@ -1,6 +1,6 @@
 %Funcao para reamostragem variante no tempo
 %Entradas: vetor com fatores de reamostragem (resampleFactors), Sinal a ser reamostrado
-%(inputSignal), número de coeficientes do filtro (filterCoeffs), tamanho da janela (frameSize)
+%(inputSignal), número de coeficientes do filtro (filterCoeffs), parâmetros da análise senoidal (sinAnalysisParameters)
 
 %Saidas: Sinal reamostrado: (outputSignal)
 
@@ -16,7 +16,7 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
     
         DEBUG_OFF = 0;
         DEBUG_FULL = 1;
-        PHASE_CORRECT = 1;
+        PHASE_CORRECT = 0;
 
     %Gathering Sinusoidal Analysis data.
 
@@ -76,12 +76,16 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
 
             blockCurrentNewSample = 1;
 
+            if newSamplePosition > inputSignalSize 
+                error('New sample position exceeds the limit (greater than signal size).');
+            end
+
+            if (newSamplePosition < 1)
+                error('New sample position exceeds the limit (less than signal starting point)');
+            end
+
             while (blockCurrentNewSample <= (blockNewSamples+1) & newSamplePosition <= inputSignalSize)
                 
-                if newSamplePosition > inputSignalSize 
-                    error('New sample position exceeds the limit.');
-                end
-
                 convolutionIndex = 0; %Internal index: moves from the center of sinc to borders to compute multiplications.
                 sample = 0; %Current sample's value.
 
@@ -112,8 +116,9 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
                 resampledOutputIndex = resampledOutputIndex + 1;
             end
             if (PHASE_CORRECT == 1)
-                phaseCorrection = phaseCorrection + blockSize - (blockNewSamples+1)*currentPeriod - (blockNewSamples+1)*stepSize*(blockNewSamples/2);
-                newSamplePosition = newSamplePosition - phaseCorrection;
+                phaseCorrection = blockSize+1 - (blockNewSamples+1)*currentPeriod - (blockNewSamples+1)*stepSize*(blockNewSamples/2)
+                phaseCorrectionMY = (blockSize+1) - blockNewSamples*(currentPeriod + stepSize*(blockNewSamples-1)/2)/originalPeriod
+                newSamplePosition = newSamplePosition - phaseCorrection
             end
             frameIndex = frameIndex + 1;
         end

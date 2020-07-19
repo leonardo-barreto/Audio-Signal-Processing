@@ -1,26 +1,21 @@
-function [elements,indexes] = sortcolumns(matrix,row,direction)
+function matrixSorted = sortcolumns(matrix,row,direction)
 
 switch nargin
 
     case 1
-        [elements,indexes] = sortrows(transpose(matrix));
+        matrixSorted = sortrows(transpose(matrix));
     case 2
-        [elements,indexes] = sortrows(transpose(matrix),row);
+        matrixSorted = sortrows(transpose(matrix),row);
     case 3
-        if strcmp(direction,'ascend')
-            [elements,indexes] = sortrows(transpose(matrix),row);
-        elseif strcmp(direction,'descend')
-            [elements,indexes] = sortrows(transpose(matrix),row);
-            elements = flip(elements);
-        else
+        if (~strcmp(direction,'ascend') && ~strcmp(direction,'descend'))
             error('Direction must be ''ascend'' or ''descend''');
         end
+        matrixSorted = sortrows(transpose(matrix),row,direction);   
     otherwise
         error('Too many or too little arguments. 1 to 3 allowed.');
 
 end
 
-elements = transpose(elements);
-indexes = transpose(indexes);
+matrixSorted = matrixSorted';
 
 end
