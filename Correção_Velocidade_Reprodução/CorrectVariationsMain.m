@@ -29,20 +29,7 @@ function resampledSignal = CorrectVariationsMain(inputSignal,samplingRate)
 
     [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG);
     
-    if DEBUG == 1
-        temp = PlotTracks(frameArray,sinAnalysisParameters,signalTrackArray);
-    end
-    
     resampleFactors = ExtractDeviationCurve (frameArray,sinAnalysisParameters,signalTrackArray,DEBUG);
-    timeRes = sinAnalysisParameters.timeInstants(10)-sinAnalysisParameters.timeInstants(9);
-    trackTimes = 0:timeRes:sinAnalysisParameters.timeInstants(end)+2;
-    figure;
-    plot(trackTimes(1:sinAnalysisParameters.totalFrames),resampleFactors,'LineWidth',2);
-    X = sprintf('Pitch Deviation Curve');
-    title(X);
-    xlabel('Time(s)');
-    ylabel('Relative Frequency');
-
     resampleFactors = resampleFactors+(pitchOffset/100);
     
     resampledSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,resampleFactors,filterCoeffs,DEBUG);

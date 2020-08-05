@@ -9,8 +9,12 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
             windowFunction = hann(windowSize,'periodic');
         case 'hamming'
             windowFunction = hamming(windowSize,'periodic');
+        case 'rectangular'
+            windowFunction = rectwin(windowSize);
+        case 'triangular'
+            windowFunction = triang(windowSize);
         otherwise
-            error('Invalid window type. Valid options are ''hann'' or ''hamming''.');
+            error('Invalid window type. Valid options are ''hann'', ''hamming'', ''rectangular'' or ''triangular''.');
     end
 
     if METHOD == 0

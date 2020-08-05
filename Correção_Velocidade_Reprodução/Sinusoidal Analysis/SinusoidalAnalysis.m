@@ -31,6 +31,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         
 
         %Outputting general parameters.
+        sinAnalysisParameters.signalSize = length(inputSignal);
         sinAnalysisParameters.samplingRate = samplingRate;
         sinAnalysisParameters.timeInstants = timeInstants;
         sinAnalysisParameters.windowSize = windowSize;
@@ -71,7 +72,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
 
             %Random frame chosen for DEBUG
             DEBUG_FRAME = availableFrames(randi(length(availableFrames)));
-            %DEBUG_FRAME = 8;
+            %DEBUG_FRAME = 6;
             PlotPeakDetection(sinAnalysisParameters,DEBUG_FRAME,frameArray(DEBUG_FRAME));
         end
 

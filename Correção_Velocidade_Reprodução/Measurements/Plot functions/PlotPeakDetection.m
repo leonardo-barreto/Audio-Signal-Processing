@@ -1,5 +1,10 @@
 function PlotPeakDetection(sinAnalysisParameters,currentFrame,signalFrame)
 
+    if (isempty(signalFrame.peakMatrix))
+        fprintf('\nNo peaks in this frame. Well, nothing to plot.\n\n');
+        return
+    end
+
     figure
     hold on;
 
@@ -15,7 +20,7 @@ function PlotPeakDetection(sinAnalysisParameters,currentFrame,signalFrame)
         ylabel('Potencia (dB)','FontSize', 30);
         legend ('Espectro','Limiar SSE','Picos detectados');
         set(gca,'FontSize', 30);
-        xlim([0 4.4])
+        xlim([0 signalFrame.freqComponents(end)/1000])
         hold off;
 
 end

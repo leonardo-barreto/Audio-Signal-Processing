@@ -1,12 +1,12 @@
-function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParameters(resampleFactors,windowIndex,originalPeriod,blockSize,DEBUG)
+function [normalizedStepSize,numberNewSamples,normalizedCurrentPeriod] = GenerateNormalizedParameters(resampleFactors,frameIndex,originalPeriod,blockSize,DEBUG)
 
     %This repeats first and last factors.
     %This is used for the edges of the signal (to reach the first factor and to transition out of the last one.)
     %This is necessary because resampling blocks are defined in-between two subsequent window centers, and factors are associated with these centers.
     resampleFactorsAdjusted = [resampleFactors(1) resampleFactors resampleFactors(end)];
 
-    currentPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex);
-    nextPeriod = originalPeriod/resampleFactorsAdjusted(windowIndex+1);
+    currentPeriod = originalPeriod/resampleFactorsAdjusted(frameIndex);
+    nextPeriod = originalPeriod/resampleFactorsAdjusted(frameIndex+1);
 
     if DEBUG == 1
         if (currentPeriod ~= nextPeriod)

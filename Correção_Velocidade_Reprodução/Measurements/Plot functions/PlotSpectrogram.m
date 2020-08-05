@@ -1,6 +1,6 @@
 function PlotSpectrogram(freqComponents,frameTimeInstants,powerMatrixDB)
 
-    figure(1)
+    figure;
     surf(frameTimeInstants, freqComponents, powerMatrixDB)
     shading interp
     axis tight
