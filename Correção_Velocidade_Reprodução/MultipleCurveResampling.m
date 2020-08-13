@@ -3,9 +3,17 @@
 %
 %
 
-function [outputResults] = MultipleCurveResampling(inputSignal,fs,windowType,windowSize,overlapPerc,fftPoints,filterCoeffs,waveCycles,alfa,DEBUG)
+function [outputResults] = MultipleCurveResampling(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,filterCoeffs,waveCycles,alfa,DEBUG)
 
-    [dummy,dummy2,inputSinAnalysisParameters] = SinusoidalAnalysis(inputSignal,fs,windowType,windowSize,overlapPerc,fftPoints,DEBUG);
+    [dummy,dummy2,timeInstants,dummy3] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+
+    inputSinAnalysisParameters.signalSize = length(inputSignal);
+    inputSinAnalysisParameters.samplingRate = samplingRate;
+    inputSinAnalysisParameters.timeInstants = timeInstants;
+    inputSinAnalysisParameters.windowSize = windowSize;
+    inputSinAnalysisParameters.totalFrames = length(timeInstants);
+    inputSinAnalysisParameters.hopSize = floor(((100-overlapPerc)/100)*windowSize);
+
     [inputDistortionCurves,dummy,outputResults.curveNames] = MakeDistortionCurves(inputSinAnalysisParameters,waveCycles,alfa);
 
     for curveIndex = 1:length(inputDistortionCurves)
@@ -16,7 +24,15 @@ function [outputResults] = MultipleCurveResampling(inputSignal,fs,windowType,win
         outputResults.distortedSignals{curveIndex} = TimeVarying_Resample(inputSignal,inputSinAnalysisParameters,inputDistortionCurves{curveIndex},filterCoeffs,DEBUG);
         outputResults.distortionCurves{curveIndex} = inputDistortionCurves{curveIndex};
 
-        [dummy,dummy2,distortedSinAnalysisParameters] = SinusoidalAnalysis(outputResults.distortedSignals{curveIndex},fs,windowType,windowSize,overlapPerc,fftPoints,DEBUG);
+        [dummy,dummy2,timeInstants,dummy3] = ComputeSTFT(outputResults.distortedSignals{curveIndex},samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+
+        distortedSinAnalysisParameters.signalSize = length(inputSignal);
+        distortedSinAnalysisParameters.samplingRate = samplingRate;
+        distortedSinAnalysisParameters.timeInstants = timeInstants;
+        distortedSinAnalysisParameters.windowSize = windowSize;
+        distortedSinAnalysisParameters.totalFrames = length(timeInstants);
+        distortedSinAnalysisParameters.hopSize = floor(((100-overlapPerc)/100)*windowSize);
+
         [dummy,distortedInverseCurves,dummy2] = MakeDistortionCurves(distortedSinAnalysisParameters,waveCycles,alfa);
 
         fprintf('\nInverting the distortion...\n');

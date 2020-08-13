@@ -11,19 +11,23 @@ function [distortionCurves,inverseCurves,curveNames] = MakeDistortionCurves(sinA
     signalDuration = signalSize/samplingRate;
 
 
+    rampCurve.ascending = 1 + alfa*timeInstants;
+    rampCurve.descending = 1 - 2*alfa*timeInstants;
+    %rampCurve.descending = 2 - rampCurve.ascending;
+
     sineCurve.main = 1 + alfa*cos(2*pi*(waveCycles/signalDuration)*timeInstants);
     sineCurve.inverse = 2 - sineCurve.main;
 
-    rampCurve.ascending = 1 + 2*alfa*timeInstants;
-    rampCurve.descending = 1 - 2*alfa*timeInstants;
+    stepCurve.main = 1 + alfa*square(2*pi*(waveCycles/signalDuration)*timeInstants);
+    stepCurve.inverse = 2 - stepCurve.main;
 
     triangCurve.main = 1 + 2*alfa*sawtooth(2*pi*(waveCycles/signalDuration)*timeInstants,1/2);
     triangCurve.main = triangCurve.main/triangCurve.main(1);
     triangCurve.inverse = 2 - triangCurve.main;
 
-    distortionCurves = {sineCurve.main;rampCurve.ascending;triangCurve.main};
-    inverseCurves = {sineCurve.inverse;rampCurve.descending;triangCurve.inverse};
+    distortionCurves = {rampCurve.ascending;sineCurve.main;stepCurve.main;triangCurve.main};
+    inverseCurves = {rampCurve.descending;sineCurve.inverse;stepCurve.inverse;triangCurve.inverse};
 
-    curveNames = {'sineCurve' 'rampCurve' 'triangCurve'};
+    curveNames = {'rampCurve' 'sineCurve' 'stepCurve' 'triangCurve'};
 
 end
