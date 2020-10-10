@@ -49,7 +49,7 @@ function deviationCurve = ExtractDeviationCurve (frameArray,sinAnalysisParameter
 
     if DEBUG == 1  
         deviationPercentageMatrix = (deviationMatrix-1).*100; %This for plotting purposes only.  
-        figure(1)
+        figure;
         surf(1:totalFrames,1:totalTracks,deviationPercentageMatrix);
         shading interp
         axis tight
@@ -60,7 +60,7 @@ function deviationCurve = ExtractDeviationCurve (frameArray,sinAnalysisParameter
         hcol = colorbar;
         ylabel(hcol, 'Deviation from mean frequency (%)');
 
-        figure(2);
+        figure;
         plot(sinAnalysisParameters.timeInstants,deviationCurve,'LineWidth',3);
         X = sprintf('Curva de desvio relativo de pitch');
         title(X,'FontSize', 30);

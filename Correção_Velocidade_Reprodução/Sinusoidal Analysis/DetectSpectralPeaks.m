@@ -10,7 +10,7 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
     %
 
     %Parameters
-    peakProminence = 40; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
+    peakProminence = 20; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
 
     numberCoeffsSSE = 20;
     thresholdOffsetSSE = 0 ; %THIS MUST BE IN dB.

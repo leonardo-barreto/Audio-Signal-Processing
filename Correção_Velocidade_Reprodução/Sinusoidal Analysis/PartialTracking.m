@@ -9,7 +9,7 @@ function currentTracks = PartialTracking(inputFrame,currentTracks,DEBUG)
         freqTolerance = (power(2,1/24)-1); %about 3% (quarter-tone)
         maxHysteresis = 3; % in frames.
         minLength = 10; % in frames
-        maxTrackFrequency = 20000; %in Hz
+        maxTrackFrequency = 10000; %in Hz
         minTrackPower = -80;%in dB
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Initial Processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|    
