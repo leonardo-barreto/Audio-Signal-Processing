@@ -27,11 +27,6 @@ function enhancedPeakMatrix = PeakEnhancement(powerSpectrumDB,peakPower,peakPosi
             end
         end
 
-    %DFT1
-        %enhancedFrequencies = (samplingRate/pi)*sin(pi*enhancedPeakMatrix(2,:)./samplingRate);
-        %enhancedPeakMatrix(2,:) = enhancedFrequencies;
-
-
    
 
 end
