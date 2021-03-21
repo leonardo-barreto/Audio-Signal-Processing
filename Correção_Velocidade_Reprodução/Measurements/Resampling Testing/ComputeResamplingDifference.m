@@ -19,6 +19,7 @@ function [outputDifferences] = ComputeResamplingDifference(referenceSignal,resam
             plot(time(1:minLength),abs(outputDifferences{curveIndex}));
             %X = sprintf('Diferenca curva %i',curveIndex);
             %title(X,'FontSize', 30);
+            xlabel('Tempo (s)');
             set(gca,'FontSize', 40);
         end
 
