@@ -10,7 +10,7 @@ function currentTracks = PartialTracking(inputFrame,currentTracks,DEBUG)
         maxHysteresis = 3; % in frames.
         minLength = 10; % in frames
         maxTrackFrequency = 10000; %in Hz
-        minTrackPower = -80;%in dB
+        minTrackPower = -60;%in dB
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Initial Processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|    
 

@@ -1,4 +1,4 @@
-signal_name = 'sonata_MIDI';
+signal_name = 'Paulistana1';
 
 [data, fs_orig] = audioread([signal_name '.wav']);
 
@@ -10,6 +10,6 @@ end
 x = x(:);
 
 x = resample(x, fs, fs_orig);
-x = x(1 : 2*fs);
+x = x(1 : 3*fs);
 
 ylim_vec = [0 4000];

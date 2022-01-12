@@ -14,7 +14,8 @@ else
 end
 
 redLines = .25; % plots red vertical dashed-lines for visual comparison of onsets
-sig_name = 'Ac_guit_note'; % for reading audio signal and naming the resulting figures
+% sig_name = 'Ac_guit_note'; % for reading audio signal and naming the resulting figures
+sig_name = 'source_Hadley';
 % sig_name = 'sin_1khz'; % for reading audio signal and naming the resulting figures
 % sig_name = 'impulse'; % for reading audio signal and naming the resulting figures
 % sig_name = 'carnaval_percussao'; % for reading audio signal and naming the resulting figures
@@ -24,7 +25,7 @@ sig_name = 'Ac_guit_note'; % for reading audio signal and naming the resulting f
 
 plot_par = [.1, .4, 0, 2000, 35]; % some parameters for plotting
 plot_flags = [1, 1, 0];
-fs = 44100/4;
+fs = 48000;
 
 figs_path = path_check(['.', dirbar, 'figs', dirbar, 'Local_Sparsity', dirbar, sig_name, dirbar]);
 
@@ -51,7 +52,7 @@ eta = 1; % controls the energy weighting process
 % eta = 1; % controls the energy weighting process
 
 % Standard setup
-NFFT = 4096/4;
+NFFT = 4096;
 hop_DFT = 0.005; % time interval between frames in seconds
 
 % % To plot 'sin_1khz'
@@ -63,7 +64,7 @@ hop_DFT = 0.005; % time interval between frames in seconds
 % hop_DFT = 0.005; % time interval between frames in seconds
 
 % Window lengths (in ascendent order!!!)
-N_w = [1024 4096]/4;
+N_w = [1024 2048 4096 8192];
 % alphas = [0 alpha_ref];
 % alphas = [0 0];
 samp_hop = ceil(hop_DFT*fs);

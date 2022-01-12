@@ -1,4 +1,4 @@
-function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints,DEBUG)
+function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,hopSize,fftPoints,DEBUG)
 
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -13,9 +13,9 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
 
     % -------------------------------------- STFT and spectrogram stage -------------------------------------------
         
-        fprintf('Short-Time Fourier Transform starting...\n Sampling Rate(Hz): %i\n Window: %s (size %i, overlap %i%%) \n FFT Points: %i\n', samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+        fprintf('Short-Time Fourier Transform starting...\n Sampling Rate(Hz): %i\n Window: %s (size %i, hop %i) \n FFT Points: %i\n', samplingRate,windowType,windowSize,hopSize,fftPoints);
 
-        [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints);
+        [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,hopSize,fftPoints);
         
         powerMatrixDB = 10*log10(powerMatrix); 
 
@@ -36,7 +36,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
         sinAnalysisParameters.timeInstants = timeInstants;
         sinAnalysisParameters.windowSize = windowSize;
         sinAnalysisParameters.totalFrames = totalFrames;
-        sinAnalysisParameters.hopSize = floor(((100-overlapPerc)/100)*windowSize);
+        sinAnalysisParameters.hopSize = hopSize;
 
         
         fprintf(' Total frames: %i\n',sinAnalysisParameters.totalFrames);
@@ -73,7 +73,7 @@ function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysi
             %Random frame chosen for DEBUG
             DEBUG_FRAME = availableFrames(randi(length(availableFrames)));
             %DEBUG_FRAME = 6;
-            PlotPeakDetection(sinAnalysisParameters,DEBUG_FRAME,frameArray(DEBUG_FRAME));
+            PlotPeakDetection(sinAnalysisParameters,frameArray(DEBUG_FRAME));
         end
 
         fprintf('Peak Detection Finished.\n');

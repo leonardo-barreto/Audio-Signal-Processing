@@ -1,4 +1,4 @@
-function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,overlapPerc,fftPoints)
+function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,hopSize,fftPoints)
 
     % This function computes a signal's STFT (by FFT).
 
@@ -22,15 +22,13 @@ function [spectrgMatrix,freqComponents,frameTimeInstants,powerMatrix] = ComputeS
         if DEBUG == 1
             fprintf(' Method used: MATLAB spectrogram.\n');
         end
-        overlapSize = floor((overlapPerc/100)*windowSize); %This converts the overlap percentage to actual overlap size.
-        [spectrgMatrix,f,frameTimeInstants,ps] = spectrogram (inputSignal,windowFunction,overlapSize,fftPoints,'power','onesided');
+        [spectrgMatrix,f,frameTimeInstants,ps] = spectrogram (inputSignal,windowFunction,hopSize,fftPoints,'power','onesided');
         freqComponents = transpose((samplingRate/2*pi).*f);
         powerMatrix = ps;
     else
         if DEBUG == 1
             fprintf(' Method used: stft function from Hristo Zhivomirov (MathWorks site).\n');
         end
-        hopSize = floor(((100-overlapPerc)/100)*windowSize); %This converts the overlap percentage to hop size.
         [spectrgMatrix, freqComponents, frameTimeInstants] = stft(inputSignal,windowFunction,hopSize,fftPoints,samplingRate);
         powerMatrix = power(abs(spectrgMatrix),2)/fftPoints;
     end

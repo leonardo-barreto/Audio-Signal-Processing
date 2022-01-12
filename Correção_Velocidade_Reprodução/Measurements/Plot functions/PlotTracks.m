@@ -35,13 +35,19 @@ function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArra
 
     end
     y = gca;
-    set(y,'yscale','log')
+    y_lim_vec = [0 5000];
+    x_lim_vec = [0 timeInstants(end)];
+    %set(y,'yscale','log')
+    set(y,'YDir','normal');    
+    ylim(y_lim_vec); 
     X = sprintf('Rastreamento de trilhas senoidais');
-    title(X);
+    %title(X);
     xlabel('Tempo (s)','FontSize', 30);
     ylabel('Frequencia (Hz)','FontSize', 30);
-    set(y,'FontSize', 30)
-    %ylim([1997 2001])
+    set(y,'FontSize', 35)
+    figProp = struct('size', 35, 'font', 'Times', 'lineWidth', 4 , 'figDim', [1 1 900 500]);
+    figFileName = 'Tracking';
+    formatFig(gcf, figFileName, 'en', figProp);
     hold off;
 
 end

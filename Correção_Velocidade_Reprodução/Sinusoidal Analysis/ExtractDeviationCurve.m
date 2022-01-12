@@ -63,7 +63,7 @@ function deviationCurve = ExtractDeviationCurve (frameArray,sinAnalysisParameter
         figure;
         plot(sinAnalysisParameters.timeInstants,deviationCurve,'LineWidth',3);
         X = sprintf('Curva de desvio relativo de pitch');
-        title(X,'FontSize', 30);
+        %title(X,'FontSize', 30);
         xlabel('Tempo (s)','FontSize', 30);
         ylabel('Frequencia relativa a media','FontSize', 30);
         set(gca,'FontSize', 30)

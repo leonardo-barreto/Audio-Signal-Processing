@@ -12,10 +12,11 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
     %Parameters
     peakProminence = 20; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
 
-    numberCoeffsSSE = 20;
+    numberCoeffsSSE = 30;
     thresholdOffsetSSE = 0 ; %THIS MUST BE IN dB.
 
     hardThreshold = 80; %in DB
+    freqThreshold = 5000; %in Hz
 
     % Gathering frame data
     
@@ -66,7 +67,7 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
             maxPeakPower = max(initialPeaks);
 
             for freqCounter = detectedPeakPositions
-                if (initialPeaks(freqCounter) > spectrumThreshold(freqCounter) && (maxPeakPower - initialPeaks(freqCounter)) < hardThreshold)
+                if (initialPeaks(freqCounter) > spectrumThreshold(freqCounter) && (maxPeakPower - initialPeaks(freqCounter)) < hardThreshold && freqComponents(freqCounter) < freqThreshold)
                     detectedPeaks(freqCounter) = initialPeaks(freqCounter);
                 end
             end

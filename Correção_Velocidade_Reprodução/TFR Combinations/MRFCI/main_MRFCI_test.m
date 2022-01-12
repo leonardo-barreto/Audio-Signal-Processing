@@ -15,8 +15,8 @@ addpath tests
 
 % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
-fs = 48000;
-hop = 256;
+fs = 44100;
+hop = 1024;
 
 block_size = 2; % Analysis block size in seconds
 
@@ -27,9 +27,9 @@ N_alphas = 7; % Number of alphas (I, in the paper)
 % asym_flags = [0 0]; % Indicate which Nf will be used to compute Fan-chirp instances
 % FChT_flags = [1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
 
-Nf = [1024 2048 4096]; % Window sizes
-asym_flags = [0 0 1]; % Indicate which Nf will be used to compute Fan-chirp instances
-FChT_flags = [0 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+Nf = [2048 4096 8192]; % Window sizes
+asym_flags = [0 0 0]; % Indicate which Nf will be used to compute Fan-chirp instances
+FChT_flags = [0 0 1]; % Indicate which Nf will be used to compute Fan-chirp instances
 
 % Structure tensor - - - - - - - - -
 
@@ -42,7 +42,7 @@ range = 60; % range in dB for the ST
 sigma_t = Nf(end)/(4*fs); % in s
 sigma_f = 100;% in Hz
 
-Nf_structure_tensor = Nf(1); % To compute the structure tensor
+Nf_structure_tensor = Nf(3); % To compute the structure tensor
 
 % - - - Plotting parameters - - -
 plot_ind = []; % Chooses the Nf to plot the spectrogram
@@ -50,7 +50,7 @@ y_lim_vec = [0 5000];
 redLines = []; % Time instants, in s, for ploting vertical-dashed lines
 
 %% - - - - - - Reading input signal - - - - - -
-
+read_input;
 % read_synthetic_signal % proof of concept
 % read_harmonic_sin; %<<<<<
 % read_harmonic_sin_var; %<<<<<
@@ -59,9 +59,10 @@ redLines = []; % Time instants, in s, for ploting vertical-dashed lines
 % read_violins_vibrato_drums2;
 % read_pop; % <<<<<
 % read_violin_vocal; % <<<<<
-read_opera_vocals;
+% read_opera_vocals;
 % read_operaTenor;
-% read_piano;
+% read_input;
+% read_hadley;
 % read_violins_piano; % xxxxx
 % read_signals; % xxxxx
 
@@ -117,8 +118,8 @@ read_opera_vocals;
     set(gca,'YDir','normal');
     ylim(y_lim_vec);
     colormap(1-gray);
-    xlabel('Time [s]');
-    ylabel('Frequency [Hz]');
+    xlabel('Tempo (s)');
+    ylabel('Frequencia (Hz)');
     tit = ['TFRs_' signal_name '_st_lin_comb_Na_' num2str(N_alphas)];
 
     % To show onset and offset
