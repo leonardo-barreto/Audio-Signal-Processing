@@ -1,7 +1,7 @@
-function spectrumFinalThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG);
+function spectrumFinalThreshold = HPSS_SSE(inputFrame,numberCoeffsSSE,DEBUG);
 
-    % This function takes a signal frame's power spectrum and executes a Spectrum Stochastic Estimating
-    % process aiming at constructing a threshold for proeminent peak detection.
+    % 
+    % 
     %
 
     %Gathering frame data

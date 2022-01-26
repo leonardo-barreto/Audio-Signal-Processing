@@ -9,7 +9,7 @@ else
 end
 
 addpath audio
-addpath tests
+%addpath tests
 
 % - - - - - - Parameters configuration - - - - - - 
 
@@ -50,28 +50,43 @@ y_lim_vec = [0 5000];
 redLines = []; % Time instants, in s, for ploting vertical-dashed lines
 
 %% - - - - - - Reading input signal - - - - - -
-read_input;
-% read_synthetic_signal % proof of concept
-% read_harmonic_sin; %<<<<<
-% read_harmonic_sin_var; %<<<<<
-% compute_chirp; %<<<<<<
-% read_violins_vibrato;
-% read_violins_vibrato_drums2;
-% read_pop; % <<<<<
-% read_violin_vocal; % <<<<<
-% read_opera_vocals;
-% read_operaTenor;
-% read_input;
-% read_hadley;
-% read_violins_piano; % xxxxx
-% read_signals; % xxxxx
+    % read_input
+    [data, fs_orig] = audioread([signal_name '.wav']);
 
-% read_harmonic_sin_1;
-% read_carnaval_percussao
-% % read_piano
-% read_apesar_de_voce
-% read_drum_and_bass
-% read_harmonic_chirp_signal
+    if size(data,2) > 1
+        x = mean(data.');
+    else
+        x = data;
+    end
+    x = x(:);
+
+    %x = resample(x, fs, fs_orig);
+    %x = x(1: 15*fs);
+    inputSignal = x;
+
+    ylim_vec = [0 4000];
+
+    % ------ ORIGINAL READING SCRIPTS FROM MAURICIO ------
+        % read_synthetic_signal % proof of concept
+        % read_harmonic_sin; %<<<<<
+        % read_harmonic_sin_var; %<<<<<
+        % compute_chirp; %<<<<<<
+        % read_violins_vibrato;
+        % read_violins_vibrato_drums2;
+        % read_pop; % <<<<<
+        % read_violin_vocal; % <<<<<
+        % read_opera_vocals;
+        % read_operaTenor;
+        % read_input;
+        % read_hadley;
+        % read_violins_piano; % xxxxx
+        % read_signals; % xxxxx
+        % read_harmonic_sin_1;
+        % read_carnaval_percussao
+        % % read_piano
+        % read_apesar_de_voce
+        % read_drum_and_bass
+        % read_harmonic_chirp_signal
     
 
     %% - - - - - - Computing MRFCI TFR - - - - - -
