@@ -1,4 +1,4 @@
-function [TFParams] = TFAnalysis_HPSS(signal_name)
+function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_HPSS(signal_name)
     
     %   This function makes a time-frequency analysis of a signal, using auxiliary functions for modularity.
     %
@@ -75,7 +75,7 @@ function [TFParams] = TFAnalysis_HPSS(signal_name)
             
         %TFR Information    
         powerMatrix = compress_dB_norm(powerMatrix, plot_range);
-        powerMatrixDB = 10*log10(powerMatrix);
+        %powerMatrix = 10*log10(powerMatrix);
         %powerMatrixDB = powerMatrix;
         totalFreqBins = length(freqComponents);
         totalFrames = length(timeInstants);
@@ -90,10 +90,13 @@ function [TFParams] = TFAnalysis_HPSS(signal_name)
         TFParams.totalFrames = totalFrames;
         TFParams.hopSize = hopSize;
 
-        
+        TF_Representation = powerMatrix;
+
         fprintf(' Total frames: %i\n',TFParams.totalFrames);
         fprintf(' Number of frequency bins: %i\n',TFParams.fftPoints);
         fprintf('\nTime-Frequency Representation Finished.\n');
+
+
 
         %if DEBUG == 1 %call plot
             %PlotSpectrogram(freqComponents,timeInstants,powerMatrixDB);

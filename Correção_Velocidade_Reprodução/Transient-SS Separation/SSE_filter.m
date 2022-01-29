@@ -14,7 +14,7 @@ function [spectrg_SS, spectrg_Tr] = SSE_filter(spectrg, nSSE_SS, nSSE_Tr, dBTrue
     %   spectr_Tr : Transient-enhanced version of input spectrogram.
     %
 
-    %Gathering frame data
+    % Gathering frame data
     if dBTrue == 1
         spectrg = spectrg/10;
         spectrg = power(10,spectrg);

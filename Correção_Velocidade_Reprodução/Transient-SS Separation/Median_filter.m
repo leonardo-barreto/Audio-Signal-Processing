@@ -34,7 +34,8 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 
             end
-            textprogressbar((k/2/largo)*100);
+            a = num2str((k/2/largo)*100);
+            textprogressbar(a);
         end
 
     %% Median filtering along frequency
@@ -52,7 +53,8 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 %spectrg_Tr(k,:)=0;
             end
-            textprogressbar((1/2+k/2/ancho)*100);
+            a = num2str((1/2+k/2/ancho)*100);
+            textprogressbar(a);
         end
 
 
@@ -63,7 +65,7 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
         spectrg_Tr=spectrg.*mask_Tr;
 
 
-    textprogressbar('Done')
+    textprogressbar('Done\n')
 
 end
 
