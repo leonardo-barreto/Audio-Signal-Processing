@@ -12,16 +12,16 @@ function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_HPSS(sig
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
         fs = 44100;
-        hop = 1024;
+        hop = 512;
 
         block_size = 2; % Analysis block size in seconds
 
         % Synthesis TFR - - - - - - - - - - - - - - - - - - -
         N_alphas = 7; % Number of alphas (I, in the paper)
 
-        Nf = [2048 4096 8192]; % Window sizes
+        Nf = [512 1024 2048]; % Window sizes
         asym_flags = [0 0 0]; % Indicate which Nf will be used to compute Fan-chirp instances
-        FChT_flags = [0 0 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+        FChT_flags = [1 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
 
         % Structure tensor - - - - - - - - -
 
@@ -32,7 +32,7 @@ function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_HPSS(sig
         sigma_t = Nf(end)/(4*fs); % in s
         sigma_f = 100;% in Hz
 
-        Nf_structure_tensor = Nf(3); % To compute the structure tensor
+        Nf_structure_tensor = Nf(2); % To compute the structure tensor
 
         % Compression
         plot_range = 80; %dB
@@ -74,9 +74,9 @@ function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_HPSS(sig
             hopSize = hop;
             
         %TFR Information    
-        powerMatrix = compress_dB_norm(powerMatrix, plot_range);
+        %powerMatrix = compress_dB_norm(powerMatrix, plot_range);
         %powerMatrix = 10*log10(powerMatrix);
-        %powerMatrixDB = powerMatrix;
+        
         totalFreqBins = length(freqComponents);
         totalFrames = length(timeInstants);
         

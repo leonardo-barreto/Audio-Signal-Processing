@@ -57,6 +57,7 @@ redLines = []; % Time instants, in s, for ploting vertical-dashed lines
 
     figure;
     imagesc(Time_combined, Freq_combined, compress_dB_norm(TFR_comb, plot_range));
+    %imagesc(Time_combined, Freq_combined, 10*log10(TFR_comb));
     set(gca,'YDir','normal');
     ylim(y_lim_vec);
     colormap(1-gray);

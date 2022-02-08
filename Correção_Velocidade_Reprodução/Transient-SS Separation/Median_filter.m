@@ -3,7 +3,8 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     % This function aims at producing Steady-State and Transient-enhanced spectrograms of a signal,
     % based on median filtering along both time and frequency dimensions.
     %  
-    % Original code implementaion made by Ignacio Irigaray (Universidad de la Republica, Montevideo, Uruguay)
+    % Original code implementaion made by Ignacio Irigaray 
+    % (Universidad de la Republica, Montevideo, Uruguay)
     % 
     % Inputs:
     %   spectrg : Spectrogram module matrix
@@ -21,39 +22,38 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     textprogressbar('Filtering: ')
 
     %% Median filtering along time
-        largo=size(spectrg,2);
+        timeLength = size(spectrg,2);
             
-        for  k=1:largo
-            if (k>nFilter_SS)&&(k<=size(spectrg,2)-nFilter_SS)
-                spectrg_SS(:,k)=median(spectrg(:,k-nFilter_SS:k+nFilter_SS),2);
+        for  k = 1:timeLength
+            if (k > nFilter_SS) && (k <= timeLength-nFilter_SS)
+                spectrg_SS(:,k) = median(spectrg(:,k-nFilter_SS:k+nFilter_SS),2);
             else
-                if k<=nFilter_SS
-                spectrg_SS(:,k)=median(spectrg(:,1:k+nFilter_SS),2);
+                if k <= nFilter_SS
+                    spectrg_SS(:,k) = median(spectrg(:,1:k+nFilter_SS),2);
                 else
-                spectrg_SS(:,k)=median(spectrg(:,k-nFilter_SS:k),2);    
+                    spectrg_SS(:,k) = median(spectrg(:,k-nFilter_SS:k),2);    
                 end
                 
             end
-            a = num2str((k/2/largo)*100);
+            a = num2str((k/2/timeLength)*100);
             textprogressbar(a);
         end
 
     %% Median filtering along frequency
-        ancho=size(spectrg,1);
+        freqHeight = size(spectrg,1);
             
-        for k=1:ancho
-            if (k>nFilter_Tr)&&(k<=size(spectrg,1)-nFilter_Tr)
-                spectrg_Tr(k,:)=median(spectrg(k-nFilter_Tr:k+nFilter_Tr,:),1);
+        for k = 1:freqHeight
+            if (k > nFilter_Tr) && (k <= freqHeight-nFilter_Tr)
+                spectrg_Tr(k,:) = median(spectrg(k-nFilter_Tr:k+nFilter_Tr,:),1);
             else
-                if k<=nFilter_Tr
-                spectrg_Tr(k,:)=median(spectrg(1:k+nFilter_Tr,:),1);
-                else
-                    
-                    spectrg_Tr(k,:)=median(spectrg(k-nFilter_Tr:k,:),1);
+                if k <= nFilter_Tr
+                    spectrg_Tr(k,:) = median(spectrg(1:k+nFilter_Tr,:),1);
+                else    
+                    spectrg_Tr(k,:) = median(spectrg(k-nFilter_Tr:k,:),1);
                 end
                 %spectrg_Tr(k,:)=0;
             end
-            a = num2str((1/2+k/2/ancho)*100);
+            a = num2str((1/2+k/2/freqHeight)*100);
             textprogressbar(a);
         end
 
