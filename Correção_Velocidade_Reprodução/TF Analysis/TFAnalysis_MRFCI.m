@@ -1,4 +1,4 @@
-function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_HPSS(signal_name)
+function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_MRFCI(signal_name)
     
     %   This function makes a time-frequency analysis of a signal, using auxiliary functions for modularity.
     %
