@@ -16,6 +16,13 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     %   spectrg_Im : Transient components spectrogram
     %
 
+    if mod(nFilter_SS,2) ~= 0 | mod(nFilter_Tr,2) ~=0
+        error('Filter lengths must be odd numbers.')
+    end
+
+    nFilter_SS = (nFilter_SS-1)/2; % Total length to neighbourhood size
+    nFilter_Tr = (nFilter_Tr-1)/2;
+
     spectrg_SS=zeros(size(spectrg));
     spectrg_Tr=zeros(size(spectrg));
 

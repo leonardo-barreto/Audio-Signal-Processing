@@ -1,11 +1,15 @@
-function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_MRFCI(signal_name)
+function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(signal_name)
     
-    %   This function makes a time-frequency analysis of a signal, using auxiliary functions for modularity.
-    %
-    %   1st - TFR
-    %
+    %   This function makes a time-frequency analysis of a signal, using the MRFCI method.
 
-    DEBUG = 1;
+    if isunix
+        addpath ./audio
+        dirbar = '/';
+    else
+        addpath .\audio
+        dirbar = '\';
+    end
+    
 
     %% - - - - - - Parameters configuration - - - - - - 
 
@@ -19,7 +23,7 @@ function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_MRFCI(si
         % Synthesis TFR - - - - - - - - - - - - - - - - - - -
         N_alphas = 7; % Number of alphas (I, in the paper)
 
-        Nf = [512 1024 2048]; % Window sizes
+        Nf = [1024 2048 4096]; % Window sizes
         asym_flags = [0 0 0]; % Indicate which Nf will be used to compute Fan-chirp instances
         FChT_flags = [1 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
 
@@ -51,56 +55,36 @@ function [freqComponents, timeInstants, TF_Representation] = TFAnalysis_MRFCI(si
         end
         x = x(:);
 
-        %x = resample(x, fs, fs_orig);
+        if fs ~= fs_orig
+            x = resample(x, fs, fs_orig);
+        end
         %x = x(1: 15*fs);
-        inputSignal = x;
 
-        ylim_vec = [0 4000];
+        ylim_vec = [0 5000];
 
 
     %% -------------------------------------- TFR stage -------------------------------------------
     fprintf('\n\n------- TIME-FREQUENCY ANALYSIS STARTED ------\n\n');
         % MRFCI
-            main_MRFCI_HPSS;
+            main_MRFCI;
                 
             %Gathering TFRs from Mauricio
-            inputSignal = x;
-            samplingRate = fs;
-            powerMatrix = TFR_comb;
+            TFRepresentation = TFR_comb;
             timeInstants = Time_combined;
             freqComponents = Freq_combined;
-            %fftPoints = 2*length(Freq_combined);
-            fftPoints = max(Nf);
-            hopSize = hop;
             
         %TFR Information    
-        %powerMatrix = compress_dB_norm(powerMatrix, plot_range);
-        %powerMatrix = 10*log10(powerMatrix);
-        
-        totalFreqBins = length(freqComponents);
-        totalFrames = length(timeInstants);
-        
+        %TFRepresentation = compress_dB_norm(TFRepresentation, plot_range);
+        %TFRepresentation = 10*log10(TFRepresentation);    
 
-        %Outputting general parameters.
-        TFParams = {};
-        TFParams.signalSize = length(inputSignal);
-        TFParams.samplingRate = samplingRate;
-        TFParams.timeInstants = timeInstants;
-        TFParams.fftPoints = fftPoints/2;
-        TFParams.totalFrames = totalFrames;
-        TFParams.hopSize = hopSize;
-
-        TF_Representation = powerMatrix;
-
-        fprintf(' Total frames: %i\n',TFParams.totalFrames);
-        fprintf(' Number of frequency bins: %i\n',TFParams.fftPoints);
+        fprintf(' Total frames: %i\n',length(timeInstants));
+        fprintf(' Number of frequency bins: %i\n',length(freqComponents));
         fprintf('\nTime-Frequency Representation Finished.\n');
 
-
-
-        %if DEBUG == 1 %call plot
-            %PlotSpectrogram(freqComponents,timeInstants,powerMatrixDB);
-        %end
+    %% ----------------------- Plotting -----------------------  
+        
+        PlotSpectrogram(freqComponents,timeInstants,10*log10(TFRepresentation));
 
     
 fprintf('\n\n------- TIME-FREQUENCY ANALYSIS FINISHED ------\n\n');
+end

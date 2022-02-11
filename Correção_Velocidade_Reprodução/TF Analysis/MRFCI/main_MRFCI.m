@@ -3,9 +3,9 @@
 % - - - - - - Setting Paths - - - - - - 
 
 if isunix
-    figsPath = path_check('./figs/');
+    figsPath = path_check('./audio/figs/');
 else
-    figsPath = path_check('.\figs\');
+    figsPath = path_check('.\audio\figs\');
 end
 
 %addpath audio
@@ -13,7 +13,6 @@ end
 
 % - - - Plotting parameters - - -
 plot_ind = []; % Chooses the Nf to plot the spectrogram
-y_lim_vec = [0 5000];
 redLines = []; % Time instants, in s, for ploting vertical-dashed lines
 
 %% - - - - - - Computing MRFCI TFR - - - - - -

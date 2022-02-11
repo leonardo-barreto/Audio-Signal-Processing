@@ -79,13 +79,10 @@ Nrows_DFT = 10*NFFT/N_w(1);
 size_w_S = [Nrows_DFT   Ncols_DFT];
 size_w_E = [Nrows_DFT/3   2*Ncols_DFT];
 
-[spectrograms_tensor, freq, t ] = spectrogram_tensor_prep(x, fs, N_w, NFFT, overlap_short);
+[spectrograms_tensor, freq, t] = spectrogram_tensor_prep(x, fs, N_w, NFFT, overlap_short);
 % [spectrograms_tensor, freq, t ] = spectrogram_tensor_prep_FChT(x, fs, N_w, NFFT, alphas, overlap_short);
 
 %% Combining spectrograms - - - - - -
-
-% SWGM, just for comparison
-% SWGM_spectrogram = SWGM_comb(spectrograms_tensor, 0.5);
 
 for ii_zeta = 1:length(zeta)
     for ii_eta = 1:length(eta)
