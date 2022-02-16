@@ -1,21 +1,20 @@
-function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_FLS(signal_name)
+function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
     
     %   This function makes a time-frequency analysis of a signal, using the FLS method.
 
     if isunix
-        addpath ./audio
+        addpath ./FLS/util
         dirbar = '/';
     else
-        addpath .\audio
+        addpath .\FLS\util
         dirbar = '\';
     end
-    
 
     %% - - - - - - Parameters configuration - - - - - - 
 
         % Input Signal params
         resampling_factor = 1; % 1, 1/2 or 1/4
-        fs = 44100*resampling_factor;
+        %fs = 44100*resampling_factor;
 
         % Standard setup
         NFFT = 4096*resampling_factor;
@@ -64,46 +63,25 @@ function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_FLS(signa
         eta = 20;
 
         % Compression
-        plot_range = 80; %dB
+        %plot_range = 80; %dB
 
 
     %% - - - - - - Input Reading - - - - - - 
+
         
-        [data, fs_orig] = audioread([signal_name]);
-
-        [filepath,signal_name,ext] = fileparts(signal_name);
-
-        if size(data,2) > 1
-            x = mean(data.');
-        else
-            x = data;
-        end
-        x = x(:);
-
-        if fs ~= fs_orig
-            x = resample(x, fs, fs_orig);
-        end
-        %x = x(1: 15*fs);
-
-        sig_len = length(x)/fs;
-
-        y_lim_vec = [0 5000];
-
 
     %% - - - - - - -  TFR computation - - - - - - - 
  
-        main_FLS;
-                
-        %Gathering TFRs
-        freqComponents = f;
-        timeInstants = t;
-        
-        TFRepresentation = combined_TFR_HLS;   
-        %TFRepresentation = compress_dB_norm(TFRepresentation, plot_range);
-        %TFRepresentation = 10*log10(TFRepresentation);    
+        % - - - - - - - Computing FLS-combined spectrograms - - - - - - -
+        [spectrograms_tensor, f, t] = spectrogram_tensor_prep(x, fs, N_w, NFFT, overlap_short);
+
+        combined_TFR_FLS = spectrogram_comb_FastHoyerLocalSparsity(spectrograms_tensor, size_W_m_k, eta);
+                 
+        %combined_TFR_FLS = compress_dB_norm(combined_TFR_FLS, plot_range);
+        %combined_TFR_FLS = 10*log10(combined_TFR_FLS);    
 
     %% - - - - - - -  Plotting - - - - - - -  
         
-        %PlotSpectrogram_ylin(freqComponents,timeInstants,[10-plot_range 10],10*log10(TFRepresentation));
+        %PlotSpectrogram_ylin(f,t,[10-plot_range 10],10*log10(combined_TFR_FLS));
 
 end

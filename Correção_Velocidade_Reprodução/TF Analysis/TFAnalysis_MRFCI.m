@@ -1,21 +1,13 @@
-function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(signal_name)
+function [f, t, combined_TFR_MRFCI] = TFAnalysis_MRFCI(x,fs)
     
     %   This function makes a time-frequency analysis of a signal, using the MRFCI method.
 
-    if isunix
-        addpath ./audio
-        dirbar = '/';
-    else
-        addpath .\audio
-        dirbar = '\';
-    end
-    
 
     %% - - - - - - Parameters configuration - - - - - - 
 
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
-        fs = 44100;
+        %fs = 44100;
         hop = 128;
 
         block_size = 2; % Analysis block size in seconds
@@ -39,43 +31,21 @@ function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(sig
         Nf_structure_tensor = Nf(1); % To compute the structure tensor
 
         % Compression
-        plot_range = 80; %dB
-
-
-    %% - - - - - - Input Reading - - - - - - 
-        
-        [data, fs_orig] = audioread([signal_name]);
-
-        [filepath,signal_name,ext] = fileparts(signal_name);
-
-        if size(data,2) > 1
-            x = mean(data.');
-        else
-            x = data;
-        end
-        x = x(:);
-
-        if fs ~= fs_orig
-            x = resample(x, fs, fs_orig);
-        end
-        %x = x(1: 15*fs);
-
-        y_lim_vec = [0 5000];
-
+        %plot_range = 80; %dB
 
     %% - - - - - - -  TFR computation - - - - - - -
 
-        main_MRFCI;
+        % Computing combination procedure in blocks
+        [combined_TFR_MRFCI, STFT_tensor, t, f] = MRFCI(x, fs, Nf, block_size,...
+        FChT_flags, asym_flags, Nf_structure_tensor, hop, N_alphas, C_limits, range, sigma_t, sigma_f);
             
-        %Gathering TFRs
-        freqComponents = Freq_combined';
-        timeInstants = Time_combined;
-        
-        TFRepresentation = TFR_comb;  
-        %TFRepresentation = compress_dB_norm(TFRepresentation, plot_range);
-        %TFRepresentation = 10*log10(TFRepresentation);    
+        %Transposing because MRFCI function outputs 1 x N vector
+        f = f';
+    
+        %combined_TFR_MRFCI = compress_dB_norm(combined_TFR_MRFCI, plot_range);
+        %combined_TFR_MRFCI = 10*log10(combined_TFR_MRFCI);    
 
     %% - - - - - - -  Plotting - - - - - - -  
         
-        %PlotSpectrogram_ylin(freqComponents,timeInstants,[10-plot_range 10],10*log10(TFRepresentation));
+        %PlotSpectrogram_ylin(f,t,[10-plot_range 10],10*log10(combined_TFR_MRFCI));
 end

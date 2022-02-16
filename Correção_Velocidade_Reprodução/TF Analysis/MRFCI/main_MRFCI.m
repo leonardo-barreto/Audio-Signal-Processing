@@ -11,10 +11,10 @@ end
 %addpath audio
 %addpath tests
 
-% - - - Plotting parameters - - -
-plot_ind = []; % Chooses the Nf to plot the spectrogram
-redLines = []; % Time instants, in s, for ploting vertical-dashed lines
-plot_enable = 0; 
+%% - - - Plotting parameters - - -
+    %plot_ind = []; % Chooses the Nf to plot the spectrogram
+    %redLines = []; % Time instants, in s, for ploting vertical-dashed lines
+    %plot_enable = 0; 
 
 %% - - - - - - Computing MRFCI TFR - - - - - -
 
@@ -26,7 +26,9 @@ plot_enable = 0;
 
      %dB
 
-    for ind = plot_ind
+
+%{
+     for ind = plot_ind
         figure;
         imagesc(Time_combined, Freq_combined, compress_dB_norm(STFT_tensor(:,:,ind), plot_range));
         set(gca,'YDir','normal');    
@@ -84,4 +86,5 @@ plot_enable = 0;
 figProp = struct('size', 35, 'font', 'Times', 'lineWidth', 2 , 'figDim', [1 1 900 500]); % Thesis
     figFileName = [figsPath tit];
 
-    formatFig(gcf, figFileName, 'en', figProp);
+    formatFig(gcf, figFileName, 'en', figProp); 
+%}

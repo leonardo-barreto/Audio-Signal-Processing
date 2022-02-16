@@ -1,41 +1,18 @@
-function [freqComponents,timeInstants,TFRepresentation,spectrgMatrix] = TFAnalysis_STFT(signal_name)
+function [freqComponents, timeInstants, TFRepresentation, spectrgMatrix] = TFAnalysis_STFT(x,fs)
 
     % This function computes a signal's STFT (by FFT).
 
-    if isunix
-        addpath ./audio
-        dirbar = '/';
-    else
-        addpath .\audio
-        dirbar = '\';
-    end
-    
     %% - - - - - - Parameters configuration - - - - - - 
 
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
-        fs = 44100;
+        %fs = 44100;
         hop = 128;
         windowSize = 4096;
         NFFT = 4096;
 
         % Compression
-        plot_range = 80; %dB
-
-    %% - - - - - - Input Reading - - - - - - 
-        
-        [data, fs_orig] = audioread([signal_name]);
-
-        if size(data,2) > 1
-            x = mean(data.');
-        else
-            x = data;
-        end
-        x = x(:);
-
-        if fs ~= fs_orig
-            x = resample(x, fs, fs_orig);
-        end
+        %plot_range = 80; %dB
 
     %% - - - - - - -  TFR computation - - - - - - -
 
