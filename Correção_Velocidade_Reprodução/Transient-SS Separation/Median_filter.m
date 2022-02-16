@@ -7,7 +7,7 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     % (Universidad de la Republica, Montevideo, Uruguay)
     % 
     % Inputs:
-    %   spectrg : Spectrogram module matrix
+    %   spectrg    : Spectrogram module matrix
     %   nFilter_SS : filter length of steady-state median filter 
     %   nFilter_Tr : filter length of transient median filter
     % 
@@ -16,7 +16,7 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     %   spectrg_Im : Transient components spectrogram
     %
 
-    if mod(nFilter_SS,2) ~= 0 | mod(nFilter_Tr,2) ~=0
+    if mod(nFilter_SS,2) == 0 | mod(nFilter_Tr,2) == 0
         error('Filter lengths must be odd numbers.')
     end
 
@@ -25,8 +25,6 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
 
     spectrg_SS=zeros(size(spectrg));
     spectrg_Tr=zeros(size(spectrg));
-
-    textprogressbar('Filtering: ')
 
     %% Median filtering along time
         timeLength = size(spectrg,2);
@@ -42,8 +40,6 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 
             end
-            a = num2str((k/2/timeLength)*100);
-            textprogressbar(a);
         end
 
     %% Median filtering along frequency
@@ -60,8 +56,6 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 %spectrg_Tr(k,:)=0;
             end
-            a = num2str((1/2+k/2/freqHeight)*100);
-            textprogressbar(a);
         end
 
 
@@ -70,9 +64,6 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
         mask_Tr=spectrg_Tr.^2./(spectrg_SS.^2+spectrg_Tr.^2);
         spectrg_SS=spectrg.*mask_SS;
         spectrg_Tr=spectrg.*mask_Tr;
-
-
-    textprogressbar('Done\n')
 
 end
 

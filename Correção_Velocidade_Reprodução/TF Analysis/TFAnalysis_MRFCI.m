@@ -16,16 +16,16 @@ function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(sig
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
         fs = 44100;
-        hop = 512;
+        hop = 128;
 
         block_size = 2; % Analysis block size in seconds
 
         % Synthesis TFR - - - - - - - - - - - - - - - - - - -
         N_alphas = 7; % Number of alphas (I, in the paper)
 
-        Nf = [1024 2048 4096]; % Window sizes
-        asym_flags = [0 0 0]; % Indicate which Nf will be used to compute Fan-chirp instances
-        FChT_flags = [1 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+        Nf = [1024 2048 3072 4096]; % Window sizes
+        asym_flags = [0 0 0 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+        FChT_flags = [0 1 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
 
         % Structure tensor - - - - - - - - -
 
@@ -36,17 +36,17 @@ function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(sig
         sigma_t = Nf(end)/(4*fs); % in s
         sigma_f = 100;% in Hz
 
-        Nf_structure_tensor = Nf(2); % To compute the structure tensor
+        Nf_structure_tensor = Nf(1); % To compute the structure tensor
 
         % Compression
         plot_range = 80; %dB
 
 
-
     %% - - - - - - Input Reading - - - - - - 
-    fprintf('\n\n------- READING INPUT ------\n\n')
         
         [data, fs_orig] = audioread([signal_name]);
+
+        [filepath,signal_name,ext] = fileparts(signal_name);
 
         if size(data,2) > 1
             x = mean(data.');
@@ -60,31 +60,22 @@ function [freqComponents, timeInstants, TFRepresentation] = TFAnalysis_MRFCI(sig
         end
         %x = x(1: 15*fs);
 
-        ylim_vec = [0 5000];
+        y_lim_vec = [0 5000];
 
 
-    %% -------------------------------------- TFR stage -------------------------------------------
-    fprintf('\n\n------- TIME-FREQUENCY ANALYSIS STARTED ------\n\n');
-        % MRFCI
-            main_MRFCI;
-                
-            %Gathering TFRs from Mauricio
-            TFRepresentation = TFR_comb;
-            timeInstants = Time_combined;
-            freqComponents = Freq_combined;
+    %% - - - - - - -  TFR computation - - - - - - -
+
+        main_MRFCI;
             
-        %TFR Information    
+        %Gathering TFRs
+        freqComponents = Freq_combined';
+        timeInstants = Time_combined;
+        
+        TFRepresentation = TFR_comb;  
         %TFRepresentation = compress_dB_norm(TFRepresentation, plot_range);
         %TFRepresentation = 10*log10(TFRepresentation);    
 
-        fprintf(' Total frames: %i\n',length(timeInstants));
-        fprintf(' Number of frequency bins: %i\n',length(freqComponents));
-        fprintf('\nTime-Frequency Representation Finished.\n');
-
-    %% ----------------------- Plotting -----------------------  
+    %% - - - - - - -  Plotting - - - - - - -  
         
-        PlotSpectrogram(freqComponents,timeInstants,10*log10(TFRepresentation));
-
-    
-fprintf('\n\n------- TIME-FREQUENCY ANALYSIS FINISHED ------\n\n');
+        %PlotSpectrogram_ylin(freqComponents,timeInstants,[10-plot_range 10],10*log10(TFRepresentation));
 end

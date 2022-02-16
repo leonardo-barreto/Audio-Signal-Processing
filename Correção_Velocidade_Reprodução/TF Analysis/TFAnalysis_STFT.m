@@ -15,15 +15,14 @@ function [freqComponents,timeInstants,TFRepresentation,spectrgMatrix] = TFAnalys
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
         fs = 44100;
-        hop = 512;
-        windowSize = 2048;
-        fftPoints = 4096;
+        hop = 128;
+        windowSize = 4096;
+        NFFT = 4096;
 
         % Compression
         plot_range = 80; %dB
 
     %% - - - - - - Input Reading - - - - - - 
-        fprintf('\n\n------- READING INPUT ------\n\n')
         
         [data, fs_orig] = audioread([signal_name]);
 
@@ -38,19 +37,17 @@ function [freqComponents,timeInstants,TFRepresentation,spectrgMatrix] = TFAnalys
             x = resample(x, fs, fs_orig);
         end
 
-    %% -------------------------------------- TFR stage -------------------------------------------
-    fprintf('\n\n------- TIME-FREQUENCY ANALYSIS STARTED ------\n\n');
-        [spectrgMatrix, freqComponents, timeInstants] = stft(x,hamming(windowSize,'periodic'),hop,fftPoints,fs);
-        TFRepresentation = power(abs(spectrgMatrix),2)/fftPoints;
-        
-        fprintf(' Total frames: %i\n',length(timeInstants));
-        fprintf(' Number of frequency bins: %i\n',length(freqComponents));
-        fprintf('\nTime-Frequency Representation Finished.\n');
+    %% - - - - - - -  TFR computation - - - - - - -
 
-    %% ----------------- Plotting ---------------------
+        %[spectrgMatrix, freqComponents, timeInstants] = stft(x,hanning(windowSize,'periodic'),hop,NFFT,fs);
+        [spectrgMatrix, freqComponents, timeInstants] = spectrogram(x,hanning(windowSize,'periodic'),windowSize-hop,NFFT,fs);
         
-        PlotSpectrogram(freqComponents,timeInstants,10*log10(TFRepresentation));
-    
-    fprintf('\n\n------- TIME-FREQUENCY ANALYSIS FINISHED ------\n\n');
+        TFRepresentation = power(abs(spectrgMatrix),2);%/NFFT;
+        %TFRepresentation = abs(spectrgMatrix);%/NFFT;
+        
+
+    %% - - - - - - -  Plotting - - - - - - -  
+        
+        %PlotSpectrogram_ylin(freqComponents,timeInstants,[10-plot_range 10],10*log10(TFRepresentation));
     
 end

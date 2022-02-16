@@ -14,6 +14,7 @@ end
 % - - - Plotting parameters - - -
 plot_ind = []; % Chooses the Nf to plot the spectrogram
 redLines = []; % Time instants, in s, for ploting vertical-dashed lines
+plot_enable = 0; 
 
 %% - - - - - - Computing MRFCI TFR - - - - - -
 
@@ -54,14 +55,17 @@ redLines = []; % Time instants, in s, for ploting vertical-dashed lines
         formatFig(gcf, figFileName, 'en', figProp);
     end
 
-    figure;
-    imagesc(Time_combined, Freq_combined, compress_dB_norm(TFR_comb, plot_range));
-    %imagesc(Time_combined, Freq_combined, 10*log10(TFR_comb));
-    set(gca,'YDir','normal');
-    ylim(y_lim_vec);
-    colormap(1-gray);
-    xlabel('Tempo (s)');
-    ylabel('Frequencia (Hz)');
+    if plot_enable 
+        figure;
+        imagesc(Time_combined, Freq_combined, compress_dB_norm(TFR_comb, plot_range));
+        %imagesc(Time_combined, Freq_combined, 10*log10(TFR_comb));
+        set(gca,'YDir','normal');
+        ylim(y_lim_vec);
+        colormap(1-gray);
+        xlabel('Tempo (s)');
+        ylabel('Frequencia (Hz)');
+    end
+
     tit = ['TFRs_' signal_name '_st_lin_comb_Nalphas_' num2str(N_alphas)];
 
     % To show onset and offset

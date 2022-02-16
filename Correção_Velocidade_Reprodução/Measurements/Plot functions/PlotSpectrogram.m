@@ -7,7 +7,14 @@ function PlotSpectrogram(freqComponents,frameTimeInstants,powerMatrixDB)
     shading interp
     axis tight
     view(0, 90)
-    set(gca, 'FontSize', 30, 'yscale', 'log')
+
+    %Log scale
+    %set(gca, 'FontSize', 30, 'yscale', 'log')
+    %Linear scale
+    set(gca, 'FontSize', 30)
+
+    ylim([0 5000])
+
     xlabel('Tempo (s)','FontSize', 30)
     ylabel('Frequencia (kHz)','FontSize', 30)
     %title('Espectrograma de potencia')
