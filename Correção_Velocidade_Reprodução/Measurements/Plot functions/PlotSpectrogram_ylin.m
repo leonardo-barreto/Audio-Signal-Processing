@@ -1,28 +1,35 @@
-function PlotSpectrogram_ylin(freqComponents,frameTimes,plotLimits,powerSpectrgDB)
+function PlotSpectrogram_ylin(freqs,times,plotLimits,powerSpectrgDB)
 
     figure;
-    timeSize = floor(length(frameTimes/50));
-    freqSize = floor(length(freqComponents/50));
-    surf(frameTimes(1:timeSize), freqComponents(1:freqSize), powerSpectrgDB(1:freqSize,1:timeSize));
 
-    %[t,f] = meshgrid(frameTimes, freqComponents);
-    %surf(f,t,powerSpectrgDB);
+    %% SURF
+        
+        %{
+        timeSize = floor(length(times/50));
+        freqSize = floor(length(freqs/50));
+        surf(times(1:timeSize), freqs(1:freqSize), powerSpectrgDB(1:freqSize,1:timeSize), 'EdgeColor', 'none');
 
-    shading interp
-    %axis tight
-    view(0, 90)
-    caxis(plotLimits)
-    ylim([0 5000])
+        %axis tight
+        view(0, 90)
+        %}
+        
+    %% IMAGESC
+
+        imagesc(times, freqs, 10*log10(powerSpectrgDB));
+        set(gca,'YDir','normal');
+        colormap(1-gray);
     
-    set(gca, 'FontSize', 30)
-    
-    xlabel('Tempo (s)','FontSize', 30)
-    ylabel('Frequencia (kHz)','FontSize', 30)
-    %title('Espectrograma de potencia')
+    %% SHARED AND LABELS
 
-    hcol = colorbar;
-    set(hcol, 'FontSize', 30)
-    ylabel(hcol, 'Potencia (dB)')
-    set(gca,'FontSize', 35)
+        caxis(plotLimits)
+        ylim([0 10000])
+
+        xlabel('Tempo (s)','FontSize', 30)
+        ylabel('Frequencia (kHz)','FontSize', 30)
+        
+        %hcol = colorbar;
+        %set(hcol, 'FontSize', 30)
+        %ylabel(hcol, 'Potencia (dB)')
+        set(gca,'FontSize', 15)
 
 end

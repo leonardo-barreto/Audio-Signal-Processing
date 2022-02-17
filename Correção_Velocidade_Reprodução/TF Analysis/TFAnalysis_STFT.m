@@ -8,8 +8,8 @@ function [freqComponents, timeInstants, TFRepresentation, spectrgMatrix] = TFAna
 
         %fs = 44100;
         hop = 128;
-        windowSize = 4096;
-        NFFT = 4096;
+        windowSize = 2048;
+        NFFT = windowSize;
 
         % Compression
         %plot_range = 80; %dB
