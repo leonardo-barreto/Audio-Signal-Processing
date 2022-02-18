@@ -1,4 +1,3 @@
-clear;
 %   This function makes a time-frequency analysis of a signal.
 
 if isunix
@@ -11,19 +10,24 @@ end
 
 %% - - - - - - Input Parameters - - - - - - 
     
-    signal_name = 'violin_drum2.wav';
+    %signal_name = 'violin_drum2.wav';
+    %signal_name = 'MusicDelta_Hendrix_STEM_04.RESYN.wav';
+    %signal_name = 'Drums.wav';
+    signal_name = 'Mix1.wav';
+    %signal_name = 'MusicDelta_Pachelbel_STEM_04_Cut.RESYN.wav';
+
     fs = 44100;
 
     % Method
     method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
-    method_flags = [0 0 1]; % Which method will be enabled
+    method_flags = [1 1 1]; % Which method will be enabled
 
     % Plotting parameters
-    plot_enable = 1; % 1 enables plotting, 0 disables
+    plot_enable = 0; % 1 enables plotting, 0 disables
 
     energy_ref_method = 2; % index of method that will be used as reference energy for plots (guide in method_name)
-    plot_range = 80; % dB - Power range for plotting
-    plot_max = 10; % dB - Max plotting power
+    plot_range = 100; % dB - Power range for plotting
+    %plot_max = 10; % dB - Max plotting power
 
 %% - - - - - - Input Reading - - - - - -  
     
@@ -80,8 +84,9 @@ end
 
 %% - - - - - - - Plotting - - - - - - -
     if plot_enable
+        plot_max = max(max(10*log10(TFR{methods_enabled(1)})));
         for i = methods_enabled
-            PlotSpectrogram_ylin(f{i},t{i},[10-plot_range 10],10*log10(TFR{i}));
+            PlotSpectrogram_ylin(f{i},t{i},[plot_max-plot_range plot_max],10*log10(TFR{i}));
             title(sprintf('Espectrograma %s', method_name{i}))
             %set(gca, 'FontSize', 30, 'yscale', 'log')
             %ylim([0 12000])
@@ -90,5 +95,5 @@ end
 
 
 %% ------ TEMPORARY VARIABLE CLEAR ------
-    clearvars -except f t TFR 
+%clearvars data dirbar energy_ref_method i method_flags method_name methods_enabled plot_enable plot_max plot_range signal_name
     

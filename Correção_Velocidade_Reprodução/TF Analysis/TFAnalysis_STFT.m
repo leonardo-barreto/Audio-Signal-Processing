@@ -6,25 +6,17 @@ function [freqComponents, timeInstants, TFRepresentation, spectrgMatrix] = TFAna
 
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
-        %fs = 44100;
         hop = 128;
-        windowSize = 2048;
-        NFFT = windowSize;
-
-        % Compression
-        %plot_range = 80; %dB
+        %N_w = 2570;
+        N_w = 4096;
+        NFFT = N_w;
 
     %% - - - - - - -  TFR computation - - - - - - -
 
-        %[spectrgMatrix, freqComponents, timeInstants] = stft(x,hanning(windowSize,'periodic'),hop,NFFT,fs);
-        [spectrgMatrix, freqComponents, timeInstants] = spectrogram(x,hanning(windowSize,'periodic'),windowSize-hop,NFFT,fs);
+        %[spectrgMatrix, freqComponents, timeInstants] = stft(x,hanning(N_w,'periodic'),hop,NFFT,fs);
+        [spectrgMatrix, freqComponents, timeInstants] = spectrogram(x,hanning(N_w,'periodic'),N_w-hop,NFFT,fs);
         
         TFRepresentation = power(abs(spectrgMatrix),2);%/NFFT;
         %TFRepresentation = abs(spectrgMatrix);%/NFFT;
-        
-
-    %% - - - - - - -  Plotting - - - - - - -  
-        
-        %PlotSpectrogram_ylin(freqComponents,timeInstants,[10-plot_range 10],10*log10(TFRepresentation));
     
 end

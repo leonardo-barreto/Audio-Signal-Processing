@@ -59,6 +59,5 @@ function [spectrg_SS, spectrg_Tr] = SSE_filter(spectrg, nFilter_SS, nFilter_Tr);
         mask_Tr=R_Tr.^2./(R_SS.^2+R_Tr.^2);
         spectrg_SS=spectrg.*mask_SS;
         spectrg_Tr=spectrg.*mask_Tr;
-    
 
 end

@@ -1,6 +1,7 @@
-function PlotSpectrogram_ylin(freqs,times,plotLimits,powerSpectrgDB)
+function PlotSpectrogram_tiled(freqs,times,plotLimits,powerSpectrgDB)
 
     figure;
+    tiledlayout()
 
     %% SURF
         
@@ -27,12 +28,9 @@ function PlotSpectrogram_ylin(freqs,times,plotLimits,powerSpectrgDB)
         xlabel('Tempo (s)','FontSize', 15)
         ylabel('Frequencia (kHz)','FontSize', 15)
         
-        %hcol = colorbar;
-        %set(hcol, 'FontSize', 15)
-        %ylabel(hcol, 'Potencia (dB)')
-
+        hcol = colorbar;
+        set(hcol, 'FontSize', 15)
+        ylabel(hcol, 'Potencia (dB)')
         set(gca,'FontSize', 15)
-        ax = gca;
-        ax.YAxis.Exponent = 0;
 
 end

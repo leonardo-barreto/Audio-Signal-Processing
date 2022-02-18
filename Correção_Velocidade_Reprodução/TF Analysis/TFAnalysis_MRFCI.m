@@ -7,7 +7,6 @@ function [f, t, combined_TFR_MRFCI] = TFAnalysis_MRFCI(x,fs)
 
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
-        %fs = 44100;
         hop = 128;
 
         block_size = 2; % Analysis block size in seconds
@@ -30,9 +29,6 @@ function [f, t, combined_TFR_MRFCI] = TFAnalysis_MRFCI(x,fs)
 
         Nf_structure_tensor = Nf(1); % To compute the structure tensor
 
-        % Compression
-        %plot_range = 80; %dB
-
     %% - - - - - - -  TFR computation - - - - - - -
 
         % Computing combination procedure in blocks
@@ -45,7 +41,4 @@ function [f, t, combined_TFR_MRFCI] = TFAnalysis_MRFCI(x,fs)
         %combined_TFR_MRFCI = compress_dB_norm(combined_TFR_MRFCI, plot_range);
         %combined_TFR_MRFCI = 10*log10(combined_TFR_MRFCI);    
 
-    %% - - - - - - -  Plotting - - - - - - -  
-        
-        %PlotSpectrogram_ylin(f,t,[10-plot_range 10],10*log10(combined_TFR_MRFCI));
 end

@@ -1,15 +1,15 @@
 function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
     
     %   This function makes a time-frequency analysis of a signal, using the FLS method.
-
+    %{
     if isunix
-        addpath ./FLS/util
+        addpath ./TF_Analysis/FLS/util
         dirbar = '/';
     else
-        addpath .\FLS\util
+        addpath .\TF_Analysis\FLS\util
         dirbar = '\';
     end
-
+    %}
     %% - - - - - - Parameters configuration - - - - - - 
 
         % Input Signal params
@@ -43,8 +43,8 @@ function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
 
         % Window lengths (in ascendent order!!!)
         N_w = [1, 2, 3, 4]*1024*resampling_factor;
-        samp_hop = ceil(hop_DFT*fs);
-        %samp_hop = 128;
+        %samp_hop = ceil(hop_DFT*fs);
+        samp_hop = 128;
         overlap_short = N_w(1) - samp_hop;
 
         % 2D Analysis window
@@ -62,10 +62,6 @@ function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
 
         eta = 20;
 
-        % Compression
-        %plot_range = 80; %dB
-
-
     %% - - - - - - Input Reading - - - - - - 
 
         
@@ -79,9 +75,5 @@ function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
                  
         %combined_TFR_FLS = compress_dB_norm(combined_TFR_FLS, plot_range);
         %combined_TFR_FLS = 10*log10(combined_TFR_FLS);    
-
-    %% - - - - - - -  Plotting - - - - - - -  
-        
-        %PlotSpectrogram_ylin(f,t,[10-plot_range 10],10*log10(combined_TFR_FLS));
 
 end
