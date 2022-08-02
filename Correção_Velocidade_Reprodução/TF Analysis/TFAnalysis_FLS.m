@@ -60,7 +60,7 @@ function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
         % 
         % return
 
-        eta = 20;
+        gamma = 20;
 
     %% - - - - - - Input Reading - - - - - - 
 
@@ -71,7 +71,7 @@ function [f, t, combined_TFR_FLS] = TFAnalysis_FLS(x,fs)
         % - - - - - - - Computing FLS-combined spectrograms - - - - - - -
         [spectrograms_tensor, f, t] = spectrogram_tensor_prep(x, fs, N_w, NFFT, overlap_short);
 
-        combined_TFR_FLS = spectrogram_comb_FastHoyerLocalSparsity(spectrograms_tensor, size_W_m_k, eta);
+        combined_TFR_FLS = spectrogram_comb_FastHoyerLocalSparsity(spectrograms_tensor, size_W_m_k, gamma);
                  
         %combined_TFR_FLS = compress_dB_norm(combined_TFR_FLS, plot_range);
         %combined_TFR_FLS = 10*log10(combined_TFR_FLS);    

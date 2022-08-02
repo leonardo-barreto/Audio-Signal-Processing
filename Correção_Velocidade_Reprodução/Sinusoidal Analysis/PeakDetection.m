@@ -1,4 +1,4 @@
-function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame,samplingRate,fftPoints,DEBUG)
+function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,samplingRate,fftPoints,DEBUG)
 
     % This function aims to detect spectral peaks in a signal's frame, given its spectrum.
     %
@@ -20,7 +20,7 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
 
     % Gathering frame data
     
-        powerSpectrumDB = inputFrame.powerSpectrumDB;
+        powerSpectrum = inputFrame.powerSpectrum;
         freqComponents = inputFrame.freqComponents;
         totalFreqBins = inputFrame.totalFreqBins;
         totalFrames = inputFrame.totalFrames;
@@ -35,12 +35,12 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
             parametersTPSW.lengthSW = 51;
             parametersTPSW.gapSizeSW = 8;
             parametersTPSW.rejectionFactor = 4;
-            parametersTPSW.deltaTPSW = 30; % THIS MUST BE IN dB.
+            parametersTPSW.deltaTPSW = 5; % THIS MUST BE IN dB.
 
-            spectrumThreshold_TPSW = PeakThreshold_TPSW(inputFrame,parametersTPSW,0);
+            spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,0);
 
         %SSE METHOD
-            spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG) + thresholdOffsetSSE;
+            spectrumThreshold_SSE = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG) + thresholdOffsetSSE;
         
     
     % Peak Detection
@@ -49,13 +49,13 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
             initialPeaks = NaN(1,totalFreqBins); 
 
             %for freqCounter = 2:(totalFreqBins-1)
-            %    if (powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter-1) && powerSpectrumDB (freqCounter) > powerSpectrumDB (freqCounter+1))
+            %    if (powerSpectrum (freqCounter) > powerSpectrum (freqCounter-1) && powerSpectrum (freqCounter) > powerSpectrum (freqCounter+1))
                     
-            %    initialPeaks(freqCounter) = powerSpectrumDB(freqCounter);
+            %    initialPeaks(freqCounter) = powerSpectrum(freqCounter);
             %    end
             %end
 
-            [pks,locs] = findpeaks(powerSpectrumDB,'MinPeakProminence',peakProminence);
+            [pks,locs] = findpeaks(powerSpectrum,'MinPeakProminence',peakProminence);
 
             initialPeaks(locs) = pks;
 
@@ -84,7 +84,7 @@ function [detectedPeakMatrix,spectrumThreshold] = DetectSpectralPeaks(inputFrame
         if(~isempty(detectedPeakPositions))
 
             if ENHANCEMENT == 1
-                detectedPeakMatrix = PeakEnhancement(powerSpectrumDB,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,DEBUG);
+                detectedPeakMatrix = PeakEnhancement(powerSpectrum,detectedPeaks,detectedPeakPositions,samplingRate,fftPoints,DEBUG);
                 detectedFinalPeaks = detectedPeakMatrix(1,:);
                 detectedPeakFrequencies = detectedPeakMatrix(2,:);
             else

@@ -8,7 +8,7 @@ function PlotPeakDetection(sinAnalysisParameters,signalFrame)
     figure
     hold on;
 
-    plot(signalFrame.freqComponents./1000,signalFrame.powerSpectrumDB,'G','LineWidth',2);
+    plot(signalFrame.freqComponents./1000,signalFrame.powerSpectrum,'G','LineWidth',2);
     plot(signalFrame.freqComponents./1000,signalFrame.powerSpectrumThreshold,'B','LineWidth',2);
 
 

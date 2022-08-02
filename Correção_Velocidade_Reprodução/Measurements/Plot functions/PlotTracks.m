@@ -1,12 +1,10 @@
-function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArray);
+function organizedTracks = PlotTracks(trackArray,timeInstants);
 
     if (~size(trackArray,2))
         organizedTracks = [];
         fprintf('\nWell... no tracks.\n');
         return;
     end
-
-    timeInstants = sinAnalysisParameters.timeInstants;
 
     organizedTracks = sortStruct(trackArray,'startFrame',1);
 
@@ -29,9 +27,9 @@ function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArra
             error('Hmm. Wrong.');
         end
 
-        
-
-    plot(trackTimes,trackFrequencies,'LineWidth',5);
+       
+    plot(trackTimes,trackFrequencies,'LineWidth',4,'Color','k');
+    plot(0,0,'Color','w');
 
     end
     y = gca;
@@ -40,14 +38,12 @@ function organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,trackArra
     %set(y,'yscale','log')
     set(y,'YDir','normal');    
     ylim(y_lim_vec); 
-    X = sprintf('Rastreamento de trilhas senoidais');
-    %title(X);
     xlabel('Tempo (s)','FontSize', 30);
     ylabel('Frequencia (Hz)','FontSize', 30);
-    set(y,'FontSize', 35)
-    figProp = struct('size', 35, 'font', 'Times', 'lineWidth', 4 , 'figDim', [1 1 900 500]);
-    figFileName = 'Tracking';
-    formatFig(gcf, figFileName, 'en', figProp);
+    %set(y,'FontSize', 35)
+    %figProp = struct('size', 35, 'font', 'Times', 'lineWidth', 4 , 'figDim', [1 1 900 500]);
+    %figFileName = 'Tracking';
+    %formatFig(gcf, figFileName, 'en', figProp);
     hold off;
 
 end

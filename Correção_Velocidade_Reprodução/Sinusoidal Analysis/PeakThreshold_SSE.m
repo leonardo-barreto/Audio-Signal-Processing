@@ -8,7 +8,7 @@ function spectrumFinalThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,D
     currentFrame = inputFrame.currentFrame;
     freqComponents = inputFrame.freqComponents;
     totalFreqBins = inputFrame.totalFreqBins;
-    powerSpectrumDB = inputFrame.powerSpectrumDB;
+    powerSpectrumDB = inputFrame.powerSpectrum;
 
     powerSpectrum = powerSpectrumDB/10;
     powerSpectrum = power(10,powerSpectrum);

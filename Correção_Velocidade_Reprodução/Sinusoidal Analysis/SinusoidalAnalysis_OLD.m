@@ -1,39 +1,26 @@
-function [frameArray,signalTrackArray,TFParams] = SinusoidalAnalysis(signal_name)
-    
+function [frameArray,signalTrackArray,sinAnalysisParameters] = SinusoidalAnalysis(inputSignal,samplingRate,windowType,windowSize,hopSize,fftPoints,DEBUG)
+
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
-    %   1st - TFR
+    %   1st - STFT
     %
     %   3rd - Peak Detection and frequency Enhancement
     %
     %   4th - Construction of sinusoidal tracks
     %
 
-    DEBUG = 1;
-
     fprintf('\n\n------- SINUSOIDAL ANALYSIS STARTED ------\n\n');
 
-    % -------------------------------------- TFR stage -------------------------------------------
+    % -------------------------------------- STFT and spectrogram stage -------------------------------------------
+        
+        fprintf('Short-Time Fourier Transform starting...\n Sampling Rate(Hz): %i\n Window: %s (size %i, hop %i) \n FFT Points: %i\n', samplingRate,windowType,windowSize,hopSize,fftPoints);
 
-        % MRFCI
-            main_MRFCI_test;
-                
-            %Gathering TFRs from Mauricio
-            inputSignal = x;
-            samplingRate = fs;
-            powerMatrix = TFR_comb;
-            timeInstants = Time_combined;
-            freqComponents = Freq_combined;
-            %fftPoints = 2*length(Freq_combined);
-            fftPoints = max(Nf);
-            hopSize = hop;
-            
-        %TFR Information    
-        powerMatrix = 10*log10(powerMatrix);
-        %powerMatrix = powerMatrix;
+        [spectrgMatrix,freqComponents,timeInstants,powerMatrix] = ComputeSTFT(inputSignal,samplingRate,windowType,windowSize,hopSize,fftPoints);
+        
+        powerMatrix = 10*log10(powerMatrix); 
+
         totalFreqBins = length(freqComponents);
         totalFrames = length(timeInstants);
-    
 
         % Building a signal frame as a peak detection entity
         signalFrame = {};
@@ -44,23 +31,21 @@ function [frameArray,signalTrackArray,TFParams] = SinusoidalAnalysis(signal_name
         
 
         %Outputting general parameters.
-        TFParams = {};
-        TFParams.signalSize = length(inputSignal);
-        TFParams.samplingRate = samplingRate;
-        TFParams.timeInstants = timeInstants;
-        TFParams.windowSize = fftPoints;
-        TFParams.totalFrames = totalFrames;
-        TFParams.hopSize = hopSize;
-        %TFParams.hopSize = floor(((100-overlapPerc)/100)*windowSize);
+        sinAnalysisParameters.signalSize = length(inputSignal);
+        sinAnalysisParameters.samplingRate = samplingRate;
+        sinAnalysisParameters.timeInstants = timeInstants;
+        sinAnalysisParameters.windowSize = windowSize;
+        sinAnalysisParameters.totalFrames = totalFrames;
+        sinAnalysisParameters.hopSize = hopSize;
 
         
-        fprintf(' Total frames: %i\n',TFParams.totalFrames);
+        fprintf(' Total frames: %i\n',sinAnalysisParameters.totalFrames);
         fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
         fprintf('\nShort-Time Fourier Transform Finished.\n');
 
-        %if DEBUG == 1 %call plot
-            %PlotSpectrogram(freqComponents,timeInstants,powerMatrix);
-        %end
+        if DEBUG == 1 %call plot
+            PlotSpectrogram(freqComponents,timeInstants,powerMatrix);
+        end
 
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
@@ -69,7 +54,7 @@ function [frameArray,signalTrackArray,TFParams] = SinusoidalAnalysis(signal_name
         
 
         for frameCounter = 1:totalFrames
-            signalFrame.powerSpectrum = powerMatrix(:,frameCounter);
+            signalFrame.powerSpectrumDB = powerMatrix(:,frameCounter);
             signalFrame.powerSpectrumThreshold = [];
             signalFrame.peakMatrix = [];
             signalFrame.currentFrame = frameCounter;
@@ -87,13 +72,13 @@ function [frameArray,signalTrackArray,TFParams] = SinusoidalAnalysis(signal_name
 
             %Random frame chosen for DEBUG
             DEBUG_FRAME = availableFrames(randi(length(availableFrames)));
-            %DEBUG_FRAME = 350;
-            PlotPeakDetection(TFParams,frameArray(DEBUG_FRAME));
+            %DEBUG_FRAME = 6;
+            PlotPeakDetection(sinAnalysisParameters,frameArray(DEBUG_FRAME));
         end
 
         fprintf('Peak Detection Finished.\n');
 
-    % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
+     % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
         fprintf('\nSinusoidal tracking starting...\n');
 
@@ -113,7 +98,9 @@ function [frameArray,signalTrackArray,TFParams] = SinusoidalAnalysis(signal_name
         end
 
         if DEBUG == 1
-            organizedTracks = PlotTracks(frameArray,TFParams,signalTrackArray);
+            organizedTracks = PlotTracks(frameArray,sinAnalysisParameters,signalTrackArray);
         end
     
     fprintf('\n\n------- SINUSOIDAL ANALYSIS FINISHED ------\n\n');
+
+end

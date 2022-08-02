@@ -8,7 +8,7 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
     currentFrame = inputFrame.currentFrame;
     freqComponents = inputFrame.freqComponents;
     totalFreqBins = inputFrame.totalFreqBins;
-    powerSpectrumDB = inputFrame.powerSpectrumDB;
+    powerSpectrum = inputFrame.powerSpectrum;
 
     %Gathering TPSW data
     lengthSW = parametersTPSW.lengthSW;
@@ -43,21 +43,21 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
 
     %This stage extends the spectrum by 20% of its size in order to avoid border effects during filtering.
     mirrorLength = floor(totalFreqBins/5);
-    startMirror = flipud(powerSpectrumDB(1:mirrorLength));
-    endMirror = flipud(powerSpectrumDB((totalFreqBins-mirrorLength)+1:totalFreqBins));
-    powerSpectrumDB_extended = [startMirror;powerSpectrumDB;endMirror];
+    startMirror = flipud(powerSpectrum(1:mirrorLength));
+    endMirror = flipud(powerSpectrum((totalFreqBins-mirrorLength)+1:totalFreqBins));
+    powerSpectrum_extended = [startMirror;powerSpectrum;endMirror];
 
     %Actual filtering
-    spectrumTPSW = conv(powerSpectrumDB_extended,splitWindow,'same'); %TPSW Filtering
+    spectrumTPSW = conv(powerSpectrum_extended,splitWindow,'same'); %TPSW Filtering
     extendedLength = length(spectrumTPSW);
 
 
     %Substitution criterion
     for counter = 1:extendedLength
-        if powerSpectrumDB_extended(counter) > rejectionFactor*spectrumTPSW(counter)
+        if powerSpectrum_extended(counter) > rejectionFactor*spectrumTPSW(counter)
             spectrumSubstituted(counter) = spectrumTPSW(counter);
         else
-            spectrumSubstituted(counter) = powerSpectrumDB_extended(counter);
+            spectrumSubstituted(counter) = powerSpectrum_extended(counter);
         end
     end
 
