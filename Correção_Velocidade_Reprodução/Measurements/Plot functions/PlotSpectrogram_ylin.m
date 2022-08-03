@@ -25,7 +25,7 @@ function PlotSpectrogram_ylin(freqs,times,plotLimits,powerSpectrgDB)
         ylim([0 5000])
 
         xlabel('Tempo (s)','FontSize', 15)
-        ylabel('Frequencia (kHz)','FontSize', 15)
+        ylabel('Frequencia (Hz)','FontSize', 15)
         
         hcol = colorbar;
         set(hcol, 'FontSize', 15)

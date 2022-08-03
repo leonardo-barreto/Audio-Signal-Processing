@@ -1,6 +1,6 @@
 %TFAnalysis_all;
-%clear;
-clearvars -except signals_names signal_name;
+clear;
+%clearvars -except signals_names signal_name;
 
 if isunix
     addpath ./audio
@@ -15,7 +15,7 @@ end
 %% - - - - - - Input Parameters - - - - - - 
     
     %signal_name = 'source_Midsum.wav';
-    %signal_name = 'paulistana3_5s.wav';
+    signal_name = 'paulistana3_5s.wav';
     %signal_name = 'Mix1.wav';
 
     fs = 44100;
