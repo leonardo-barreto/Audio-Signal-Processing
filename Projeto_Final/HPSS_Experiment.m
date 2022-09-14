@@ -1,9 +1,9 @@
 %TFAnalysis_all;
 
 if isunix
-    figsPath = path_check('./Temporary_Figures/Mix1/HPSS/');
+    figsPath = path_check('./figures_out/Mix1/HPSS/');
 else
-    figsPath = path_check('.\Temporary_Figures\Mix1\HPSS\');
+    figsPath = path_check('.\figures_out\Mix1\HPSS\');
 end
 
 % Method

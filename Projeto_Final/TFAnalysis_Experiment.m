@@ -1,10 +1,10 @@
 %   This script makes a time-frequency analysis of a signal.
 
 if isunix
-    addpath ./audio
+    addpath ./audio_src
     dirbar = '/';
 else
-    addpath .\audio
+    addpath .\audio_src
     dirbar = '\';
 end
 

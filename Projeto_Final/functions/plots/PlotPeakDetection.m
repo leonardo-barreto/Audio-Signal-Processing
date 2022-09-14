@@ -1,4 +1,4 @@
-function PlotPeakDetection(sinAnalysisParameters,signalFrame)
+function PlotPeakDetection(signalFrame, n_totalFrames)
 
     if (isempty(signalFrame.peakMatrix))
         fprintf('\nNo peaks in this frame. Well, nothing to plot.\n\n');
@@ -14,7 +14,7 @@ function PlotPeakDetection(sinAnalysisParameters,signalFrame)
 
     plot(signalFrame.peakMatrix(2,:)/1000,signalFrame.peakMatrix(1,:),'r.','markersize',30);
 
-    X = sprintf('Quadro %i de %i',signalFrame.currentFrame,sinAnalysisParameters.totalFrames);
+    X = sprintf('Quadro %i de %i',signalFrame.currentFrame,n_totalFrames);
         title(X,'FontSize', 30);
         xlabel('Frequencia (kHz)','FontSize', 30);
         ylabel('Potencia (dB)','FontSize', 30);

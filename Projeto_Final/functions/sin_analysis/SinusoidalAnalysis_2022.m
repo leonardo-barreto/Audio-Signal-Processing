@@ -1,4 +1,4 @@
-function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method)
+function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,samplingRate,TFR_method)
     
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -16,15 +16,67 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
     % -------------------------------------- TFR stage -------------------------------------------
 
         if strcmp(TFR_method,'STFT')
-            [TFR_base, freqComponents, timeInstants] = TFAnalysis_STFT(inputSignal,fs);
-        elseif strcmp(TFR_method,'CQT')
-            [TFR_base, freqComponents, timeInstants] = TFAnalysis_CQT(inputSignal,fs);
+
+            %% - - - - - - Parameters configuration - - - - - - 
+                hop = 128;
+                N_w = 4096;
+                NFFT = N_w;
+
+            %% - - - - - - -  TFR computation - - - - - - -
+                [spectrgMatrix, freqComponents, timeInstants] = spectrogram(inputSignal, hanning(N_w,'periodic'), N_w-hop, NFFT, samplingRate);
+                TFR_base = power(abs(spectrgMatrix),2);%/NFFT;
+            
         elseif strcmp(TFR_method,'FLS')
-            [TFR_base, freqComponents, timeInstants] = TFAnalysis_FLS(inputSignal,fs);
+
+            %% - - - - - - Parameters configuration - - - - - -
+                NFFT = 4096;
+                hop_DFT = 0.0029; % Final time interval between frames in seconds (interp after all computations)
+                N_w = [1, 2, 3, 4]*1024;
+                hop = 128;
+                overlap_short = N_w(1) - hop;
+                % 2D Analysis window
+                time_span = 0.03; % time span of the 2D window in seconds
+                Ncols_DFT = ceil(time_span/hop_DFT);
+                Nrows_DFT = 3*N_w(end)/N_w(1);
+                size_W_m_k = [Nrows_DFT Ncols_DFT];
+                % Contrast factor for weights
+                gamma = 20;
+
+            %% - - - - - - -  TFR computation - - - - - - -
+                [spectrograms_tensor, freqComponents, timeInstants] = spectrogram_tensor_prep(inputSignal, samplingRate, N_w, NFFT, overlap_short);
+                TFR_base = spectrogram_comb_FastHoyerLocalSparsity(spectrograms_tensor, size_W_m_k, gamma);
+
         elseif strcmp(TFR_method,'MRFCI')
-            [TFR_base, freqComponents, timeInstants] = TFAnalysis_MRFCI(inputSignal,fs);
+
+            %% - - - - - - Parameters configuration - - - - - -
+                % Analysis TFR - - - - - - - - - - - - - - - - - - - -
+                hop = 128;
+                block_size = 2; % Analysis block size in seconds
+
+                % Synthesis TFR - - - - - - - - - - - - - - - - - - -
+                N_alphas = 7; % Number of alphas (I, in the paper)
+                Nf = [1024 2048 3072 4096]; % Window sizes
+                NFFT = Nf(length(Nf));
+                asym_flags = [0 0 0 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+                FChT_flags = [0 1 1 1]; % Indicate which Nf will be used to compute Fan-chirp instances
+
+                % Structure tensor - - - - - - - - -
+                C_limits = [0 .25 .75 1 ; 1 2 2 3]; % Defines the points of transition for the lambda weights
+                range = 100; % range in dB for the ST
+
+                % G parameters
+                sigma_t = Nf(end)/(4*samplingRate); % in s
+                sigma_f = 100;% in Hz
+
+                Nf_structure_tensor = Nf(4); % To compute the structure tensor
+
+            %% - - - - - - -  TFR computation - - - - - - -
+                [TFR_base, STFT_tensor, timeInstants, freqComponents] = MRFCI(inputSignal, samplingRate, Nf, block_size,...
+                FChT_flags, asym_flags, Nf_structure_tensor, hop, N_alphas, C_limits, range, sigma_t, sigma_f);
+                freqComponents = freqComponents'; %Transposing because MRFCI function outputs 1 x N vector
+
         else
-            error('Invalid TFR Method. Options are STFT, CQT, FLS or MRFCI.')
+            error('Invalid TFR Method. Options are STFT, FLS or MRFCI.')
         end
             
         %TFR Information    
@@ -71,7 +123,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
             signalFrame.powerSpectrumThreshold = [];
             signalFrame.peakMatrix = [];
             signalFrame.currentFrame = frameCounter;
-            [signalFrame.peakMatrix,signalFrame.powerSpectrumThreshold] = PeakDetection(signalFrame,fs,2*(totalFreqBins-1),DEBUG);
+            [signalFrame.peakMatrix,signalFrame.powerSpectrumThreshold] = PeakDetection(signalFrame,samplingRate,NFFT,DEBUG);
             frameArray(frameCounter) = signalFrame;
         end
 
