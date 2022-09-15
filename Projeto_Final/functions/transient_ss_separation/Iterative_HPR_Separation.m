@@ -1,9 +1,9 @@
-function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spectrg, nFilter_SS, nFilter_Tr, niter, method, varargin)
+function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(varargin)%spectrg, nFilter_SS, nFilter_Tr, niter, method, varargin)
 
     % This function aims at producing Steady-State, Transient and Residual-enhanced spectrograms of a signal,
     % based on median filtering or SSE filtering along both time and frequency dimensions.
     %  
-    % Base code Trlementaion made by Ignacio Irigaray 
+    % Base code implementation made by Ignacio Irigaray 
     % (Universidad de la Republica, Montevideo, Uruguay)
     %
     % Inputs:
@@ -12,6 +12,10 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
     %   nFilter_Tr : filter length of transient filters
     %   niter      : number of separation iterations
     %   method     : filtering method ('median' or 'SSE')
+    %
+    % Optional input arguments (varargin):
+    %   'dB' (only necessary for SSE)  : indicates an input spectrogram in dB, which prompts a conversion back to non-dB
+    %   'relaxed'   : indicates the use of Relaxed Components (allows some level of frequency variation in steady-state)
     % 
     % Outputs:
     %   spectrg_SS  : Steady-state components spectrogram
@@ -26,7 +30,13 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
     spectrg_SSTemp = zeros(size(spectrg));
     spectrg_TrTemp = zeros(size(spectrg));
 
-    if (strcmp(method,'median') || strcmp(method,'Median')) % Median method
+    if nnz(ismember(varargin,'relaxed'))
+        %Relaxed components
+    else
+        error('You are writing the optional arguments wrong. Options are ''dB'' and ''relaxed''.');
+    end
+
+    if (strcmpi(method,'median')) % Median method
 
         [spectrg_SS,spectrg_Tr] = Median_filter(spectrg,nFilter_SS,nFilter_Tr); % First processing
 
@@ -40,14 +50,14 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
             end
         end
 
-    elseif (strcmp(method,'SSE') || strcmp(method,'sse')) % SSE method
+    elseif (strcmpi(method,'SSE')) % SSE method
 
-        if nargin == 6 && strcmp(varargin(1),'dB')
+        if nargin > 5 && nnz(ismember(varargin,'dB'))
             spectrg = spectrg/10;
             spectrg = power(10,spectrg);
         else 
-            if nargin > 5
-                error('6th argument must be either ''dB'' or be absent.');
+            if nargin > 6
+                error('You are writing the optional arguments wrong. Options are ''dB'' and ''relaxed''.');
             end
         end
 

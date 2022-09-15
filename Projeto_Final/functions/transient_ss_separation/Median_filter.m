@@ -17,7 +17,9 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
     %
 
     if mod(nFilter_SS,2) == 0 | mod(nFilter_Tr,2) == 0
-        error('Filter lengths must be odd numbers.')
+        nFilter_SS = nFilter_SS + 1;
+        nFilter_Tr = nFilter_Tr + 1;
+        warning('Filter lengths must be odd. Using %i and %i instead.',nFilter_SS,nFilter_Tr)
     end
 
     nFilter_SS = (nFilter_SS-1)/2; % Total length to neighbourhood size
