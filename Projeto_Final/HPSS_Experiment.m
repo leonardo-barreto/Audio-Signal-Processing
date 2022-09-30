@@ -1,15 +1,15 @@
-%TFAnalysis_all;
+TFAnalysis_Experiment;
 
 if isunix
-    figsPath = path_check('./figures_out/Mix1/HPSS/');
+    figsPath = path_check('./figures_out/test/HPSS/');
 else
-    figsPath = path_check('.\figures_out\Mix1\HPSS\');
+    figsPath = path_check('.\figures_out\test\HPSS\');
 end
 
 % Method
-method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
-method_flags = [1 1 1]; % Which method will be enabled
-methods_enabled = find(method_flags);
+%method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
+%method_flags = [1 1 1]; % Which method will be enabled
+%methods_enabled = find(method_flags);
 
 nFilterSS = 71; % Must be odd
 nFilterTr = 71; % Must be odd
@@ -18,8 +18,8 @@ nIter = 5;
 
 method = 'median'; % 'median' or 'SSE'
 
-plot_enable = 0;
-print_figures = 0;
+plot_enable = 1;
+print_figures = 1;
 plot_range = 100;
 
 TFR_SS = {};
@@ -68,6 +68,6 @@ if plot_enable
 end
 
 %% ------ TEMPORARY VARIABLE CLEAR ------
-clearvars data dirbar ref_energy energy_ref_method i method_flags method_name methods_enabled plot_enable plot_max plot_range signal_name TFR_function method
-clearvars ans figFileName figProp figsPath nFilterSS nFilterTr nIter print_figures tit
+%clearvars data dirbar ref_energy energy_ref_method i method_flags method_name methods_enabled plot_enable plot_max plot_range signal_name TFR_function method
+%clearvars ans figFileName figProp figsPath nFilterSS nFilterTr nIter print_figures tit
     

@@ -12,7 +12,7 @@ end
     
     %signal_name = 'violin_drum2.wav';
     %signal_name = 'MusicDelta_Hendrix_STEM_04.RESYN.wav';
-    %signal_name = 'Drums.wav';
+    %signal_name = 'Paulistana1_5s.wav';
     signal_name = 'Mix1.wav';
     %signal_name = 'MusicDelta_Pachelbel_STEM_04_Cut.RESYN.wav';
 
@@ -20,12 +20,12 @@ end
 
     % Method
     method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
-    method_flags = [1 1 1]; % Which method will be enabled
+    method_flags = [1 0 0]; % Which method will be enabled
 
     % Plotting parameters
     plot_enable = 0; % 1 enables plotting, 0 disables
 
-    energy_ref_method = 2; % index of method that will be used as reference energy for plots (guide in method_name)
+    energy_ref_method = 1; % index of method that will be used as reference energy for plots (guide in method_name)
     plot_range = 100; % dB - Power range for plotting
     %plot_max = 10; % dB - Max plotting power
 
@@ -60,7 +60,7 @@ end
     for i = methods_enabled
         fprintf('---- %s TFR ----\n',method_name{i});
 
-        [f{i},t{i},TFR{i}] = TFR_function{i}(x, fs);
+        [TFR{i},f{i},t{i}] = TFR_function{i}(x, fs);
 
         fprintf('   Total frames: %i\n',length(t{i}));
         fprintf('   Frequency bins (N_w/2 + 1): %i\n\n',length(f{i}));

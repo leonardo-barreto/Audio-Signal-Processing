@@ -1,10 +1,8 @@
-function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(varargin)%spectrg, nFilter_SS, nFilter_Tr, niter, method, varargin)
+function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spectrg, nFilter_SS, nFilter_Tr, niter, method, varargin)
 
     % This function aims at producing Steady-State, Transient and Residual-enhanced spectrograms of a signal,
     % based on median filtering or SSE filtering along both time and frequency dimensions.
     %  
-    % Base code implementation made by Ignacio Irigaray 
-    % (Universidad de la Republica, Montevideo, Uruguay)
     %
     % Inputs:
     %   spectrg    : Spectrogram module matrix
@@ -24,51 +22,61 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(vara
     %
 
     %%Initializing variables
+    Median_functions = {@Median_filter @Median_filter_relaxed};
+    SSE_functions = {@SSE_filter @SSE_filter_relaxed};
+    func_idx = 1;
+
     spectrg_SS = zeros(size(spectrg));
     spectrg_Tr = zeros(size(spectrg));
     spectrg_Res = zeros(size(spectrg));
     spectrg_SSTemp = zeros(size(spectrg));
     spectrg_TrTemp = zeros(size(spectrg));
 
-    if nnz(ismember(varargin,'relaxed'))
-        %Relaxed components
-    else
-        error('You are writing the optional arguments wrong. Options are ''dB'' and ''relaxed''.');
+    if (nargin > 5)
+        if (nargin > 6 && (~nnz(ismember(varargin,'dB')) | ~nnz(ismember(varargin,'relaxed'))))
+            error('Invalid optional arguments inserted. Options are ''dB'' and/or ''relaxed''.');
+        elseif (nnz(ismember(varargin,'dB')) && ~strcmpi(method,'SSE')) 
+            error('Cannot have dB with non-SSE method.');
+        elseif nnz(ismember(varargin,'relaxed')) %Relaxed components
+            func_idx = 2;
+        end
+        if (nargin > 7)
+        error('Max number of arguments including optionals is 7.');
+        end
     end
 
     if (strcmpi(method,'median')) % Median method
 
-        [spectrg_SS,spectrg_Tr] = Median_filter(spectrg,nFilter_SS,nFilter_Tr); % First processing
+        Median_function = Median_functions{func_idx};
+        [spectrg_SS,spectrg_Tr] = Median_function(spectrg,nFilter_SS,nFilter_Tr); % First processing
 
         if (niter ~= 0) % Iterative processing
             for i = 1:niter
-                [spectrg_SS,spectrg_TrTemp] = Median_filter(spectrg_SS,nFilter_SS,nFilter_Tr);
+                [spectrg_SS,spectrg_TrTemp] = Median_function(spectrg_SS,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_TrTemp;
 
-                [spectrg_SSTemp,spectrg_Tr] = Median_filter(spectrg_Tr,nFilter_SS,nFilter_Tr);
+                [spectrg_SSTemp,spectrg_Tr] = Median_function(spectrg_Tr,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_SSTemp;
             end
         end
 
     elseif (strcmpi(method,'SSE')) % SSE method
 
-        if nargin > 5 && nnz(ismember(varargin,'dB'))
+        SSE_function = SSE_functions{func_idx};
+
+        if nnz(ismember(varargin,'dB'))
             spectrg = spectrg/10;
             spectrg = power(10,spectrg);
-        else 
-            if nargin > 6
-                error('You are writing the optional arguments wrong. Options are ''dB'' and ''relaxed''.');
-            end
         end
 
-        [spectrg_SS,spectrg_Tr] = SSE_filter(spectrg,nFilter_SS,nFilter_Tr); % First processing
+        [spectrg_SS,spectrg_Tr] = SSE_function(spectrg,nFilter_SS,nFilter_Tr); % First processing
         
         if (niter ~= 0) % Iterative processing
             for i = 1:niter
-                [spectrg_SS,spectrg_TrTemp] = SSE_filter(spectrg_SS,nFilter_SS,nFilter_Tr);
+                [spectrg_SS,spectrg_TrTemp] = SSE_function(spectrg_SS,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_TrTemp;
 
-                [spectrg_SSTemp,spectrg_Tr] = SSE_filter(spectrg_Tr,nFilter_SS,nFilter_Tr);
+                [spectrg_SSTemp,spectrg_Tr] = SSE_function(spectrg_Tr,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_SSTemp;
             end
         end
