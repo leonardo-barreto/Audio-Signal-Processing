@@ -13,7 +13,7 @@ function PlotSpectrogram(freqComponents,frameTimeInstants,powerMatrixDB)
     %Linear scale
     set(gca, 'FontSize', 30)
 
-    ylim([0 5000])
+    %plylim([0 5000])
 
     xlabel('Tempo (s)','FontSize', 30)
     ylabel('Frequencia (kHz)','FontSize', 30)

@@ -16,52 +16,57 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter_relaxed(spectrg,nFilter_SS,n
     %   spectrg_Im : Transient components spectrogram
     %
 
-    if mod(nFilter_SS,2) == 0 | mod(nFilter_Tr,2) == 0
+    if mod(nFilter_SS,2) == 0  
         nFilter_SS = nFilter_SS + 1;
+        warning('SS Filter length must be odd. Using %i instead.',nFilter_SS)
+    elseif mod(nFilter_Tr,2) == 0
         nFilter_Tr = nFilter_Tr + 1;
-        warning('Filter lengths must be odd. Using %i and %i instead.',nFilter_SS,nFilter_Tr)
+        warning('Tr Filter length must be odd. Using %i instead.',nFilter_Tr)
     end
 
     nFilter_SS = (nFilter_SS-1)/2; % Total length to neighbourhood size
     nFilter_Tr = (nFilter_Tr-1)/2;
 
-    spectrg_SS=zeros(size(spectrg));
-    spectrg_Tr=zeros(size(spectrg));
+    spectrg_SS = zeros(size(spectrg));
+    spectrg_Tr = zeros(size(spectrg));
 
     timeLength = size(spectrg,2);
     freqHeight = size(spectrg,1);
 
     %% Median filtering along time
-        ext = floor(nFilter_SS/4)+1;
+        %ext = floor(nFilter_SS/4)+1;
+        s = 1; % kernel step size
+        l = 1; % kernel step length
+        h = 1 + ceil(nFilter_SS/l)*s % kernel total height
 
         for  k = 1:timeLength
             if (k > nFilter_SS) && (k <= timeLength-nFilter_SS)
-                for i = 1:freqHeight
-                    if (i > ext) && (i <= freqHeight-ext)
-                        spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k+nFilter_SS)),2);
-                    else
-                        spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k+nFilter_SS),2);
-                    end
-                end
+                % for i = 1:freqHeight
+                %     if (i > ext) && (i <= freqHeight-ext)
+                %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k+nFilter_SS)),2);
+                %     else
+                %         spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k+nFilter_SS),2);
+                %     end
+                % end
+                
             else
                 if k <= nFilter_SS
-                    for i = 1:freqHeight
-                        if (i > ext) && (i <= freqHeight-ext)
-                            spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,1:k+nFilter_SS)),2);
-                        else
-                            spectrg_SS(i,k) = median(spectrg(i,1:k+nFilter_SS),2);
-                        end
-                    end
+                    % for i = 1:freqHeight
+                    %     if (i > ext) && (i <= freqHeight-ext)
+                    %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,1:k+nFilter_SS)),2);
+                    %     else
+                    %         spectrg_SS(i,k) = median(spectrg(i,1:k+nFilter_SS),2);
+                    %     end
+                    % end
                 else
-                    for i = 1:freqHeight
-                        if (i > ext) && (i <= freqHeight-ext)
-                            spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k)),2);
-                        else
-                            spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k),2);
-                        end
-                    end
+                    % for i = 1:freqHeight
+                    %     if (i > ext) && (i <= freqHeight-ext)
+                    %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k)),2);
+                    %     else
+                    %         spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k),2);
+                    %     end
+                    % end
                 end
-                
             end
         end
 
