@@ -13,6 +13,7 @@ function [spectrograms, Freq, Time ] = spectrogram_tensor_prep(input_sig, fs, N_
 %               [spec1, spec2, spec3, combined]
 % redLines: vector containing the instants in which will be plotted red
 % dashed vertical lines
+
 % Computing spectrograms - - - -
 spectrogramsBeforeTrim = cell(length(N_w));
 

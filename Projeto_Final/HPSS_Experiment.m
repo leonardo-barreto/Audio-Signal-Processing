@@ -14,7 +14,7 @@ methods_enabled = find(method_flags);
 nFilterSS = 71; % Must be odd
 nFilterTr = 71; % Must be odd
 
-nIter = 10;
+nIter = 1;
 
 method = 'median'; % 'median' or 'SSE'
 

@@ -32,6 +32,9 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
     spectrg_SSTemp = zeros(size(spectrg));
     spectrg_TrTemp = zeros(size(spectrg));
 
+    if (niter < 1)
+        error('niter (number of iterations) must be greater than or equal to 1.');
+    end
     if (nargin > 5)
         if (nargin > 6 && (~nnz(ismember(varargin,'dB')) | ~nnz(ismember(varargin,'relaxed'))))
             error('Invalid optional arguments inserted. Options are ''dB'' and/or ''relaxed''.');
@@ -50,8 +53,8 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
         Median_function = Median_functions{func_idx};
         [spectrg_SS,spectrg_Tr] = Median_function(spectrg,nFilter_SS,nFilter_Tr); % First processing
 
-        if (niter ~= 0) % Iterative processing
-            for i = 1:niter
+        if (niter > 1) % Iterative processing
+            for i = 2:niter
                 [spectrg_SS,spectrg_TrTemp] = Median_function(spectrg_SS,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_TrTemp;
 
@@ -71,8 +74,8 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
 
         [spectrg_SS,spectrg_Tr] = SSE_function(spectrg,nFilter_SS,nFilter_Tr); % First processing
         
-        if (niter ~= 0) % Iterative processing
-            for i = 1:niter
+        if (niter > 1) % Iterative processing
+            for i = 2:niter
                 [spectrg_SS,spectrg_TrTemp] = SSE_function(spectrg_SS,nFilter_SS,nFilter_Tr);
                 spectrg_Res = spectrg_Res + spectrg_TrTemp;
 

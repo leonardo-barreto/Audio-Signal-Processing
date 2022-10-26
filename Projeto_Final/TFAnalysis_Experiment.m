@@ -1,9 +1,11 @@
 %   This script makes a time-frequency analysis of a signal.
 
 if isunix
+    figsPath = path_check('./figures_out/test/TFRs/');
     addpath ./audio_src
     dirbar = '/';
 else
+    figsPath = path_check('.\figures_out\test\TFRs\');
     addpath .\audio_src
     dirbar = '\';
 end
@@ -23,7 +25,8 @@ end
     method_flags = [0 1 0]; % Which method will be enabled
 
     % Plotting parameters
-    plot_enable = 0; % 1 enables plotting, 0 disables
+    plot_enable = 1; % 1 enables plotting, 0 disables
+    print_figures = 1;
 
     energy_ref_method = 1; % index of method that will be used as reference energy for plots (guide in method_name)
     plot_range = 100; % dB - Power range for plotting
@@ -33,7 +36,7 @@ end
     
     [data, fs_orig] = audioread([signal_name]);
 
-    %[filepath,signal_name,ext] = fileparts(signal_name);
+    [filepath,signal_name,ext] = fileparts(signal_name);
 
     if size(data,2) > 1
         x = mean(data.');
@@ -86,10 +89,20 @@ end
     if plot_enable
         plot_max = max(max(10*log10(TFR{methods_enabled(1)})));
         for i = methods_enabled
+
             PlotSpectrogram_ylin(f{i},t{i},[plot_max-plot_range plot_max],10*log10(TFR{i}));
             title(sprintf('Espectrograma %s', method_name{i}))
+
             %set(gca, 'FontSize', 30, 'yscale', 'log')
             %ylim([0 12000])
+            if print_figures
+                tit = [signal_name '_RTF_' method_name{i}];
+                tit(tit=='.') = '_'; tit(tit==' ') = '';
+                figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
+                figFileName = [figsPath tit];
+                formatFig(gcf, figFileName, 'en', figProp);
+                close;
+            end
         end
     end
 
