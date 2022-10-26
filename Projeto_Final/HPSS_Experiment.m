@@ -9,12 +9,12 @@ end
 % Method
 %method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
 %method_flags = [1 1 1]; % Which method will be enabled
-%methods_enabled = find(method_flags);
+methods_enabled = find(method_flags);
 
 nFilterSS = 71; % Must be odd
 nFilterTr = 71; % Must be odd
 
-nIter = 5;
+nIter = 10;
 
 method = 'median'; % 'median' or 'SSE'
 
@@ -27,7 +27,7 @@ TFR_Tr = {};
 TFR_Res = {};
 
 for i = methods_enabled
-    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method);
+    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method,'relaxed');
 end
 
 %% - - - - - - Making first frame zero
@@ -43,7 +43,7 @@ if plot_enable
         title(sprintf('Estado Permanente (filtro %ix%i, %s)', nFilterSS,nFilterTr,method_name{i}));
 
         if print_figures
-            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_SS_enhanced_'];
+            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_SS_enhanced_relaxed'];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];
@@ -56,7 +56,7 @@ if plot_enable
         title(sprintf('Transitorio (filtro %ix%i, %s)', nFilterSS,nFilterTr,method_name{i}));
 
         if print_figures
-            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_Tr_enhanced_'];
+            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_Tr_enhanced_relaxed'];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];

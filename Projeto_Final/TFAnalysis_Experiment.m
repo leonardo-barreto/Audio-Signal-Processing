@@ -20,7 +20,7 @@ end
 
     % Method
     method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
-    method_flags = [1 0 0]; % Which method will be enabled
+    method_flags = [0 1 0]; % Which method will be enabled
 
     % Plotting parameters
     plot_enable = 0; % 1 enables plotting, 0 disables

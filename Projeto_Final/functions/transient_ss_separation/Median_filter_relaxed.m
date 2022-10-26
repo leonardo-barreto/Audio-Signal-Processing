@@ -34,40 +34,9 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter_relaxed(spectrg,nFilter_SS,n
     freqHeight = size(spectrg,1);
 
     %% Median filtering along time
-        %ext = floor(nFilter_SS/4)+1;
-        s = 1; % kernel step size
-        l = 1; % kernel step length
-        h = 1 + ceil(nFilter_SS/l)*s % kernel total height
 
         for  k = 1:timeLength
-            if (k > nFilter_SS) && (k <= timeLength-nFilter_SS)
-                % for i = 1:freqHeight
-                %     if (i > ext) && (i <= freqHeight-ext)
-                %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k+nFilter_SS)),2);
-                %     else
-                %         spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k+nFilter_SS),2);
-                %     end
-                % end
-                
-            else
-                if k <= nFilter_SS
-                    % for i = 1:freqHeight
-                    %     if (i > ext) && (i <= freqHeight-ext)
-                    %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,1:k+nFilter_SS)),2);
-                    %     else
-                    %         spectrg_SS(i,k) = median(spectrg(i,1:k+nFilter_SS),2);
-                    %     end
-                    % end
-                else
-                    % for i = 1:freqHeight
-                    %     if (i > ext) && (i <= freqHeight-ext)
-                    %         spectrg_SS(i,k) = median(max(spectrg(i-ext:i+ext,k-nFilter_SS:k)),2);
-                    %     else
-                    %         spectrg_SS(i,k) = median(spectrg(i,k-nFilter_SS:k),2);
-                    %     end
-                    % end
-                end
-            end
+            spectrg_SS(:,k) = median(Gen_RelaxedKernel(spectrg,nFilter_SS,k),2);
         end
 
     %% Median filtering along frequency

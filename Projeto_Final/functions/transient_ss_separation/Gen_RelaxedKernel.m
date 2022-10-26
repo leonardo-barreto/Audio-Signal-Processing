@@ -1,34 +1,43 @@
-function Gen_RelaxedKernel(spectrg,nFilter,time_curr)
+function [max_matrix] = Gen_RelaxedKernel(spectrg,nFilter,time_curr)
 
-%nFilter = 5
-%time_curr = 25
+    %TESTING PURPOSES
+    %nFilter = 5;
+    %time_curr = 25;
+    %spectrg = zeros(50,50);
+    %spectrg(11:20,20) = 1:10;
+    %spectrg(21:32,20) = 11:22;
+    %spectrg(11:20,23) = 1:10;
+    %spectrg(21:32,23) = 11:22;
 
-[freqHeight,timeLength] = size(spectrg);
+    % Kernel Parameters
+    s = 2; % kernel step height
+    l = 1; % kernel step length
+    h = ceil(nFilter/l)*s; % kernel max height
 
+    [freqHeight,timeLength] = size(spectrg);
+    max_matrix = zeros(freqHeight,2*nFilter+1); % Output matrix
 
-freq_c = freq;
-x_c = nFilter+1;
+    if (time_curr <= nFilter | time_curr > timeLength-nFilter)
+        spectrg_augment = padarray(spectrg,[h,nFilter],'replicate'); % Padding in the spectrogram to accomodate border kernels
+        pad_horiz = nFilter;
+    else
+        spectrg_augment = padarray(spectrg,[h,0],'replicate'); % Padding in the spectrogram to accomodate border kernels
+        pad_horiz = 0;
+    end
 
-% Kernel Parameters
-s = 2; % kernel step height
-l = 1; % kernel step length
-h = 1 + ceil(nFilter/l)*s; % kernel total height
+    time_c = time_curr+pad_horiz;     % Kernel horizontal center (in spectrogram)
+    x_c = nFilter+1;                  % Kernel horizontal center (in output vector)
 
-%kernel = zeros(size(spectrg_SS));
-max_vec = zeros(2*nFilter+1,1);
+    for freq_bin = 1+h:freqHeight+h
+        y = freq_bin-h;
+        for x = 0:nFilter
+            h_curr = ceil(x/l)*s;
+            %spectrg_augment(freq_bin-h_curr:freq_bin+h_curr,time_c+x) = 1; % Testing purposes
+            %spectrg_augment(freq_bin-h_curr:freq_bin+h_curr,time_c-x) = 1; % Testing purposes
+            max_matrix(y,x_c+x) = max(spectrg_augment(freq_bin-h_curr:freq_bin+h_curr,time_c+x));
+            max_matrix(y,x_c-x) = max(spectrg_augment(freq_bin-h_curr:freq_bin+h_curr,time_c-x));
+        end
 
-%spectrg_augment = zeros(size(spectrg)+2*nFilter);
-spectrg_augment = padarray(spectrg,[nFilter,nFilter],'replicate');
-time_c = time_curr+nFilter;
-
-for freq_c = 1+nFilter:freqHeight+nFilter
-
-    for x = 0:nFilter
-        h_curr = ceil(x/l)*s;
-        %kernel(freq_c-h_curr:freq_c+h_curr,x_c+x) = 1;
-        %kernel(freq_c-h_curr:freq_c+h_curr,x_c-x) = 1;
-        max_vec(x_c+x,1) = max(spectrg(freq_c-h_curr:freq_c+h_curr,time_c+x));
-        max_vec(x_c-x,1) = max(spectrg(freq_c-h_curr:freq_c+h_curr,time_c-x));
     end
 
 end
