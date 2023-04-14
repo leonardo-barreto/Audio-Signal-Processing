@@ -23,7 +23,7 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,sampl
         powerSpectrum = inputFrame.powerSpectrum;
         freqComponents = inputFrame.freqComponents;
         totalFreqBins = inputFrame.totalFreqBins;
-        totalFrames = inputFrame.totalFrames;
+        %totalFrames = inputFrame.totalFrames;
         currentFrame = inputFrame.currentFrame;
 
     

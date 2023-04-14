@@ -1,4 +1,4 @@
-function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DEBUG)
+function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTracks,DEBUG)
 
     DEBUG = 0;
 
@@ -6,11 +6,11 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
 
         maxTracksPerFrame = 100;
 
-        freqTolerance = (power(2,1/24)-1); %about 3% (quarter-tone)
-        maxHysteresis = 3; % in frames.
-        minLength = 10; % in frames
-        maxTrackFrequency = 10000; %in Hz
-        minTrackPower = -60;%in dB
+        freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
+        maxHysteresis = 3;                 % in frames
+        minTrackLength = 10;               % in frames
+        maxTrackFrequency = 10000;         % in Hz
+        minTrackPower = -60;               % in dB
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Initial Processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|    
 
@@ -55,25 +55,26 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
         if (~isempty(currentTracks) && totalInactiveTracks ~= length(currentTracks)) % Will not attempt to process existing tracks if there aren't any.
 
 
-            % -------------------------------- Matching peaks to tracks ------------------------------------
+            % -------------------------------- Matching TRACKS to PEAKS ------------------------------------
         
             % Gathering track info
             matchedIndexes = [];
             activeIndexes = structArrayOperations(currentTracks,'status','==','active');  % Gathering active indexes
-            asleepIndexes = structArrayOperations(currentTracks,'status','==','asleep'); %Gathering asleep indexes
-            availableIndexes = [activeIndexes,asleepIndexes];  % Indexes of tracks to be continued: Active tracks are priority.
+            asleepIndexes = structArrayOperations(currentTracks,'status','==','asleep'); % Gathering asleep indexes
+            availableIndexes = [asleepIndexes,activeIndexes];  % Indexes of tracks to be continued: ASLEEP tracks are priority.
             existingIndexes = availableIndexes;
 
             if DEBUG == 1
                 fprintf('Available (active or asleep) tracks: %i of %i.\n',length(availableIndexes),length(currentTracks));
                 fprintf('Existing peaks: %i\n',totalPeaks);
-                fprintf('Proceeding to match peaks to tracks...\n\n');
+                fprintf('Proceeding to match tracks to peaks...\n\n');
             end 
 
                 peakIndex = 1;
+                trackIndex = 1;
 
-                while (peakIndex <= size(peakMatrix,2) && length(availableIndexes) > 0)
-                    
+                while (trackIndex <= length(availableIndexes))
+%{
                     existingTrackFrequencies = getArrayFields(currentTracks,'currentFrequency',availableIndexes);
 
                     peakTolerance = peakMatrix(freqRow,peakIndex)*freqTolerance;
@@ -81,8 +82,13 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
                     upperBounds = peakMatrix(freqRow,peakIndex) + peakTolerance;
                     lowerBounds = peakMatrix(freqRow,peakIndex) - peakTolerance;
 
-                    matchTracks = intersect(find(existingTrackFrequencies < upperBounds),find(existingTrackFrequencies > lowerBounds));
-                
+                    matchTracks = intersect(find(existingTrackFrequencies < upperBounds),find(existingTrackFrequencies > lowerBounds)); 
+%}            
+                    trackFrequency = currentTracks(availableIndexes(trackIndex)).frequencyEvolution(end);
+                    trackTolerance = trackFrequency*freqTolerance;
+                    
+                    matchTracks = intersect(find(peakMatrix(freqRow,:) < trackFrequency + trackTolerance),find(peakMatrix(freqRow,:) > trackFrequency - trackTolerance));
+                    %[PAREI AQUI]
                     if (~isempty(matchTracks))
 
                         [~,matchIndex] = min(abs(peakMatrix(freqRow,peakIndex)-existingTrackFrequencies(matchTracks)));
@@ -216,7 +222,7 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
         if (~isempty(inactiveIndexes))
 
             inactiveTrackLengths = getArrayFields(currentTracks,'length',inactiveIndexes);
-            removeLogic = inactiveTrackLengths < minLength;
+            removeLogic = inactiveTrackLengths < minTrackLength;
 
             deleteIndexes = inactiveIndexes(removeLogic);
 

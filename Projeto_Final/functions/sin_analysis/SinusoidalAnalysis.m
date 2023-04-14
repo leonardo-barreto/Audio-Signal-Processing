@@ -36,7 +36,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
         % Building a signal frame as a peak detection entity
         signalFrame = {};
-        signalFrame.totalFrames = totalFrames; %Total number of signal frames
+        %signalFrame.totalFrames = totalFrames; %Total number of signal frames
         signalFrame.currentFrame = 1; %Current frame
         signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
         signalFrame.freqComponents = freqComponents'; %frequency components vector
@@ -67,10 +67,10 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         
 
         for frameCounter = 1:totalFrames
+            signalFrame.currentFrame = frameCounter;
             signalFrame.powerSpectrum = powerMatrix(:,frameCounter);
             signalFrame.powerSpectrumThreshold = [];
             signalFrame.peakMatrix = [];
-            signalFrame.currentFrame = frameCounter;
             [signalFrame.peakMatrix,signalFrame.powerSpectrumThreshold] = PeakDetection(signalFrame,fs,2*(totalFreqBins-1),DEBUG);
             frameArray(frameCounter) = signalFrame;
         end
@@ -107,7 +107,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
         for frameCounter = 1:totalFrames
 
-            signalTrackArray = PartialTracking(frameArray(frameCounter),signalTrackArray,2);
+            signalTrackArray = PartialTracking_2023(frameArray(frameCounter),totalFrames,signalTrackArray,0);
 
         end
 
