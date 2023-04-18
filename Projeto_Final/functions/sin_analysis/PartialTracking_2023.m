@@ -40,7 +40,6 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
         end
 
         totalPeaks = size(peakMatrix,2);
-        unusedPeaks = true(1,totalPeaks);
 
         if DEBUG == 1
             fprintf('Frame information gathered.\n');
@@ -59,10 +58,12 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
         
             % Gathering track info
             matchedIndexes = [];
+            unmatchedIndexes = [];
+            deactivatedIndexes = []; % This will index into existingIndexes later to remove deactivated tracks.
             activeIndexes = structArrayOperations(currentTracks,'status','==','active');  % Gathering active indexes
             asleepIndexes = structArrayOperations(currentTracks,'status','==','asleep'); % Gathering asleep indexes
             availableIndexes = [asleepIndexes,activeIndexes];  % Indexes of tracks to be continued: ASLEEP tracks are priority.
-            existingIndexes = availableIndexes;
+            %existingIndexes = availableIndexes;
 
             if DEBUG == 1
                 fprintf('Available (active or asleep) tracks: %i of %i.\n',length(availableIndexes),length(currentTracks));
@@ -70,92 +71,63 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
                 fprintf('Proceeding to match tracks to peaks...\n\n');
             end 
 
-                peakIndex = 1;
-                trackIndex = 1;
+            for trackIndex = availableIndexes
 
-                while (trackIndex <= length(availableIndexes))
-%{
-                    existingTrackFrequencies = getArrayFields(currentTracks,'currentFrequency',availableIndexes);
+                trackFrequency = currentTracks(trackIndex).frequencyEvolution(end);
+                matchedPeaks = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
+                
+                if (~isempty(matchedPeaks)) % Track matched to a peak
+                    [~,matchIndex] = min(abs(peakMatrix(freqRow,matchedPeaks)-trackFrequency));
+                    matchIndex = matchedPeaks(matchIndex);
 
-                    peakTolerance = peakMatrix(freqRow,peakIndex)*freqTolerance;
-                    
-                    upperBounds = peakMatrix(freqRow,peakIndex) + peakTolerance;
-                    lowerBounds = peakMatrix(freqRow,peakIndex) - peakTolerance;
-
-                    matchTracks = intersect(find(existingTrackFrequencies < upperBounds),find(existingTrackFrequencies > lowerBounds)); 
-%}            
-                    trackFrequency = currentTracks(availableIndexes(trackIndex)).frequencyEvolution(end);
-                    trackTolerance = trackFrequency*freqTolerance;
-                    
-                    matchTracks = intersect(find(peakMatrix(freqRow,:) < trackFrequency + trackTolerance),find(peakMatrix(freqRow,:) > trackFrequency - trackTolerance));
-                    %[PAREI AQUI]
-                    if (~isempty(matchTracks))
-
-                        [~,matchIndex] = min(abs(peakMatrix(freqRow,peakIndex)-existingTrackFrequencies(matchTracks)));
-
-                        matchIndex = matchTracks(matchIndex);
-
-                        if DEBUG == 1
-                            fprintf('Peak %i matched to track %i.\n',peakIndex,availableIndexes(matchIndex));
-                        end
-
-                        currentTracks(availableIndexes(matchIndex)) = setTrackActive(currentTracks(availableIndexes(matchIndex)),peakMatrix(:,peakIndex),currentFrame);
-                        unusedPeaks(peakIndex) = false;
-                        matchedIndexes(end+1) = availableIndexes(matchIndex);
-                        availableIndexes(matchIndex) = [];
-
-                    else %no tracks are close enough.
-                        if DEBUG == 1
-                            fprintf('Peak %i NOT matched to any track.\n',peakIndex);
-                        end
+                    if DEBUG == 1
+                        fprintf('Peak %i matched to track %i.\n',matchIndex,trackIndex);
                     end
 
-                    peakIndex = peakIndex + 1;
+                    currentTracks(trackIndex) = setTrackActive(currentTracks(trackIndex),peakMatrix(:,matchIndex),currentFrame);
+                    matchedIndexes(end+1) = trackIndex;
+                    peakMatrix(:,matchIndex) = []; % Removes from selection a peak that was used
 
-                end
+                else % No peaks are close enough
+                    if (currentTracks(trackIndex).status == 0)
+                        error('Hmmm... trying to process track that is inactive? This should not happen.');
+                    end
+                    if DEBUG == 1
+                        fprintf('Track %i NOT matched to any peak.\n',trackIndex);
+                    end
+                    unmatchedIndexes(end+1) = trackIndex
+                    switch currentTracks(trackIndex).status
+                        case 1 %Track is active and must go to sleep 
+                            currentTracks(trackIndex) = setTrackAsleep(currentTracks(trackIndex),currentFrame);
+                        case 2 %Track is asleep
+                            if (currentTracks(trackIndex).hysteresis >= maxHysteresis) %Track is over hysteresis limit and must be deactivated.
+                                currentTracks(trackIndex) = setTrackInactive(currentTracks(trackIndex),currentFrame,lastFrame);
+                                deactivatedIndexes(end+1) = trackIndex;
+                            else %Track is asleep and can continue to be so.
+                                currentTracks(trackIndex) = setTrackAsleep(currentTracks(trackIndex),currentFrame);
+                            end
+                    end
+                end 
+            end
+            
+            if DEBUG == 1
+                fprintf('Matching done.\n');
+                fprintf('Matched tracks: %i of %i previously existing.\n',length(matchedIndexes),length(availableIndexes));
+                fprintf('Unmatched tracks: %i of %i previously existing.\n',length(unmatchedIndexes),length(availableIndexes));
+                fprintf('%i peaks remaining of %i.\n\n',size(peakMatrix,2),totalPeaks);
+            end
 
-                peakMatrix = peakMatrix(:,unusedPeaks); %THIS SHOULD ONLY INCLUDE PEAKS THAT CAN START NEW TRACKS.
-                unmatchedIndexes = availableIndexes; % THIS SHOULD ONLY INCLUDE INDEXES OF UNMATCHED TRACKS.
                 
-                if DEBUG == 1
-                    fprintf('Matching done.\n');
-                    fprintf('Matched tracks: %i of %i previously existing.\n',length(matchedIndexes),length(existingIndexes));
-                    fprintf('Unmatched tracks: %i of %i previously existing.\n',length(unmatchedIndexes),length(existingIndexes));
-                    fprintf('%i peaks remaining of %i.\n\n',size(peakMatrix,2),totalPeaks);
-                    fprintf('Proceeding to update unmatched tracks'' statuses...\n\n');
-                end
-
-            % ------------------------------------ Updating status of all unmatched tracks ---------------------------------------
-
-                inactives = []; % This will index into existingIndexes later to remove inactive tracks.
-                
-                for trackIndex = 1:length(unmatchedIndexes)
-                    if (currentTracks(unmatchedIndexes(trackIndex)).status == 1) %Track is active and must go to sleep. 
-                        currentTracks(unmatchedIndexes(trackIndex)) = setTrackAsleep(currentTracks(unmatchedIndexes(trackIndex)),currentFrame);
-                    else
-
-                        if (currentTracks(unmatchedIndexes(trackIndex)).status ~= 2)
-                            error('Hmmm... unmatched track that is inactive? This should not happen.');
-                        end
-
-                        if (currentTracks(unmatchedIndexes(trackIndex)).hysteresis >= maxHysteresis) %Track is over hysteresis limit and must be deactivated.
-                            currentTracks(unmatchedIndexes(trackIndex)) = setTrackInactive(currentTracks(unmatchedIndexes(trackIndex)),currentFrame,lastFrame);
-                            inactives(end+1) = trackIndex;
-                        else %Track is asleep and can continue to be so.
-                            currentTracks(unmatchedIndexes(trackIndex)) = setTrackAsleep(currentTracks(unmatchedIndexes(trackIndex)),currentFrame);
-                        end
-                    end 
-                end
-
             % -------------------------------------- Updating track indexes ------------------------------------------
 
-                existingIndexes(inactives) = [];
+                availableIndexes(deactivatedIndexes == availableIndexes) = [];
+                existingIndexes = availableIndexes;
                 activeIndexes = structArrayOperations(currentTracks,'status','==','active');
 
                 if DEBUG == 1
                     asleepIndexes_debug = structArrayOperations(currentTracks,'status','==','asleep');
                     fprintf('Status updating done.\n');
-                    fprintf('Deactivated tracks: %i\n',length(inactives));
+                    fprintf('Deactivated tracks: %i\n',length(deactivatedIndexes));
                     fprintf('Asleep tracks: %i\n',length(asleepIndexes_debug));
                     fprintf('Active tracks: %i\n',length(activeIndexes));
                     fprintf('Existing tracks (asleep + active): %i\n',length(existingIndexes));
@@ -173,7 +145,7 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
                 %fprintf('If this is not frame 1, then either your tracks are coming up too short or there is something wrong.\n\n');
             end
         end
-
+    % PAREI AQUI
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Allocating new tracks if allowed -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-||
 
         %Re-gathering total tracks
