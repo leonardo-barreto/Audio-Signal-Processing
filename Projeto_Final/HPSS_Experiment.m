@@ -1,9 +1,9 @@
 TFAnalysis_Experiment;
 
 if isunix
-    figsPath = path_check('./figures_out/test/HPSS/');
+    figsPath = path_check('./figures_out/HPSS_Experiment/');
 else
-    figsPath = path_check('.\figures_out\test\HPSS\');
+    figsPath = path_check('.\figures_out\HPSS_Experiment\');
 end
 
 % Method

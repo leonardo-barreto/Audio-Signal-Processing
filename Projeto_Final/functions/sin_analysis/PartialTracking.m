@@ -23,7 +23,6 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
             peakMatrix = inputFrame.peakMatrix;
             lastFrame = totalFrames;
 
-
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Gathering all frame peak information -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
 
         if (~isempty(peakMatrix))
@@ -31,8 +30,6 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
                 peakMatrix = sortcolumns(peakMatrix,freqRow,'ascend');
                 allowedPeaks = peakMatrix(freqRow,:) < maxTrackFrequency;
                 peakMatrix = peakMatrix(:,allowedPeaks);
-
-
             %Discarding peaks below minimum allowed power.
                 peakMatrix = sortcolumns(peakMatrix,powerRow,'descend');
                 allowedPeaks = peakMatrix(powerRow,:) > minTrackPower;
@@ -53,7 +50,6 @@ function currentTracks = PartialTracking(inputFrame,totalFrames,currentTracks,DE
         totalInactiveTracks = length(structArrayOperations(currentTracks,'status','==','inactive'));
         
         if (~isempty(currentTracks) && totalInactiveTracks ~= length(currentTracks)) % Will not attempt to process existing tracks if there aren't any.
-
 
             % -------------------------------- Matching peaks to tracks ------------------------------------
         

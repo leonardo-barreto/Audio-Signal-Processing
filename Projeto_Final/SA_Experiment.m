@@ -5,9 +5,11 @@ clear;
 if isunix
     addpath ./audio_src
     dirbar = '/';
+    figsPath = path_check('./figures_out/SA_Experiment/');
 else
     addpath .\audio_src
     dirbar = '\';
+    figsPath = path_check('.\figures_out\SA_Experiment\');
     
 end
 
@@ -21,15 +23,14 @@ end
 
     % TFR Method
     method_name = {'STFT', 'CQT', 'FLS', 'MRFCI'}; % TFR Methods available
-    method_flags = [0 1 0 0]; % Which method will be enabled
+    method_flags = [1 0 0 0]; % Which method will be enabled
     methods_enabled = find(method_flags);
 
     plot_enable = 1;
     print_figures = 1;
-    plot_range = 80;
 
-    energy_ref_method = 2; % index of method that will be used as reference energy for plots (guide in method_name)
-    %plot_range = 100; % dB - Power range for plotting
+    energy_ref_method = 1; % index of method that will be used as reference energy for plots (guide in method_name)
+    plot_range = 100; % dB - Power range for plotting
     %plot_max = 10; % dB - Max plotting power
 
 %% - - - - - - Input Reading - - - - - -  
@@ -87,7 +88,6 @@ if plot_enable
         title(sprintf('RTF (%s)',method_name{i}));
 
         if print_figures
-            figsPath = path_check(['.\figures_out\spd_correction\' signal_name '\']);
             tit = [signal_name '_RTF_' method_name{i}];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
@@ -100,7 +100,6 @@ if plot_enable
         title(sprintf('Trilhas senoidais (%s)',method_name{i}));
 
         if print_figures
-            figsPath = path_check(['.\figures_out\spd_correction\' signal_name '\']);
             tit = [signal_name '_tracks_' method_name{i}];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis

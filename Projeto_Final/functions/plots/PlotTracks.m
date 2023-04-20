@@ -13,7 +13,6 @@ function organizedTracks = PlotTracks(trackArray,timeInstants);
 
     colorVector = ['r-','b-','g-','m-','k-'];
 
-
     for trackIndex = 1:length(organizedTracks)
 
         trackStart = organizedTracks(trackIndex).startFrame;

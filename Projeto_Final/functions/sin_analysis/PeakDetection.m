@@ -12,39 +12,32 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,sampl
     %Parameters
     peakProminence = 20; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
 
-    numberCoeffsSSE = 30;
-    thresholdOffsetSSE = 0 ; %THIS MUST BE IN dB.
-
+    thresholdOffset = 0; %in DB
     hardThreshold = 80; %in DB
     freqThreshold = 5000; %in Hz
 
+    thresholdMethod = 'SSE';
+
     % Gathering frame data
-    
         powerSpectrum = inputFrame.powerSpectrum;
         freqComponents = inputFrame.freqComponents;
         totalFreqBins = inputFrame.totalFreqBins;
         %totalFrames = inputFrame.totalFrames;
         currentFrame = inputFrame.currentFrame;
 
-    
-
     % Background Noise threshold estimation.
-
-        %TPSW METHOD
+    switch thresholdMethod
+        case 'TPSW'
             parametersTPSW = {};
             parametersTPSW.lengthSW = 51;
             parametersTPSW.gapSizeSW = 8;
             parametersTPSW.rejectionFactor = 4;
-            parametersTPSW.deltaTPSW = 5; % THIS MUST BE IN dB.
-
-            spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,0);
-
-        %SSE METHOD
-            spectrumThreshold_SSE = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG) + thresholdOffsetSSE;
+            spectrumThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,0) + thresholdOffset;
+        case 'SSE' 
+            numberCoeffsSSE = 30;  
+            spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG) + thresholdOffset;
         
-    
     % Peak Detection
-
         %Finding all local maxima
             initialPeaks = NaN(1,totalFreqBins); 
 

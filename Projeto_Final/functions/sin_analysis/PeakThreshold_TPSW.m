@@ -14,7 +14,6 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
     lengthSW = parametersTPSW.lengthSW;
     gapSizeSW = parametersTPSW.gapSizeSW;
     rejectionFactor = parametersTPSW.rejectionFactor;
-    deltaTPSW = parametersTPSW.deltaTPSW;
 
 
     %Building the Two-Pass Split Window
@@ -63,7 +62,7 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
 
 
     %Moving average filter
-    spectrumFiltered = movmean(spectrumSubstituted,nonZeroSamples) + deltaTPSW;
+    spectrumFiltered = movmean(spectrumSubstituted,nonZeroSamples);
 
     %Discarding the mirrored edges and returning back to original size (first two are for debug purposes)
     spectrumTPSW = spectrumTPSW((length(startMirror)+1):extendedLength-length(endMirror));

@@ -41,7 +41,6 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
         signalFrame.freqComponents = freqComponents'; %frequency components vector
         
-
         %Outputting general parameters.
         TFParams = {};
         TFParams.freqComponents = freqComponents;
@@ -51,7 +50,6 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         %TFParams.hopSize = hop;
         %TFParams.hopSize = floor(((100-overlapPerc)/100)*windowSize);
 
-        
         fprintf(' Total frames: %i\n',totalFrames);
         fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
         fprintf('\nShort-Time Fourier Transform Finished.\n');
@@ -63,8 +61,6 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
         fprintf('\nPeak Detection Starting...\n');
-
-        
 
         for frameCounter = 1:totalFrames
             signalFrame.currentFrame = frameCounter;
@@ -101,9 +97,8 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         % the information of tracks that ended. Later, another part of the algorithm will gather the starting
         % and ending frames of each track and organize them.
 
-        signalTrackArray = [];
         signalTrackArray = setNewTrack();
-        
+        signalTrackArray = signalTrackArray([]);
 
         for frameCounter = 1:totalFrames
 
@@ -112,7 +107,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         end
 
         %if DEBUG == 1
-        %    organizedTracks = PlotTracks(frameArray,timeInstants);
+            %organizedTracks = PlotTracks(frameArray,timeInstants);
         %end
     
     fprintf('\n\n------- SINUSOIDAL ANALYSIS FINISHED ------\n\n');
