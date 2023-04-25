@@ -21,7 +21,7 @@ function newTrack = setNewTrack(peakParameters,currentFrame)
         newTrack.finalFrame = currentFrame; % Ending frame of the track (0 if non-existent or active)
         newTrack.length = 1; % length of the track (0 if non-existent)
         newTrack.hysteresis = 0; % Hysteresis counter
-        newTrack.status = 1; % Track Status: 0 = inactive, 1 = active, 2 = asleep.
+        newTrack.status = 2; % Track Status: 0 = inactive, 1 = active, 2 = asleep.
     end
 
 end 

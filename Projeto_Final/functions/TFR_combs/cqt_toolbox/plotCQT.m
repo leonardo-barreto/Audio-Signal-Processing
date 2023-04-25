@@ -7,7 +7,7 @@ function plotCQT(Xcqt,fs,fcomp,method)
 %'image', respectively, whereas using 'surf' the axis are properly labeled, 
 %however 'image' is faster leaving all axis unlabeled (default: 'surf').
 %
-%Christian Schörkhuber, Anssi Klapuri 2010-06
+%Christian Schï¿½rkhuber, Anssi Klapuri 2010-06
 
 if Xcqt.intParams.rast == 0
     absCQT = getCQT(Xcqt,'all','all','linear');

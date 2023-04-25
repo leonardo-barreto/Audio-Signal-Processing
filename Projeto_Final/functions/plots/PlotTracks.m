@@ -22,7 +22,7 @@ function organizedTracks = PlotTracks(trackArray,timeInstants);
 
         if (length(trackTimes) ~= length(trackFrequencies))
             fprintf('\nThis is track %i\n',trackIndex);
-            fprintf('%i Track Times and %i trackFrequencies',length(trackTimes), length(trackFrequencies));
+            fprintf('%i Track Times and %i trackFrequencies\n',length(trackTimes), length(trackFrequencies));
             error('Hmm. Wrong.');
         end
 

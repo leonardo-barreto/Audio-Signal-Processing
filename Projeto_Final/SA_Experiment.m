@@ -23,13 +23,13 @@ end
 
     % TFR Method
     method_name = {'STFT', 'CQT', 'FLS', 'MRFCI'}; % TFR Methods available
-    method_flags = [1 0 0 0]; % Which method will be enabled
+    method_flags = [0 0 0 1]; % Which method will be enabled
     methods_enabled = find(method_flags);
 
     plot_enable = 1;
     print_figures = 1;
 
-    energy_ref_method = 1; % index of method that will be used as reference energy for plots (guide in method_name)
+    energy_ref_method = 4; % index of method that will be used as reference energy for plots (guide in method_name)
     plot_range = 100; % dB - Power range for plotting
     %plot_max = 10; % dB - Max plotting power
 

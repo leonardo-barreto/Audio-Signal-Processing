@@ -22,7 +22,7 @@ function PlotSpectrogram_ylin(freqs,times,plotLimits,powerSpectrgDB)
     %% SHARED AND LABELS
 
         caxis(plotLimits)
-        %ylim([0 5000])
+        ylim([0 5000])
 
         xlabel('Tempo (s)','FontSize', 15)
         ylabel('Frequencia (Hz)','FontSize', 15)

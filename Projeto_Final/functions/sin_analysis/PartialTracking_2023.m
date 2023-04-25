@@ -7,9 +7,10 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
         maxTracksPerFrame = 100;
 
         freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
+        powerTolerance = 3;                % in dB
         maxHysteresis = 3;                 % in frames
         minTrackLength = 10;               % in frames
-        maxTrackFrequency = 10000;         % in Hz
+        maxTrackFrequency = 5000;          % in Hz
         minTrackPower = -60;               % in dB
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Initial Processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|    
@@ -54,7 +55,8 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
             deactivatedIndexes = []; % Indexes of all tracks that were deactivated in the current frame
             activeIndexes = structArrayOperations(currentTracks,'status','==','active');  % Gathering active indexes
             asleepIndexes = structArrayOperations(currentTracks,'status','==','asleep'); % Gathering asleep indexes
-            availableIndexes = [asleepIndexes,activeIndexes];  % Tracks available for the matching process
+            availableIndexes = [activeIndexes,asleepIndexes];  % Tracks available for the matching process
+            %availableIndexes = availableIndexes(randperm(length(availableIndexes)));
 
             if DEBUG == 1
                 fprintf('Available (active or asleep) tracks: %i of %i.\n',length(availableIndexes),length(currentTracks));
@@ -69,6 +71,9 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
 
                 trackFrequency = currentTracks(trackIndex).frequencyEvolution(end);
                 matchedPeaks = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
+                %Power matching criterion (experimental)
+                %matchedPeaksPower = intersect(find(peakMatrix(powerRow,:) < currentTracks(trackIndex).powerEvolution(end) + powerTolerance),find(peakMatrix(powerRow,:) > currentTracks(trackIndex).powerEvolution(end) - powerTolerance));
+                %matchedPeaks = intersect(matchedPeaks,matchedPeaksPower);
 
                 if (~isempty(matchedPeaks)) % Track matched to a peak
                     [~,matchIndex] = min(abs(peakMatrix(freqRow,matchedPeaks)-trackFrequency));

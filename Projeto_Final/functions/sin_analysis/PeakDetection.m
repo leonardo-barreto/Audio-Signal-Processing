@@ -36,7 +36,7 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,sampl
         case 'SSE' 
             numberCoeffsSSE = 30;  
             spectrumThreshold = PeakThreshold_SSE(inputFrame,numberCoeffsSSE,DEBUG) + thresholdOffset;
-        
+    end 
     % Peak Detection
         %Finding all local maxima
             initialPeaks = NaN(1,totalFreqBins); 

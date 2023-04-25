@@ -7,14 +7,14 @@
 %% init values for CQT
 fs = 44100;
 bins_per_octave = 24;
-fmax = fs/3;     %center frequency of the highest frequency bin 
+fmax = fs/5;     %center frequency of the highest frequency bin 
 fmin = fmax/512; %lower boundary for CQT (lowest frequency bin will be immediately above this): fmax/<power of two> 
 
 %% generate/read input signal%
 %x = randn(30*fs,1);
-signal_name = 'Mix1.wav';
+signal_name = '..\..\..\audio_src\paulistana3_5s.wav';
 
-[data, fs_org] = audioread([signal_name]);
+[data, fs_orig] = audioread([signal_name]);
 if size(data,2) > 1
     x = mean(data.');
 else
@@ -63,14 +63,19 @@ end
 absCQT = abs(Xcqt.spCQT);
 
 
-% plot_range = 100
-% plot_max = max(max(10*log10(intCQT)));
-% emptyHops = Xcqt.intParams.firstcenter/Xcqt.intParams.atomHOP;
-% maxDrop = emptyHops*2^(Xcqt.octaveNr-1)-emptyHops;
-% droppedSamples = (maxDrop-1)*Xcqt.intParams.atomHOP + Xcqt.intParams.firstcenter;
-% t = (1:size(absCQT,2))*Xcqt.intParams.atomHOP-Xcqt.intParams.preZeros+droppedSamples;
-% f = 1:size(absCQT,1);
-% PlotSpectrogram_ylin(f,t,[plot_max-plot_range plot_max],10*log10(intCQT));
-% title(sprintf('Espectrograma CQT'))
+ plot_range = 100;
+ plot_max = max(max(10*log10(absCQT)));
+ emptyHops = Xcqt.intParams.firstcenter/Xcqt.intParams.atomHOP;
+ maxDrop = emptyHops*2^(Xcqt.octaveNr-1)-emptyHops;
+ droppedSamples = (maxDrop-1)*Xcqt.intParams.atomHOP + Xcqt.intParams.firstcenter;
+ t = (1:size(absCQT,2))*Xcqt.intParams.atomHOP-Xcqt.intParams.preZeros+droppedSamples;
+ t = t./fs;
+ f = 1:size(absCQT,1);
+ PlotSpectrogram_ylin(f,t,[plot_max-plot_range plot_max],10*log10(absCQT));
+ title(sprintf('Espectrograma CQT'))
+ set(gca,'YTick',1:Xcqt.bins/2:Xcqt.octaveNr*Xcqt.bins);
+ h = get(gca); yTick = h.YTick';
+ yTickLabel = num2str(round(Xcqt.fmin*2.^((yTick-1)/Xcqt.bins)),5);
+ set(gca,'YTickLabel',yTickLabel);
 
 
