@@ -40,7 +40,7 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter_relaxed(spectrg,nFilter_SS,n
         end
 
     %% Median filtering along frequency
-        disp('done with time')
+        %disp('done with time')
         for k = 1:freqHeight
             if (k > nFilter_Tr) && (k <= freqHeight-nFilter_Tr)
                 spectrg_Tr(k,:) = median(spectrg(k-nFilter_Tr:k+nFilter_Tr,:),1);

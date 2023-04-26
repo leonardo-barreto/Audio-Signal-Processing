@@ -26,7 +26,14 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         else
             error('Invalid TFR Method. Options are STFT, CQT, FLS or MRFCI.')
         end
-            
+        
+        % -------------------------- HPSS stage -------------------------------
+        nFilterSS = 71; % Must be odd
+        nFilterTr = 71; % Must be odd
+        nIter = 1;
+        method = 'median'; % 'median' or 'SSE'
+        [TFR_base, ~, ~] = Iterative_HPR_Separation(TFR_base, nFilterSS, nFilterTr, nIter, method);
+        
         %TFR Information    
         powerMatrix = 10*log10(TFR_base);
         %powerMatrix = TFR_base;
@@ -52,7 +59,8 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
         fprintf(' Total frames: %i\n',totalFrames);
         fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
-        fprintf('\nShort-Time Fourier Transform Finished.\n');
+        fprintf(' Method: %s\n', TFR_method)
+        fprintf('\nTime-frequency analysis finished.\n');
 
         %if DEBUG == 1 %call plot
             %PlotSpectrogram(freqComponents,timeInstants,powerMatrix);
@@ -60,7 +68,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
-        fprintf('\nPeak Detection Starting...\n');
+        fprintf('\nPeak detection starting...\n');
 
         for frameCounter = 1:totalFrames
             signalFrame.currentFrame = frameCounter;
@@ -86,7 +94,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
             title(sprintf('Quadro %i de %i (%s)',DEBUG_FRAME,totalFrames,TFR_method))
         end
 
-        fprintf('Peak Detection Finished.\n');
+        fprintf('Peak detection finished.\n');
 
     % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 

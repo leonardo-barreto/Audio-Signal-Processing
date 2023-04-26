@@ -10,9 +10,9 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,sampl
     %
 
     %Parameters
-    peakProminence = 20; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
+    peakProminence = 18; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
 
-    thresholdOffset = 0; %in DB
+    thresholdOffset = 10; %in DB
     hardThreshold = 80; %in DB
     freqThreshold = 5000; %in Hz
 

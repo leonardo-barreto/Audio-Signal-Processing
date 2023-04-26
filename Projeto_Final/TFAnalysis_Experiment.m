@@ -15,7 +15,8 @@ end
     %signal_name = 'violin_drum2.wav';
     %signal_name = 'MusicDelta_Hendrix_STEM_04.RESYN.wav';
     %signal_name = 'Paulistana1_5s.wav';
-    signal_name = 'Mix1.wav';
+    %signal_name = 'Mix1.wav';
+    signal_name = 'paulistana3_5s.wav';
     %signal_name = 'MusicDelta_Pachelbel_STEM_04_Cut.RESYN.wav';
 
     fs = 44100;
