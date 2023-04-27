@@ -1,4 +1,4 @@
-function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method)
+function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method,varargin)
     
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -11,10 +11,10 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
     DEBUG = 1;
 
-    fprintf('\n\n------- SINUSOIDAL ANALYSIS STARTED ------\n\n');
+    fprintf('\n------- SINUSOIDAL ANALYSIS STARTED ------\n');
 
     % -------------------------------------- TFR stage -------------------------------------------
-
+        fprintf('\nTime-frequency analysis starting...\n');
         if strcmp(TFR_method,'STFT')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_STFT(inputSignal,fs);
         elseif strcmp(TFR_method,'CQT')
@@ -28,11 +28,17 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         end
         
         % -------------------------- HPSS stage -------------------------------
-        nFilterSS = 71; % Must be odd
-        nFilterTr = 71; % Must be odd
-        nIter = 1;
-        method = 'median'; % 'median' or 'SSE'
-        [TFR_base, ~, ~] = Iterative_HPR_Separation(TFR_base, nFilterSS, nFilterTr, nIter, method);
+        if ~isempty(varargin)
+            if strcmp(varargin(1),'HPSS')
+                fprintf('\nHarmonic-percussive separation starting...\n');
+                HPSS_Params = varargin{2}
+                [TFR_base, ~, ~] = Iterative_HPR_Separation(TFR_base, HPSS_Params.nFilterSS, HPSS_Params.nFilterTr,...
+                                                            HPSS_Params.nIter, HPSS_Params.method, HPSS_Params.kernel_option);
+                fprintf('Harmonic-percussive separation finished.\n');
+            else
+                error('Invalid optional 1st argument. Either empty or ''HPSS''.');
+            end
+        end
         
         %TFR Information    
         powerMatrix = 10*log10(TFR_base);
@@ -118,4 +124,4 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
             %organizedTracks = PlotTracks(frameArray,timeInstants);
         %end
     
-    fprintf('\n\n------- SINUSOIDAL ANALYSIS FINISHED ------\n\n');
+    fprintf('\n------- SINUSOIDAL ANALYSIS FINISHED ------\n');

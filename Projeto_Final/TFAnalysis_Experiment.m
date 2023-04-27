@@ -1,11 +1,11 @@
 %   This script makes a time-frequency analysis of a signal.
 
 if isunix
-    figsPath = path_check('./figures_out/test/TFRs/');
+    figsPath = path_check('./figures_out/TFRs/');
     addpath ./audio_src
     dirbar = '/';
 else
-    figsPath = path_check('.\figures_out\test\TFRs\');
+    figsPath = path_check('.\figures_out\TFRs\');
     addpath .\audio_src
     dirbar = '\';
 end

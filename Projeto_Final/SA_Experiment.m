@@ -22,16 +22,29 @@ end
     fs = 44100;
 
     % TFR Method
-    method_name = {'STFT', 'CQT', 'FLS', 'MRFCI'}; % TFR Methods available
-    method_flags = [0 0 0 1]; % Which method will be enabled
+    method_name = {'STFT', 'CQT', 'FLS', 'MRFCI'};  % TFR Methods available
+    method_flags = [0 0 1 0];                       % Which method will be enabled
     methods_enabled = find(method_flags);
+
+    % HPSS Options
+    HPSS_on = [];
+    if HPSS_on
+        nFilterSS = 71;             % SS filter filter size: must be odd
+        nFilterTr = 71;             % Transient filter size: must be odd
+        nIter = 1;                  % No. of HPSS iterations
+        HPSS_method = 'median';     % 'median' or 'SSE'
+        kernel_option = 'normal';   % 'normal' or 'relaxed'
+        HPSS_options = struct('nFilterSS',nFilterSS,'nFilterTr',nFilterTr,'nIter',nIter,'method',HPSS_method,'kernel_option',kernel_option);
+    else
+        HPSS_options = [];
+    end
 
     plot_enable = 1;
     print_figures = 1;
 
-    energy_ref_method = 4; % index of method that will be used as reference energy for plots (guide in method_name)
-    plot_range = 100; % dB - Power range for plotting
-    %plot_max = 10; % dB - Max plotting power
+    energy_ref_method = 4;  % index of method that will be used as reference energy for plots (guide in method_name)
+    plot_range = 100;       % dB - Power range for plotting
+    %plot_max = 10;          % dB - Max plotting power
 
 %% - - - - - - Input Reading - - - - - -  
     
@@ -51,14 +64,16 @@ end
         x = resample(x, fs, fs_orig);
     end 
 
-
 TFR = {};
 signalTracks = {};
 TFParams = {};
 
-
 for i = methods_enabled
-    [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i});
+    if HPSS_on
+        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},HPSS_on,HPSS_options);
+    else
+        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i});
+    end
 end
 
 %% - - - - - - Making first frame zero
@@ -83,12 +98,17 @@ end
 
 if plot_enable
     for i = methods_enabled
+        if HPSS_on
+            plot_method_name = [method_name{i} '-SS'];
+        else
+            plot_method_name = method_name{i};
+        end
         plot_max = max(max(10*log10(TFR{i})));
         PlotSpectrogram_ylin(TFParams{i}.freqComponents,TFParams{i}.timeInstants,[plot_max-plot_range plot_max],10*log10(TFR{i}));
-        title(sprintf('RTF (%s)',method_name{i}));
+        title(sprintf('RTF (%s)',plot_method_name));
 
         if print_figures
-            tit = [signal_name '_RTF_' method_name{i}];
+            tit = [signal_name '_RTF_' plot_method_name];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];
@@ -97,10 +117,10 @@ if plot_enable
         end
 
         organizedTracks = PlotTracks(signalTracks{i},TFParams{i}.timeInstants);
-        title(sprintf('Trilhas senoidais (%s)',method_name{i}));
+        title(sprintf('Trilhas senoidais (%s)',plot_method_name));
 
         if print_figures
-            tit = [signal_name '_tracks_' method_name{i}];
+            tit = [signal_name '_tracks_' plot_method_name];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];

@@ -37,7 +37,7 @@ function [ spectrg_SS, spectrg_Tr, spectrg_Res ] = Iterative_HPR_Separation(spec
     end
     if (nargin > 5)
         if (nargin > 6 && (~nnz(ismember(varargin,'dB')) | ~nnz(ismember(varargin,'relaxed'))))
-            error('Invalid optional arguments inserted. Options are ''dB'' and/or ''relaxed''.');
+            error('Invalid optional arguments inserted. Options are ''dB'' and/or ''relaxed''/''normal''.');
         elseif (nnz(ismember(varargin,'dB')) && ~strcmpi(method,'SSE')) 
             error('Cannot have dB with non-SSE method.');
         elseif nnz(ismember(varargin,'relaxed')) %Relaxed components
