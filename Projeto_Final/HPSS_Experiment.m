@@ -13,7 +13,7 @@ methods_enabled = find(method_flags);
 
 nFilterSS = 71; % Must be odd
 nFilterTr = 71; % Must be odd
-nIter = 1;
+nIter = 3;
 method = 'median'; % 'median' or 'SSE'
 
 plot_enable = 1;
@@ -25,8 +25,8 @@ TFR_Tr = {};
 TFR_Res = {};
 
 for i = methods_enabled
-    %[TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method,'relaxed');
-    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR_base, nFilterSS, nFilterTr, nIter, method);
+    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method,'relaxed');
+    %[TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method);
 end
 
 %% - - - - - - Making first frame zero
@@ -39,10 +39,10 @@ if plot_enable
     for i = methods_enabled
 
         PlotSpectrogram_ylin(f{i},t{i},[plot_max-plot_range plot_max],10*log10(TFR_SS{i}));
-        title(sprintf('Estado Permanente (filtro %ix%i, %s)', nFilterSS,nFilterTr,method_name{i}));
+        title(sprintf('Estado Permanente (filtro %ix%i, %s, com kernel)', nFilterSS,nFilterTr,method_name{i}));
 
         if print_figures
-            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_SS_enhanced'];
+            tit = ['Relaxed_i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_SS_enhanced'];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];
@@ -52,10 +52,10 @@ if plot_enable
 
 
         PlotSpectrogram_ylin(f{i},t{i},[plot_max-plot_range plot_max],10*log10(TFR_Tr{i}));
-        title(sprintf('Transitorio (filtro %ix%i, %s)', nFilterSS,nFilterTr,method_name{i}));
+        title(sprintf('Transitorio (filtro %ix%i, %s, com kernel)', nFilterSS,nFilterTr,method_name{i}));
 
         if print_figures
-            tit = ['i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_Tr_enhanced'];
+            tit = ['Relaxed_i_' num2str(nIter) '_' num2str(nFilterSS) '_' num2str(nFilterTr) '_' method_name{i} '_Tr_enhanced'];
             tit(tit=='.') = '_'; tit(tit==' ') = '';
             figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
             figFileName = [figsPath tit];

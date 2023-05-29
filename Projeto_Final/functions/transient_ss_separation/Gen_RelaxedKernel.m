@@ -10,8 +10,8 @@ function [max_matrix] = Gen_RelaxedKernel(spectrg,nFilter,time_curr)
     %spectrg(21:32,23) = 11:22;
 
     % Kernel Parameters
-    s = 2; % kernel step height
-    l = 8; % kernel step length
+    s = 1; % kernel step height
+    l = floor(2*nFilter/6); % kernel step length
     h = ceil(nFilter/l)*s; % kernel max height
 
     [freqHeight,timeLength] = size(spectrg);
