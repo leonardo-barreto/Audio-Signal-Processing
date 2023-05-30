@@ -25,8 +25,8 @@ TFR_Tr = {};
 TFR_Res = {};
 
 for i = methods_enabled
-    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method,'relaxed');
-    %[TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method);
+    %[TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method,'relaxed');
+    [TFR_SS{i}, TFR_Tr{i}, TFR_Res{i}] = Iterative_HPR_Separation(TFR{i}, nFilterSS, nFilterTr, nIter, method);
 end
 
 %% - - - - - - Making first frame zero

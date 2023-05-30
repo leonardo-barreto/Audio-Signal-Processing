@@ -56,8 +56,8 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter_relaxed(spectrg,nFilter_SS,n
 
 
     %% Wiener masks
-        mask_SS=spectrg_SS.^2./(spectrg_SS.^2+spectrg_Tr.^2);
-        mask_Tr=spectrg_Tr.^2./(spectrg_SS.^2+spectrg_Tr.^2);
+        mask_SS=spectrg_SS.^2./(spectrg_SS.^2+spectrg_Tr.^2+eps);
+        mask_Tr=spectrg_Tr.^2./(spectrg_SS.^2+spectrg_Tr.^2+eps);
         spectrg_SS=spectrg.*mask_SS;
         spectrg_Tr=spectrg.*mask_Tr;
 

@@ -22,18 +22,18 @@ end
     fs = 44100;
 
     % TFR Method
-    method_name = {'STFT', 'CQT', 'FLS', 'MRFCI'};  % TFR Methods available
-    method_flags = [0 0 1 0];                       % Which method will be enabled
+    method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'MRFCI'};  % TFR Methods available
+    method_flags = [0 0 1 0 0];                       % Which method will be enabled
     methods_enabled = find(method_flags);
 
     % HPSS Options
-    HPSS_on = [];
+    HPSS_on = 'HPSS';
     if HPSS_on
         nFilterSS = 71;             % SS filter filter size: must be odd
         nFilterTr = 71;             % Transient filter size: must be odd
-        nIter = 1;                  % No. of HPSS iterations
+        nIter = 3;                  % No. of HPSS iterations
         HPSS_method = 'median';     % 'median' or 'SSE'
-        kernel_option = 'normal';   % 'normal' or 'relaxed'
+        kernel_option = 'relaxed';   % 'normal' or 'relaxed'
         HPSS_options = struct('nFilterSS',nFilterSS,'nFilterTr',nFilterTr,'nIter',nIter,'method',HPSS_method,'kernel_option',kernel_option);
     else
         HPSS_options = [];
@@ -42,7 +42,7 @@ end
     plot_enable = 1;
     print_figures = 1;
 
-    energy_ref_method = 4;  % index of method that will be used as reference energy for plots (guide in method_name)
+    energy_ref_method = 1;  % index of method that will be used as reference energy for plots (guide in method_name)
     plot_range = 100;       % dB - Power range for plotting
     %plot_max = 10;          % dB - Max plotting power
 

@@ -7,7 +7,7 @@ function [TFR_STFT, f, t] = TFAnalysis_STFT(x,fs)
         % Analysis TFR - - - - - - - - - - - - - - - - - - - -
 
         hop = 128;
-        N_w = 4096;
+        N_w = 8192;
         NFFT = N_w;
 
     %% - - - - - - -  TFR computation - - - - - - -

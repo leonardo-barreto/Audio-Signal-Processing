@@ -19,12 +19,14 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_STFT(inputSignal,fs);
         elseif strcmp(TFR_method,'CQT')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_CQT(inputSignal,fs);
+        elseif strcmp(TFR_method,'SWGM')
+            [TFR_base, freqComponents, timeInstants] = TFAnalysis_SWGM(inputSignal,fs);
         elseif strcmp(TFR_method,'FLS')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_FLS(inputSignal,fs);
         elseif strcmp(TFR_method,'MRFCI')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_MRFCI(inputSignal,fs);
         else
-            error('Invalid TFR Method. Options are STFT, CQT, FLS or MRFCI.')
+            error('Invalid TFR Method. Options are STFT, CQT, SWGM, FLS or MRFCI.')
         end
         
         % -------------------------- HPSS stage -------------------------------

@@ -30,8 +30,10 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
 
     %% Median filtering along time
         timeLength = size(spectrg,2);
-            
-        for  k = 1:timeLength
+        spectrg_SS = movmedian(spectrg,nFilter_SS,2);    
+        
+%{
+ for  k = 1:timeLength
             if (k > nFilter_SS) && (k <= timeLength-nFilter_SS)
                 spectrg_SS(:,k) = median(spectrg(:,k-nFilter_SS:k+nFilter_SS),2);
             else
@@ -42,12 +44,16 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 
             end
-        end
+        end 
+%}
+
 
     %% Median filtering along frequency
         freqHeight = size(spectrg,1);
-            
-        for k = 1:freqHeight
+        spectrg_Tr = movmedian(spectrg,nFilter_Tr,1);  
+        
+%{
+ for k = 1:freqHeight
             if (k > nFilter_Tr) && (k <= freqHeight-nFilter_Tr)
                 spectrg_Tr(k,:) = median(spectrg(k-nFilter_Tr:k+nFilter_Tr,:),1);
             else
@@ -58,12 +64,14 @@ function [ spectrg_SS, spectrg_Tr ] = Median_filter(spectrg,nFilter_SS,nFilter_T
                 end
                 %spectrg_Tr(k,:)=0;
             end
-        end
+        end 
+%}
+
 
 
     %% Wiener masks
-        mask_SS=spectrg_SS.^2./(spectrg_SS.^2+spectrg_Tr.^2);
-        mask_Tr=spectrg_Tr.^2./(spectrg_SS.^2+spectrg_Tr.^2);
+        mask_SS=spectrg_SS.^2./(spectrg_SS.^2+spectrg_Tr.^2+eps);
+        mask_Tr=spectrg_Tr.^2./(spectrg_SS.^2+spectrg_Tr.^2+eps);
         spectrg_SS=spectrg.*mask_SS;
         spectrg_Tr=spectrg.*mask_Tr;
 
