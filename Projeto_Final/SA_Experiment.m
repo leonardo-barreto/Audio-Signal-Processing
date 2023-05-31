@@ -22,8 +22,8 @@ end
     fs = 44100;
 
     % TFR Method
-    method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'MRFCI'};  % TFR Methods available
-    method_flags = [0 0 1 0 0];                       % Which method will be enabled
+    method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'FEMD', 'MRFCI'};  % TFR Methods available
+    method_flags = [0 0 0 0 1 0];                       % Which method will be enabled
     methods_enabled = find(method_flags);
 
     % HPSS Options
@@ -33,7 +33,7 @@ end
         nFilterTr = 71;             % Transient filter size: must be odd
         nIter = 3;                  % No. of HPSS iterations
         HPSS_method = 'median';     % 'median' or 'SSE'
-        kernel_option = 'relaxed';   % 'normal' or 'relaxed'
+        kernel_option = 'normal';   % 'normal' or 'relaxed'
         HPSS_options = struct('nFilterSS',nFilterSS,'nFilterTr',nFilterTr,'nIter',nIter,'method',HPSS_method,'kernel_option',kernel_option);
     else
         HPSS_options = [];

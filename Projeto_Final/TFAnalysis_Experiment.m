@@ -22,8 +22,8 @@ end
     fs = 44100;
 
     % Method
-    method_name = {'STFT', 'MRFCI', 'FLS'}; % TFR Methods available
-    method_flags = [1 0 0]; % Which method will be enabled
+    method_name = {'STFT', 'SWGM', 'FLS', 'FEMD', 'MRFCI'}; % TFR Methods available
+    method_flags = [0 0 0 1 0]; % Which method will be enabled
 
     % Plotting parameters
     plot_enable = 1; % 1 enables plotting, 0 disables
@@ -54,7 +54,7 @@ end
 
     fprintf('\nSignal under analysis: %s\n\n', signal_name)
 
-    TFR_function = {@TFAnalysis_STFT @TFAnalysis_MRFCI @TFAnalysis_FLS};
+    TFR_function = {@TFAnalysis_STFT @TFAnalysis_SWGM @TFAnalysis_FLS @TFAnalysis_FEMD @TFAnalysis_MRFCI};
     methods_enabled = find(method_flags);
 
     f = {};

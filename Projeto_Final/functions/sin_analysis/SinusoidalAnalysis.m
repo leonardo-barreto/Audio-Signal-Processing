@@ -23,6 +23,8 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_SWGM(inputSignal,fs);
         elseif strcmp(TFR_method,'FLS')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_FLS(inputSignal,fs);
+        elseif strcmp(TFR_method,'FEMD')
+            [TFR_base, freqComponents, timeInstants] = TFAnalysis_FEMD(inputSignal,fs); 
         elseif strcmp(TFR_method,'MRFCI')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_MRFCI(inputSignal,fs);
         else
