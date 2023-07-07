@@ -120,7 +120,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
 
         for frameCounter = 1:totalFrames
 
-            signalTrackArray = PartialTracking_2023(frameArray(frameCounter),totalFrames,signalTrackArray,0);
+            signalTrackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,signalTrackArray,0);
 
         end
 

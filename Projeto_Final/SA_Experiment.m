@@ -23,11 +23,11 @@ end
 
     % TFR Method
     method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'FEMD', 'MRFCI'};  % TFR Methods available
-    method_flags = [0 0 0 0 1 0];                       % Which method will be enabled
+    method_flags = [1 0 0 0 0 0];                       % Which method will be enabled
     methods_enabled = find(method_flags);
 
     % HPSS Options
-    HPSS_on = 'HPSS';
+    HPSS_on = [];
     if HPSS_on
         nFilterSS = 71;             % SS filter filter size: must be odd
         nFilterTr = 71;             % Transient filter size: must be odd
