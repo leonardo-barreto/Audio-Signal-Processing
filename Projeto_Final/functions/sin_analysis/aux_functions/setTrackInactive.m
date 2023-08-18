@@ -2,7 +2,7 @@ function updatedTrack = setTrackInactive(existingTrack,currentFrame,lastFrame)
 
     if (currentFrame == 1)
         error('You cannot update a track in the first frame, only create!' );
-    elseif (existingTrack.status ~= 2 && (currentFrame ~= lastFrame))
+    elseif (existingTrack.status ~= 2 && (currentFrame < lastFrame))
         error('Hmm... trying to deactivate a track that is not asleep before the final frame. Something is wrong.');
     end
 

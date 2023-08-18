@@ -1,7 +1,6 @@
 function newTrack = setNewTrack(peakParameters,currentFrame)
 
     if nargin == 0 %Creates empty track
-        newTrack = {};
         newTrack.powerEvolution = []; % Contains the power values of the track through its existence.
         newTrack.currentPower = [];
         newTrack.frequencyEvolution = []; % Contains the frequency values of the track through its existence.
@@ -12,7 +11,6 @@ function newTrack = setNewTrack(peakParameters,currentFrame)
         newTrack.hysteresis = 0; % Hysteresis counter
         newTrack.status = 0;
     else
-        newTrack = {};
         newTrack.powerEvolution = peakParameters(1); % Contains the power values of the track through its existence.
         newTrack.currentPower = peakParameters(1);
         newTrack.frequencyEvolution = peakParameters(2); % Contains the frequency values of the track through its existence.

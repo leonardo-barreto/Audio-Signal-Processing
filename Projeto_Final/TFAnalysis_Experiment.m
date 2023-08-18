@@ -35,7 +35,7 @@ end
 
 %% - - - - - - Input Reading - - - - - -  
     
-    [data, fs_orig] = audioread([signal_name]);
+    [data, fs_orig] = audioread(signal_name);
 
     [filepath,signal_name,ext] = fileparts(signal_name);
 

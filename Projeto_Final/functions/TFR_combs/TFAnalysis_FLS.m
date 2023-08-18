@@ -4,7 +4,7 @@ function [combined_TFR_FLS, f, t] = TFAnalysis_FLS(x,fs)
 
     %% - - - - - - Parameters configuration - - - - - -
 
-        NFFT = 4096;
+        NFFT = 8192;
         hop_DFT = 0.0029; % Final time interval between frames in seconds (interp after all computations)
         N_w = [1, 2, 3, 4]*1024;
         hop = 128;

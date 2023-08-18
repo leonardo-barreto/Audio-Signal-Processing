@@ -27,7 +27,7 @@ end
     methods_enabled = find(method_flags);
 
     % HPSS Options
-    HPSS_on = [];
+    HPSS_on = 'HPSS';
     if HPSS_on
         nFilterSS = 71;             % SS filter filter size: must be odd
         nFilterTr = 71;             % Transient filter size: must be odd
