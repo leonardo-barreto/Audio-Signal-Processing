@@ -23,11 +23,12 @@ end
 
     % TFR Method
     method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'FEMD', 'MRFCI'};  % TFR Methods available
-    method_flags = [1 0 0 0 0 0];                       % Which method will be enabled
+    method_flags = [1 0 1 0 0 1];                       % Which method will be enabled
     methods_enabled = find(method_flags);
+    backwardsFlag = 0;
 
     % HPSS Options
-    HPSS_on = 'HPSS';
+    HPSS_on = [];
     if HPSS_on
         nFilterSS = 71;             % SS filter filter size: must be odd
         nFilterTr = 71;             % Transient filter size: must be odd
@@ -70,9 +71,9 @@ TFParams = {};
 
 for i = methods_enabled
     if HPSS_on
-        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},HPSS_on,HPSS_options);
+        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag,HPSS_on,HPSS_options);
     else
-        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i});
+        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag);
     end
 end
 

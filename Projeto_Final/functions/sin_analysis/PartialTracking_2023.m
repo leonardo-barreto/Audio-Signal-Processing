@@ -24,11 +24,6 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
             peakMatrix = inputFrame.peakMatrix;
             lastFrame = totalFrames;
 
-            if BACKWARDS == 1
-                currentFrame = totalFrames - (currentFrame - 1);
-                lastFrame = 1;
-            end
-
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Gathering peak information -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
 
         if (~isempty(peakMatrix))
@@ -185,16 +180,6 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
         if currentFrame == lastFrame
             for index = 1:length(currentTracks)
                 currentTracks(index) = setTrackInactive(currentTracks(index),currentFrame,lastFrame);
-                if BACKWARDS == 1
-                    currentTracks(index).powerEvolution = flip(currentTracks(index).powerEvolution);
-                    currentTracks(index).frequencyEvolution = flip(currentTracks(index).frequencyEvolution);
-                    currentTracks(index).currentPower = currentTracks(index).powerEvolution(end);
-                    currentTracks(index).currentFrequency = currentTracks(index).frequencyEvolution(end);
-                    trackFinalFrame = currentTracks(index).startFrame;
-                    currentTracks(index).startFrame = currentTracks(index).finalFrame;
-                    currentTracks(index).finalFrame = trackFinalFrame;
-            
-                end
             end
         end
 

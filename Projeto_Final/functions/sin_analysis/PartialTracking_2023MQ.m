@@ -1,4 +1,4 @@
-function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTracks,DEBUG)
+function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTracks,backwardsFlag)
 
     DEBUG = 0;
 
@@ -8,8 +8,8 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
 
         freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
         powerTolerance = 3;                % in dB
-        maxHysteresis = 3;                 % in frames
-        minTrackLength = 10;               % in frames
+        maxHysteresis = 10;                 % in frames
+        minTrackLength = 20;               % in frames
         maxTrackFrequency = 5000;          % in Hz
         minTrackPower = -60;               % in dB
 
@@ -20,6 +20,11 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
             currentFrame = inputFrame.currentFrame;
             peakMatrix = inputFrame.peakMatrix;
             lastFrame = totalFrames;
+
+            if backwardsFlag == 1
+                currentFrame = totalFrames - (currentFrame - 1);
+                %lastFrame = 1;
+            end
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Peak pre-processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
 
@@ -206,13 +211,5 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
         end
 
 end
-        
-
-        % TO DO: 
-        %       (DONE) CHECK UNMATCHED IDXS TREATMENT
-        %       (DONE) DELETE SHORT TRACKS
-        %       NEW TRACKS
-        %       ORGANIZE TRACK ARRAY FOR FUNCTION RETURN
-        %       TREAT LAST FRAME (DEACTIVATE ALL TRACKS)
 
             

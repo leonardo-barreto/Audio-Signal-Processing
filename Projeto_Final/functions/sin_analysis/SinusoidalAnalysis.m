@@ -1,4 +1,4 @@
-function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method,varargin)
+function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method,backwardsTracking,varargin)
     
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -9,7 +9,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
     %   4th - Construction of sinusoidal tracks
     %
 
-    DEBUG = 1;
+    DEBUG = 0;
 
     fprintf('\n------- SINUSOIDAL ANALYSIS STARTED ------\n');
 
@@ -70,7 +70,7 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         fprintf(' Total frames: %i\n',totalFrames);
         fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
         fprintf(' Method: %s\n', TFR_method)
-        fprintf('\nTime-frequency analysis finished.\n');
+        fprintf('Time-frequency analysis finished.\n');
 
         %if DEBUG == 1 %call plot
             %PlotSpectrogram(freqComponents,timeInstants,powerMatrix);
@@ -115,15 +115,29 @@ function [TFR_base,signalTrackArray,TFParams] = SinusoidalAnalysis(inputSignal,f
         % the information of tracks that ended. Later, another part of the algorithm will gather the starting
         % and ending frames of each track and organize them.
 
-        signalTrackArray = setNewTrack();
-        signalTrackArray = signalTrackArray([]);
+        trackArray = setNewTrack();
+        trackArray = trackArray([]);
 
-        for frameCounter = 1:totalFrames
+        if backwardsTracking == 1
+            for frameCounter = totalFrames:-1:1
+                trackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,trackArray,1);
+            end
+            for idx = 1:length(trackArray)
+                trackArray(idx).powerEvolution = flip(trackArray(idx).powerEvolution);
+                trackArray(idx).frequencyEvolution = flip(trackArray(idx).frequencyEvolution);
+                trackArray(idx).currentPower = trackArray(idx).powerEvolution(end);
+                trackArray(idx).currentFrequency = trackArray(idx).frequencyEvolution(end);
+                trackFinalFrame =  totalFrames - (trackArray(idx).startFrame-1);
+                trackArray(idx).startFrame = totalFrames - (trackArray(idx).finalFrame-1);
+                trackArray(idx).finalFrame = trackFinalFrame;
+            end
+        else
+            for frameCounter = 1:totalFrames
+                trackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,trackArray,0);
+            end
+        end    
 
-            signalTrackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,signalTrackArray,0);
-
-        end
-
+        trackArray = sortStruct(trackArray,'startFrame',1);
         %if DEBUG == 1
             %organizedTracks = PlotTracks(frameArray,timeInstants);
         %end
