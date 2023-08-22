@@ -71,9 +71,9 @@ TFParams = {};
 
 for i = methods_enabled
     if HPSS_on
-        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag,HPSS_on,HPSS_options);
+        [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag,HPSS_on,HPSS_options);
     else
-        [TFR{i},signalTracks{i},TFParams{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag);
+        [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(x,fs,method_name{i},backwardsFlag);
     end
 end
 

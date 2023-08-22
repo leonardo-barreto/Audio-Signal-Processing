@@ -1,4 +1,4 @@
-function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method,backwardsTracking,varargin)
+function [TFR_base,signalTracks,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_method,backwardsTracking,varargin)
     
     %   This function makes a full sinusoidal analysis of a given signal, using auxiliary functions for modularity.
     %
@@ -11,10 +11,8 @@ function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_
 
     DEBUG = 0;
 
-    fprintf('\n------- SINUSOIDAL ANALYSIS STARTED ------\n');
-
     % -------------------------------------- TFR stage -------------------------------------------
-        fprintf('\nTime-frequency analysis starting...\n');
+        fprintf('\nTime-frequency analysis in progress...\n');
         if strcmp(TFR_method,'STFT')
             [TFR_base, freqComponents, timeInstants] = TFAnalysis_STFT(inputSignal,fs);
         elseif strcmp(TFR_method,'CQT')
@@ -34,11 +32,11 @@ function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_
         % -------------------------- HPSS stage -------------------------------
         if ~isempty(varargin)
             if strcmp(varargin(1),'HPSS')
-                fprintf('\nHarmonic-percussive separation starting...\n');
+                fprintf('\nHarmonic-percussive separation in progress...\n');
                 HPSS_Params = varargin{2}
                 [TFR_base, ~, ~] = Iterative_HPR_Separation(TFR_base, HPSS_Params.nFilterSS, HPSS_Params.nFilterTr,...
                                                             HPSS_Params.nIter, HPSS_Params.method, HPSS_Params.kernel_option);
-                fprintf('Harmonic-percussive separation finished.\n');
+                fprintf('Harmonic-percussive separation done.\n');
             else
                 error('Invalid optional 1st argument. Either empty or ''HPSS''.');
             end
@@ -53,32 +51,27 @@ function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_
 
         % Building a signal frame as a peak detection entity
         signalFrame = {};
-        %signalFrame.totalFrames = totalFrames; %Total number of signal frames
         signalFrame.currentFrame = 1; %Current frame
         signalFrame.totalFreqBins = totalFreqBins; %Total number of FFT bins
         signalFrame.freqComponents = freqComponents'; %frequency components vector
         
-        %Outputting general parameters.
+        %Outputting general TF parameters.
         TFParams = {};
         TFParams.freqComponents = freqComponents;
         TFParams.timeInstants = timeInstants;
-        %TFParams.windowSize = NFFT;
-        %TFParams.totalFrames = totalFrames;
-        %TFParams.hopSize = hop;
+        TFParams.frameSize = NFFT;
+        TFParams.totalFrames = totalFrames;
+        TFParams.hopSize = hop;
         %TFParams.hopSize = floor(((100-overlapPerc)/100)*windowSize);
 
         fprintf(' Total frames: %i\n',totalFrames);
         fprintf(' Number of frequency bins: %i\n',signalFrame.totalFreqBins);
         fprintf(' Method: %s\n', TFR_method)
-        fprintf('Time-frequency analysis finished.\n');
-
-        %if DEBUG == 1 %call plot
-            %PlotSpectrogram(freqComponents,timeInstants,powerMatrix);
-        %end
+        fprintf('Time-frequency analysis done.\n');
 
     % ---------------------------------------------- Peak Detection ------------------------------------------------
 
-        fprintf('\nPeak detection starting...\n');
+        fprintf('\nPeak detection in progress...\n');
 
         for frameCounter = 1:totalFrames
             signalFrame.currentFrame = frameCounter;
@@ -104,42 +97,37 @@ function [TFR_base,trackArray,TFParams] = SinusoidalAnalysis(inputSignal,fs,TFR_
             title(sprintf('Quadro %i de %i (%s)',DEBUG_FRAME,totalFrames,TFR_method))
         end
 
-        fprintf('Peak detection finished.\n');
+        fprintf('Peak detection done.\n');
 
     % ---------------------------------------- Sinusoidal Tracking -----------------------------------------------
 
-        fprintf('\nSinusoidal tracking starting...\n');
+        fprintf('\nSinusoidal tracking in progress...\n');
 
         % Array that holds all of the signal's tracks.
         % This array starts with an empty track, and is extended as the signal demands new tracks, maintaining
         % the information of tracks that ended. Later, another part of the algorithm will gather the starting
         % and ending frames of each track and organize them.
 
-        trackArray = setNewTrack();
-        trackArray = trackArray([]);
+        signalTracks = setNewTrack();
+        signalTracks = signalTracks([]);
 
         if backwardsTracking == 1
             for frameCounter = totalFrames:-1:1
-                trackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,trackArray,1);
+                signalTracks = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,signalTracks,1);
             end
-            for idx = 1:length(trackArray)
-                trackArray(idx).powerEvolution = flip(trackArray(idx).powerEvolution);
-                trackArray(idx).frequencyEvolution = flip(trackArray(idx).frequencyEvolution);
-                trackArray(idx).currentPower = trackArray(idx).powerEvolution(end);
-                trackArray(idx).currentFrequency = trackArray(idx).frequencyEvolution(end);
-                trackFinalFrame =  totalFrames - (trackArray(idx).startFrame-1);
-                trackArray(idx).startFrame = totalFrames - (trackArray(idx).finalFrame-1);
-                trackArray(idx).finalFrame = trackFinalFrame;
+            for idx = 1:length(signalTracks)
+                signalTracks(idx).powerEvolution = flip(signalTracks(idx).powerEvolution);
+                signalTracks(idx).frequencyEvolution = flip(signalTracks(idx).frequencyEvolution);
+                signalTracks(idx).currentPower = signalTracks(idx).powerEvolution(end);
+                signalTracks(idx).currentFrequency = signalTracks(idx).frequencyEvolution(end);
+                trackFinalFrame =  totalFrames - (signalTracks(idx).startFrame-1);
+                signalTracks(idx).startFrame = totalFrames - (signalTracks(idx).finalFrame-1);
+                signalTracks(idx).finalFrame = trackFinalFrame;
             end
         else
             for frameCounter = 1:totalFrames
-                trackArray = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,trackArray,0);
+                signalTracks = PartialTracking_2023MQ(frameArray(frameCounter),totalFrames,signalTracks,0);
             end
         end    
-
-        trackArray = sortStruct(trackArray,'startFrame',1);
-        %if DEBUG == 1
-            %organizedTracks = PlotTracks(frameArray,timeInstants);
-        %end
-    
-    fprintf('\n------- SINUSOIDAL ANALYSIS FINISHED ------\n');
+        fprintf('Sinusoidal tracking done.\n');
+end

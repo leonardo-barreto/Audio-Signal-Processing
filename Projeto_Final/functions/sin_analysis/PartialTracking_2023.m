@@ -1,7 +1,6 @@
-function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTracks,DEBUG)
+function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTracks)
 
     DEBUG = 0;
-    BACKWARDS = 0;
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Defining parameters -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
 

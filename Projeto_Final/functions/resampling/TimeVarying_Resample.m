@@ -1,46 +1,39 @@
-%Function for time-varying resampling
+function outputSignal = TimeVarying_Resample(inputSignal,fs,TFParams,resampleFactors,filterCoeffs)
 
-%Inputs: inputSignal - Signal to be resampled.
-%        sinAnalysisParameters - Time-frequency analysis parameters (This should be a struct containing the fields in "Gathering Sinuosidal Analysis Data").
-%        resampleFactors - Vector containing the resampling factors curve, one value per signal frame and centered around 1 (representing the original sampling rate).
-%        filterCoeffs - Number of coefficients used for the sinc reconstruction filter.
-%        DEBUG - Debug messages: 0 (no) or 1 (yes).
+    % Function for time-varying resampling
+    %
+    % Inputs: inputSignal - Signal to be resampled.
+    %         fs - Original fixed sampling rate.
+    %         TFParams - Time-frequency analysis parameters (This should be a struct containing the fields in "Gathering Sinuosidal Analysis Data").
+    %         resampleFactors - Vector containing the resampling factors curve, one value per signal frame and centered around 1 (representing the original sampling rate).
+    %         filterCoeffs - Number of coefficients used for the sinc reconstruction filter.
+    %
+    % Outputs: Resampled signal (outputSignal)
 
-%Outputs: Resampled signal (outputSignal)
+    DEBUG = 0;
 
-function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,resampleFactors,filterCoeffs,DEBUG)
-
-    fprintf('\n\n------- TIME-VARYING RESAMPLING STARTED ------\n\n');
-
-    %Gathering Sinusoidal Analysis data.
-
-        originalSamplingRate = sinAnalysisParameters.samplingRate;              % Original sampling rate.
-        timeInstants = sinAnalysisParameters.timeInstants;                      % Time instants corresponding to the center of each frame.
-        frameSize = sinAnalysisParameters.windowSize;                           % Size of each frame, in samples.
-        totalFrames = sinAnalysisParameters.totalFrames;                        % Total number of frames in the signal.
-        hopSize = sinAnalysisParameters.hopSize;                                % Hop size between frames, in samples.
+    %Gathering Sinusoidal Analysis data
+        timeInstants = TFParams.timeInstants;                      % Time instants corresponding to the center of each frame.
+        frameSize = TFParams.frameSize;                            % Size of each frame, in samples.
+        totalFrames = TFParams.totalFrames;                        % Total number of frames in the signal.
 
         if (length(resampleFactors) ~= totalFrames)
             error('Resampling curve size must be equal to the total number of frames, i.e. must have one factor per signal frame.\n')
         end
 
     %Original signal parameters
-    
         inputSignalSize = length(inputSignal);
-        originalPeriod = 1/originalSamplingRate; % Sampling period of the original signal.
+        originalPeriod = 1/fs; % Sampling period of the original signal.
 
         if DEBUG == 1
-            X = sprintf('Input Signal Size: %i', inputSignalSize);
-            disp(X)
-            X = sprintf('Frame Size: %i', frameSize);
-            disp(X)
-            X = sprintf('Total Frames: %i\n\n', totalFrames);
-            disp(X)
+            fprintf('Input Signal Size: %i\n', inputSignalSize);
+            fprintf('Frame Size: %i\n', frameSize);
+            fprintf('Total Frames: %i\n\n', totalFrames);
             pause(1.0);
         end
 
     %Preprocessing the signal for resampling: the first and last frames have to be accounted for.
-        centerSamples = [1 timeInstants*originalSamplingRate inputSignalSize];
+        centerSamples = [1 timeInstants*fs inputSignalSize];
 
     %Outputs
         outputSignal = []; % To prevent undefined variable errors.
@@ -65,12 +58,9 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
             [stepSize,blockNewSamples,currentPeriod] = GenerateNormalizedParameters(resampleFactors,blockIndex,originalPeriod,blockSize,DEBUG); 
 
             if DEBUG == 1
-                X = sprintf('Current Frame: %i of %i', blockIndex, totalFrames);
-                disp(X)
-                X = sprintf('Step Size: %i', stepSize);
-                disp(X)
-                X = sprintf('New Samples: %i', blockNewSamples);
-                disp(X)
+                fprintf('Current Frame: %i of %i\n', blockIndex, totalFrames);
+                fprintf('Step Size: %i\n', stepSize);
+                fprintf('New Samples: %i\n\n', blockNewSamples);
                 pause(0.5);
             end 
 
@@ -121,7 +111,4 @@ function outputSignal = TimeVarying_Resample(inputSignal,sinAnalysisParameters,r
 
             blockIndex = blockIndex + 1;
         end
-
-        fprintf('\n\n------- TIME-VARYING RESAMPLING FINISHED ------\n\n');
-
 end
