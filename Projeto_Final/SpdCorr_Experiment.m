@@ -18,7 +18,7 @@ clear;
 
     % TFR Method
     method_name = {'STFT', 'CQT', 'SWGM', 'FLS', 'FEMD', 'MRFCI'};      % TFR Methods available
-    method_flags = [1 0 1 0 0 1];                                       % Flags for which method(s) will be enabled
+    method_flags = [1 0 0 0 0 0];                                       % Flags for which method(s) will be enabled
     backwardsFlag = 0;                                                  % Flag for backwards sinusoidal tracking
     methods_enabled = find(method_flags);                
 
@@ -29,7 +29,7 @@ clear;
     if HPSS_on
         nFilterSS = 71;             % SS filter filter size: must be odd
         nFilterTr = 71;             % Transient filter size: must be odd
-        nIter = 3;                  % No. of HPSS iterations
+        nIter = 1;                  % No. of HPSS iterations
         HPSS_method = 'median';     % 'median' or 'SSE'
         kernel_option = 'normal';   % 'normal' or 'relaxed'
         HPSS_options = struct('nFilterSS',nFilterSS,'nFilterTr',nFilterTr,'nIter',nIter,'method',HPSS_method,'kernel_option',kernel_option);
@@ -48,7 +48,7 @@ clear;
     plot_range = 100;       % dB - Power range for plotting
     %plot_max = 10;          % dB - Max plotting power
 
-%% - - - - - - Reading input audio file and setting path for figures - - - - - -
+%% - - - - - - Reading input audio file and setting path for figures and output- - - - - -
 
     [inputSignal,signalName] = ReadAudioFile(fileName, fs);
 
@@ -56,22 +56,24 @@ clear;
         addpath ./audio_src
         dirbar = '/';
         figsPath = path_check('./figures_out/SpdCorr_Experiment/');
-        figsPath = path_check([figsPath '/' signalName]);
+        figsPath = path_check([figsPath '/' signalName '/']);
+        audioOutPath = path_check('./audio_out');
     else
         addpath .\audio_src
         dirbar = '\';
         figsPath = path_check('.\figures_out\SpdCorr_Experiment\');
-        figsPath = path_check([figsPath '\' signalName]);
+        figsPath = path_check([figsPath '\' signalName '\']);
+        audioOutPath = path_check('.\audio_out');
     end
     
 
 %% - - - - - - Sinusoidal Analysis - - - - - -  
-
     fprintf('\n------- SINUSOIDAL ANALYSIS ------\n');
-    TFR = cell(length(methods_enabled,1));
-    signalTracks = cell(length(methods_enabled,1));
-    TFParams = cell(length(methods_enabled,1));
+    TFR = cell(length(methods_enabled),1);
+    signalTracks = cell(length(methods_enabled),1);
+    TFParams = cell(length(methods_enabled),1);
     for i = methods_enabled
+        fprintf('\nSinusoidal analysis %i of %i\n',i,length(methods_enabled));
         if HPSS_on
             [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(inputSignal,fs,method_name{i},backwardsFlag,HPSS_on,HPSS_options);
         else
@@ -110,7 +112,7 @@ clear;
             title(sprintf('RTF (%s)',plot_method_name));
 
             if print_figures
-                tit = [signal_name '_RTF_' plot_method_name];
+                tit = [signalName '_TFR_' plot_method_name '_' num2str(2*length(TFParams{i}.freqComponents)-2))];
                 tit(tit=='.') = '_'; tit(tit==' ') = '';
                 figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
                 figFileName = [figsPath tit];
@@ -122,7 +124,7 @@ clear;
             title(sprintf('Trilhas senoidais (%s)',plot_method_name));
 
             if print_figures
-                tit = [signal_name '_tracks_' plot_method_name];
+                tit = [signalName '_tracks_' plot_method_name '_' num2str(2*length(TFParams{i}.freqComponents)-2)];
                 tit(tit=='.') = '_'; tit(tit==' ') = '';
                 figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
                 figFileName = [figsPath tit];
@@ -134,20 +136,22 @@ clear;
     end
 
 %% - - - - - - Speed Correction - - - - - -  
-
-    resamplingFactors = cell(length(methods_enabled,1));
-    outputSignal = cell(length(methods_enabled,1));
+    
+    fprintf('\n------- PITCH VARIATION CURVE EXTRACTION ------\n\n');
+    resamplingFactors = cell(length(methods_enabled),1);
     for i = methods_enabled
-        fprintf('\n------- PITCH VARIATION CURVE EXTRACTION ------\n');
-        fprintf('\nPVC extraction in progress...\n');
-        resamplingFactors{i} = ExtractPVC(signalTracks{i},TFParams{i}.totalFrames);
-        resamplingFactors = resamplingFactors+(pitchOffset/100);
-        fprintf('PVC extraction done.\n');
-        fprintf('\n------- TIME-VARYING RESAMPLING ------\n');
-        fprintf('\nTime-varying resample in progress (this might take some time)...\n');
-        outputSignal{i} = TimeVarying_Resample(inputSignal,TFParams{i},resamplingFactors{i},filterCoeffs);
-        fprintf('Time-varying resample done.\n');
+        fprintf('PVC extraction in progress (%i of %i)...\n',i,length(methods_enabled));
+        resamplingFactors{i} = ExtractPVC(signalTracks{i},length(TFParams{i}.timeInstants));
+        resamplingFactors{i} = resamplingFactors{i}+(pitchOffset/100);        
     end
+    fprintf('PVC extraction done.\n');
+    fprintf('\n------- TIME-VARYING RESAMPLING ------\n\n');
+    outputSignal = cell(length(methods_enabled),1);
+    for i = methods_enabled
+        fprintf('Time-varying resample in progress (%i of %i - this might take some time)...\n',i,length(methods_enabled));
+        outputSignal{i} = TimeVarying_Resample(inputSignal,fs,TFParams{i},resamplingFactors{i},filterCoeffs);
+    end
+    fprintf('Time-varying resample done.\n');
 
     % Plotting PVC
     if plot_enable
@@ -160,7 +164,7 @@ clear;
             title(sprintf('Curva de desvio de pitch (%s)',plot_method_name));
 
             if print_figures
-                tit = [signal_name '_PVC_' plot_method_name];
+                tit = [signalName '_PVC_' plot_method_name '_' num2str(length(TFParams{i}.freqComponents))];
                 tit(tit=='.') = '_'; tit(tit==' ') = '';
                 figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
                 figFileName = [figsPath tit];
@@ -170,9 +174,12 @@ clear;
         end
     end
 
-load handel
-x = y;
-load laughter
-lolSize = min(length(y),length(x));
-sound(y(1:lolSize)/8+x(1:lolSize)/10,Fs)
-clearvars x y Fs
+fprintf('\nWriting audio files...\n');
+for i = methods_enabled
+    audioFileName = [audioOutPath '\' signalName '_' TFParams{i}.method ...
+                 '_' num2str(2*length(TFParams{i}.freqComponents)-2) '_' 'sinc' '_' num2str(filterCoeffs) '.wav'];
+    audiowrite(audioFileName,outputSignal{i},fs);
+end
+fprintf('Everyting done!\n');
+
+

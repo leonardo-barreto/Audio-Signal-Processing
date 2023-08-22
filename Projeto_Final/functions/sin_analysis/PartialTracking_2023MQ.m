@@ -1,4 +1,4 @@
-function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTracks,backwardsFlag)
+function currentTracks = PartialTracking_2023MQ(inputFrame,TFParams,currentTracks,backwardsFlag)
 
     DEBUG = 0;
 
@@ -8,7 +8,7 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
 
         freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
         powerTolerance = 3;                % in dB
-        maxHysteresis = 10;                 % in frames
+        maxHysteresis = 10;                % in frames
         minTrackLength = 20;               % in frames
         maxTrackFrequency = 5000;          % in Hz
         minTrackPower = -60;               % in dB
@@ -19,11 +19,10 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
         % Gathering frame data
             currentFrame = inputFrame.currentFrame;
             peakMatrix = inputFrame.peakMatrix;
-            lastFrame = totalFrames;
+            totalFrames = length(TFParams.timeInstants);
 
             if backwardsFlag == 1
                 currentFrame = totalFrames - (currentFrame - 1);
-                %lastFrame = 1;
             end
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Peak pre-processing -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -103,7 +102,7 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
                             end
                         else % 2.1.b) Track can't be matched
                             unmatchedFlag(trackIdx) = 1;
-                            [availableTracks(trackIdx),deactivatedFlag(trackIdx)] = treatUnmatchedTrack(availableTracks(trackIdx),maxHysteresis,currentFrame,lastFrame);
+                            [availableTracks(trackIdx),deactivatedFlag(trackIdx)] = treatUnmatchedTrack(availableTracks(trackIdx),maxHysteresis,currentFrame,totalFrames);
                             if DEBUG == 1
                                 fprintf('No definite match possible for track %i.\n',trackIdx);
                             end
@@ -111,7 +110,7 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
                     end 
                 else % 1) No matches found
                     unmatchedFlag(trackIdx) = 1;
-                    [availableTracks(trackIdx),deactivatedFlag(trackIdx)] = treatUnmatchedTrack(availableTracks(trackIdx),maxHysteresis,currentFrame,lastFrame);
+                    [availableTracks(trackIdx),deactivatedFlag(trackIdx)] = treatUnmatchedTrack(availableTracks(trackIdx),maxHysteresis,currentFrame,totalFrames);
                     if DEBUG == 1
                         fprintf('Track %i NOT matched to any peak.\n',trackIdx);
                     end
@@ -204,9 +203,9 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,totalFrames,currentTr
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Treating last frame -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
         
-        if currentFrame == lastFrame
+        if currentFrame == totalFrames
             for trackIdx = 1:length(currentTracks)
-                currentTracks(trackIdx) = setTrackInactive(currentTracks(trackIdx),currentFrame,lastFrame);
+                currentTracks(trackIdx) = setTrackInactive(currentTracks(trackIdx),currentFrame,totalFrames);
             end
         end
 

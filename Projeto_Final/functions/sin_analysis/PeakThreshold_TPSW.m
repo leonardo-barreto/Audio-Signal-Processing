@@ -1,19 +1,19 @@
-function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,DEBUG);
+function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,TFParams,parametersTPSW,DEBUG);
 
     % This function takes a signal frame's power spectrum and executes a Two-Pass Split Window
     % filtering process aiming to extract the most proeminent peaks of the spectrum, 
     % ignoring spurious or noisy components.
 
     %Gathering frame data
-    currentFrame = inputFrame.currentFrame;
-    freqComponents = inputFrame.freqComponents;
-    totalFreqBins = inputFrame.totalFreqBins;
-    powerSpectrum = inputFrame.powerSpectrum;
+        currentFrame = inputFrame.currentFrame;
+        powerSpectrum = inputFrame.powerSpectrum;
+        freqComponents = TFParams.freqComponents;
+        frameSize = length(freqComponents);
 
     %Gathering TPSW data
-    lengthSW = parametersTPSW.lengthSW;
-    gapSizeSW = parametersTPSW.gapSizeSW;
-    rejectionFactor = parametersTPSW.rejectionFactor;
+        lengthSW = parametersTPSW.lengthSW;
+        gapSizeSW = parametersTPSW.gapSizeSW;
+        rejectionFactor = parametersTPSW.rejectionFactor;
 
 
     %Building the Two-Pass Split Window
@@ -41,9 +41,9 @@ function spectrumFinalThreshold = PeakThreshold_TPSW(inputFrame,parametersTPSW,D
     %TPSW Filtering
 
     %This stage extends the spectrum by 20% of its size in order to avoid border effects during filtering.
-    mirrorLength = floor(totalFreqBins/5);
+    mirrorLength = floor(frameSize/5);
     startMirror = flipud(powerSpectrum(1:mirrorLength));
-    endMirror = flipud(powerSpectrum((totalFreqBins-mirrorLength)+1:totalFreqBins));
+    endMirror = flipud(powerSpectrum((frameSize-mirrorLength)+1:frameSize));
     powerSpectrum_extended = [startMirror;powerSpectrum;endMirror];
 
     %Actual filtering

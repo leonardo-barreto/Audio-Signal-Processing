@@ -13,9 +13,9 @@ function outputSignal = TimeVarying_Resample(inputSignal,fs,TFParams,resampleFac
     DEBUG = 0;
 
     %Gathering Sinusoidal Analysis data
-        timeInstants = TFParams.timeInstants;                      % Time instants corresponding to the center of each frame.
-        frameSize = TFParams.frameSize;                            % Size of each frame, in samples.
-        totalFrames = TFParams.totalFrames;                        % Total number of frames in the signal.
+        timeInstants = TFParams.timeInstants;               % Time instants corresponding to the center of each frame.
+        frameSize = length(TFParams.freqComponents);        % Size of each frame, in samples.
+        totalFrames = length(TFParams.timeInstants);        % Total number of frames in the signal.
 
         if (length(resampleFactors) ~= totalFrames)
             error('Resampling curve size must be equal to the total number of frames, i.e. must have one factor per signal frame.\n')
