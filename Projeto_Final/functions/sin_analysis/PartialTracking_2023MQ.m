@@ -7,7 +7,7 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,TFParams,currentTrack
         maxTracksPerFrame = 100;
 
         freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
-        powerTolerance = 3;                % in dB
+        powerTolerance = 1;                % in dB
         maxHysteresis = 10;                % in frames
         minTrackLength = 20;               % in frames
         maxTrackFrequency = 5000;          % in Hz
@@ -69,19 +69,21 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,TFParams,currentTrack
             availableTracks = sortStruct(availableTracks, 'currentFrequency');
             for trackIdx = 1:length(availableTracks)
                 trackFrequency = availableTracks(trackIdx).frequencyEvolution(end);
-                matchedPeakIdxs = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
-                %Power matching criterion (experimental)
-                %matchedPeaksPower = intersect(find(peakMatrix(powerRow,:) < availableTracks(trackIdx).powerEvolution(end) + powerTolerance),find(peakMatrix(powerRow,:) > availableTracks(trackIdx).powerEvolution(end) - powerTolerance));
-                %matchedPeakIdxs = intersect(matchedPeakIdxs,matchedPeaksPower);
-
+                matchedPeakIdxs = [];
+                if (~isempty(peakMatrix)) % If there are no peaks, no matches should be attempted
+                    matchedPeakIdxs = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
+                    %Power matching criterion (experimental)
+                    matchedPeaksPower = intersect(find(peakMatrix(powerRow,:) < availableTracks(trackIdx).powerEvolution(end) + powerTolerance),find(peakMatrix(powerRow,:) > availableTracks(trackIdx).powerEvolution(end) - powerTolerance));
+                    matchedPeakIdxs = intersect(matchedPeakIdxs,matchedPeaksPower);
+                end
                 if (~isempty(matchedPeakIdxs)) % 1) Track matched to a peak
-                    [freqGap,peakCandidateIdx] = min(abs(peakMatrix(freqRow,matchedPeakIdxs)-trackFrequency));
-                    peakCandidateIdx = matchedPeakIdxs(peakCandidateIdx);
+                    [freqGap,peakCandidateOffsetIdx] = min(abs(peakMatrix(freqRow,matchedPeakIdxs)-trackFrequency));
+                    peakCandidateIdx = matchedPeakIdxs(peakCandidateOffsetIdx);
                     if DEBUG == 1
-                        fprintf('Peak %i matched to track %i.\n',peakCandidateIdx,trackIdx);
+                        fprintf('Peak %i (%d) matched to track %i (%d).\n',peakCandidateIdx,peakMatrix(freqRow,peakCandidateIdx),trackIdx,availableTracks(trackIdx).currentFrequency);
                     end
-                    % 2) Check if there is better match to the peak
-                    betterTrackIdx = find(abs(peakMatrix(freqRow,peakCandidateIdx)-getArrayFields(availableTracks(trackIdx+1:end),'currentFrequency')) < freqGap);
+                    % 2) Check if there is better match to the peak               
+                    betterTrackIdx = find(abs(peakMatrix(freqRow,peakCandidateIdx)-getArrayFields(availableTracks(trackIdx+1:end),'currentFrequency')) < freqGap); 
                     if (isempty(betterTrackIdx)) % current track is best match
                         availableTracks(trackIdx) = setTrackActive(availableTracks(trackIdx),peakMatrix(:,peakCandidateIdx),currentFrame);
                         matchedFlag(trackIdx) = 1;
@@ -91,14 +93,15 @@ function currentTracks = PartialTracking_2023MQ(inputFrame,TFParams,currentTrack
                         end  
                     else % 2.1) Better match for peak found
                         if DEBUG == 1
-                            fprintf('Better match for peak %i found.\n',peakCandidateIdx,betterTrackIdx);
+                            fprintf('Better match for peak %i found (track %i).\n',peakCandidateIdx,(trackIdx+betterTrackIdx));
                         end
-                        if (numel(matchedPeakIdxs) > 1 && peakCandidateIdx > 1) % 2.1.a) Track can still be matched to adjacent peak
-                            availableTracks(trackIdx) = setTrackActive(availableTracks(trackIdx),peakMatrix(:,peakCandidateIdx-1),currentFrame);
+                        if (length(matchedPeakIdxs) > 1 && peakCandidateOffsetIdx > 1) % 2.1.a) Track can still be matched to adjacent peak
+                            peakSecMatchIdx = matchedPeakIdxs(peakCandidateOffsetIdx-1);
+                            availableTracks(trackIdx) = setTrackActive(availableTracks(trackIdx),peakMatrix(:,peakSecMatchIdx),currentFrame);
                             matchedFlag(trackIdx) = 1;
-                            peakMatrix(:,peakCandidateIdx-1) = [];
+                            peakMatrix(:,peakSecMatchIdx) = [];
                             if DEBUG == 1
-                                fprintf('Track %i matched definitely to peak %i instead.\n',trackIdx,peakCandidateIdx-1);
+                                fprintf('Track %i (%d) matched definitely to peak %i (%d) instead.\n',trackIdx,availableTracks(trackIdx).currentFrequency,peakCandidateIdx-1,peakMatrix(freqRow,peakCandidateIdx-1));
                             end
                         else % 2.1.b) Track can't be matched
                             unmatchedFlag(trackIdx) = 1;

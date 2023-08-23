@@ -1,4 +1,4 @@
-function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTracks)
+function currentTracks = PartialTracking_2023(inputFrame,TFParams,currentTracks,backwardsFlag)
 
     DEBUG = 0;
 
@@ -8,8 +8,8 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
 
         freqTolerance = (power(2,1/24)-1); % about 3% (quarter-tone)
         powerTolerance = 3;                % in dB
-        maxHysteresis = 3;                 % in frames
-        minTrackLength = 10;               % in frames
+        maxHysteresis = 10;                 % in frames
+        minTrackLength = 20;               % in frames
         maxTrackFrequency = 5000;          % in Hz
         minTrackPower = -60;               % in dB
 
@@ -21,7 +21,7 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
         % Gathering frame data
             currentFrame = inputFrame.currentFrame;
             peakMatrix = inputFrame.peakMatrix;
-            lastFrame = totalFrames;
+            totalFrames = length(TFParams.timeInstants);
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Gathering peak information -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
 
@@ -70,10 +70,13 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
                 end
 
                 trackFrequency = currentTracks(trackIndex).frequencyEvolution(end);
-                matchedPeaks = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
-                %Power matching criterion (experimental)
-                %matchedPeaksPower = intersect(find(peakMatrix(powerRow,:) < currentTracks(trackIndex).powerEvolution(end) + powerTolerance),find(peakMatrix(powerRow,:) > currentTracks(trackIndex).powerEvolution(end) - powerTolerance));
-                %matchedPeaks = intersect(matchedPeaks,matchedPeaksPower);
+                matchedPeaks = [];
+                if (~isempty(peakMatrix)) % If there are no peaks, no matches should be attempted
+                    matchedPeaks = intersect(find(peakMatrix(freqRow,:) < trackFrequency*(1 + freqTolerance)),find(peakMatrix(freqRow,:) > trackFrequency*(1 - freqTolerance)));
+                    %Power matching criterion (experimental)
+                    %matchedPeaksPower = intersect(find(peakMatrix(powerRow,:) < currentTracks(trackIndex).powerEvolution(end) + powerTolerance),find(peakMatrix(powerRow,:) > currentTracks(trackIndex).powerEvolution(end) - powerTolerance));
+                    %matchedPeaks = intersect(matchedPeaks,matchedPeaksPower);
+                end
 
                 if (~isempty(matchedPeaks)) % Track matched to a peak
                     [~,matchIndex] = min(abs(peakMatrix(freqRow,matchedPeaks)-trackFrequency));
@@ -96,7 +99,7 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
                             currentTracks(trackIndex) = setTrackAsleep(currentTracks(trackIndex),currentFrame);
                         case 2 %Track is asleep
                             if (currentTracks(trackIndex).hysteresis >= maxHysteresis) %Track is over hysteresis limit and must be deactivated.
-                                currentTracks(trackIndex) = setTrackInactive(currentTracks(trackIndex),currentFrame,lastFrame);
+                                currentTracks(trackIndex) = setTrackInactive(currentTracks(trackIndex),currentFrame,totalFrames);
                                 deactivatedIndexes(end+1) = trackIndex;
                             else %Track is asleep and can continue to be so.
                                 currentTracks(trackIndex) = setTrackAsleep(currentTracks(trackIndex),currentFrame);
@@ -176,9 +179,9 @@ function currentTracks = PartialTracking_2023(inputFrame,totalFrames,currentTrac
 
     % -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-| Treating last frame only -|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
         
-        if currentFrame == lastFrame
+        if currentFrame == totalFrames
             for index = 1:length(currentTracks)
-                currentTracks(index) = setTrackInactive(currentTracks(index),currentFrame,lastFrame);
+                currentTracks(index) = setTrackInactive(currentTracks(index),currentFrame,totalFrames);
             end
         end
 

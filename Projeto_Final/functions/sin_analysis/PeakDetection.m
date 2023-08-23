@@ -10,8 +10,7 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,TFPar
     %
 
     %Parameters
-        peakProminence = 18; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
-
+        peakProminence = 10; %in dB. This is for the findpeaks function. Controls how proeminent detected peaks must be.
         thresholdOffset = 10; %in DB
         hardThreshold = 80; %in DB
         freqThreshold = 5000; %in Hz
@@ -32,7 +31,7 @@ function [detectedPeakMatrix,spectrumThreshold] = PeakDetection(inputFrame,TFPar
             parametersTPSW.rejectionFactor = 4;
             spectrumThreshold = PeakThreshold_TPSW(inputFrame,TFParams,parametersTPSW,0) + thresholdOffset;
         case 'SSE' 
-            numberCoeffsSSE = 30;  
+            numberCoeffsSSE = 120;  
             spectrumThreshold = PeakThreshold_SSE(inputFrame,TFParams,numberCoeffsSSE,DEBUG) + thresholdOffset;
     end 
     % Peak Detection

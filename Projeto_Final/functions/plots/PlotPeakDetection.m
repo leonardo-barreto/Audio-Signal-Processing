@@ -1,4 +1,4 @@
-function PlotPeakDetection(signalFrame, n_totalFrames)
+function PlotPeakDetection(signalFrame, TFParams, n_totalFrames)
 
     if (isempty(signalFrame.peakMatrix))
         fprintf('\nNo peaks in this frame. Well, nothing to plot.\n\n');
@@ -8,8 +8,8 @@ function PlotPeakDetection(signalFrame, n_totalFrames)
     figure
     hold on;
 
-    plot(signalFrame.freqComponents./1000,signalFrame.powerSpectrum,'G','LineWidth',2);
-    plot(signalFrame.freqComponents./1000,signalFrame.powerSpectrumThreshold,'B','LineWidth',2);
+    plot(TFParams.freqComponents./1000,signalFrame.powerSpectrum,'G','LineWidth',2);
+    plot(TFParams.freqComponents./1000,signalFrame.powerSpectrumThreshold,'B','LineWidth',2);
 
 
     plot(signalFrame.peakMatrix(2,:)/1000,signalFrame.peakMatrix(1,:),'r.','markersize',30);
@@ -20,7 +20,7 @@ function PlotPeakDetection(signalFrame, n_totalFrames)
         ylabel('Potencia (dB)','FontSize', 30);
         legend ('Espectro','Limiar SSE','Picos detectados');
         set(gca,'FontSize', 30);
-        xlim([0 signalFrame.freqComponents(end)/1000])
+        xlim([0 TFParams.freqComponents(end)/1000])
         hold off;
 
 end

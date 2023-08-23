@@ -72,17 +72,17 @@ clear;
     TFR = cell(length(methods_enabled),1);
     signalTracks = cell(length(methods_enabled),1);
     TFParams = cell(length(methods_enabled),1);
-    for i = methods_enabled
+    for i = 1:length(methods_enabled)
         fprintf('\nSinusoidal analysis %i of %i\n',i,length(methods_enabled));
         if HPSS_on
-            [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(inputSignal,fs,method_name{i},backwardsFlag,HPSS_on,HPSS_options);
+            [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(inputSignal,fs,method_name{methods_enabled(i)},backwardsFlag,HPSS_on,HPSS_options);
         else
-            [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(inputSignal,fs,method_name{i},backwardsFlag);
+            [TFR{i},TFParams{i},signalTracks{i}] = SinusoidalAnalysis(inputSignal,fs,method_name{methods_enabled(i)},backwardsFlag);
         end
     end
 
     % Making first frame zero
-    for i = methods_enabled
+    for i = 1:length(methods_enabled)
         TFParams{i}.timeInstants = TFParams{i}.timeInstants-TFParams{i}.timeInstants(1);
     end
 
@@ -90,8 +90,8 @@ clear;
     if (numel(methods_enabled) > 1)
         if (~isempty(find(energy_ref_method == methods_enabled)))
             ref_energy = sum(sum(TFR{energy_ref_method}));
-            for i = methods_enabled
-                if i ~= energy_ref_method
+            for i = 1:length(methods_enabled)
+                if methods_enabled(i) ~= energy_ref_method
                     TFR{i} = ref_energy.* TFR{i}/sum(sum(TFR{i}));
                 end
             end
@@ -102,17 +102,17 @@ clear;
 
     % Plotting TFRs and tracks
     if plot_enable
-        for i = methods_enabled
-            plot_method_name = method_name{i};
+        for i = 1:length(methods_enabled)
+            plot_method_name = TFParams{i}.method;
             if HPSS_on
-                plot_method_name = [method_name{i} '-SS'];
+                plot_method_name = [plot_method_name '-SS'];
             end
             plot_max = max(max(10*log10(TFR{i})));
             PlotSpectrogram_ylin(TFParams{i}.freqComponents,TFParams{i}.timeInstants,[plot_max-plot_range plot_max],10*log10(TFR{i}));
             title(sprintf('RTF (%s)',plot_method_name));
 
             if print_figures
-                tit = [signalName '_TFR_' plot_method_name '_' num2str(2*length(TFParams{i}.freqComponents)-2))];
+                tit = [signalName '_TFR_' plot_method_name '_' num2str(2*length(TFParams{i}.freqComponents)-2)];
                 tit(tit=='.') = '_'; tit(tit==' ') = '';
                 figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
                 figFileName = [figsPath tit];
@@ -139,32 +139,25 @@ clear;
     
     fprintf('\n------- PITCH VARIATION CURVE EXTRACTION ------\n\n');
     resamplingFactors = cell(length(methods_enabled),1);
-    for i = methods_enabled
+    for i = 1:length(methods_enabled)
         fprintf('PVC extraction in progress (%i of %i)...\n',i,length(methods_enabled));
         resamplingFactors{i} = ExtractPVC(signalTracks{i},length(TFParams{i}.timeInstants));
         resamplingFactors{i} = resamplingFactors{i}+(pitchOffset/100);        
     end
     fprintf('PVC extraction done.\n');
-    fprintf('\n------- TIME-VARYING RESAMPLING ------\n\n');
-    outputSignal = cell(length(methods_enabled),1);
-    for i = methods_enabled
-        fprintf('Time-varying resample in progress (%i of %i - this might take some time)...\n',i,length(methods_enabled));
-        outputSignal{i} = TimeVarying_Resample(inputSignal,fs,TFParams{i},resamplingFactors{i},filterCoeffs);
-    end
-    fprintf('Time-varying resample done.\n');
 
     % Plotting PVC
     if plot_enable
-        for i = methods_enabled
-            plot_method_name = method_name{i};
+        for i = 1:length(methods_enabled)
+            plot_method_name = TFParams{i}.method;
             if HPSS_on
-                plot_method_name = [method_name{i} '-SS'];
+                plot_method_name = [plot_method_name '-SS'];
             end
             PlotPVC(resamplingFactors{i},TFParams{i}.timeInstants);
             title(sprintf('Curva de desvio de pitch (%s)',plot_method_name));
 
             if print_figures
-                tit = [signalName '_PVC_' plot_method_name '_' num2str(length(TFParams{i}.freqComponents))];
+                tit = [signalName '_PVC_' plot_method_name '_' num2str(2*length(TFParams{i}.freqComponents)-2)];
                 tit(tit=='.') = '_'; tit(tit==' ') = '';
                 figProp = struct('size', 15,'font','Helvetica','lineWidth',2,'figDim',[1 1 560 420]); % Thesis
                 figFileName = [figsPath tit];
@@ -174,8 +167,18 @@ clear;
         end
     end
 
+    fprintf('\n------- TIME-VARYING RESAMPLING ------\n\n');
+    outputSignal = cell(length(methods_enabled),1);
+    for i = 1:length(methods_enabled)
+        fprintf('Time-varying resample in progress (%i of %i - this might take some time)...\n',i,length(methods_enabled));
+        tic
+        outputSignal{i} = TimeVarying_Resample(inputSignal,fs,TFParams{i},resamplingFactors{i},filterCoeffs);
+        toc
+    end
+    fprintf('Time-varying resample done.\n');
+
 fprintf('\nWriting audio files...\n');
-for i = methods_enabled
+for i = 1:length(methods_enabled)
     audioFileName = [audioOutPath '\' signalName '_' TFParams{i}.method ...
                  '_' num2str(2*length(TFParams{i}.freqComponents)-2) '_' 'sinc' '_' num2str(filterCoeffs) '.wav'];
     audiowrite(audioFileName,outputSignal{i},fs);

@@ -9,7 +9,7 @@ function [TFR_base,TFParams,signalTracks] = SinusoidalAnalysis(inputSignal,fs,TF
     %   4th - Construction of sinusoidal tracks
     %
 
-    DEBUG = 0;
+    DEBUG = 1;
 
     % -------------------------------------- TFR stage -------------------------------------------
         fprintf('Time-frequency analysis in progress...\n');
@@ -81,8 +81,8 @@ function [TFR_base,TFParams,signalTracks] = SinusoidalAnalysis(inputSignal,fs,TF
 
             %Random frame chosen for DEBUG
             %DEBUG_FRAME = availableFrames(randi(length(availableFrames)));
-            DEBUG_FRAME = 500;
-            PlotPeakDetection(frameArray(DEBUG_FRAME),totalFrames);
+            DEBUG_FRAME = 981;
+            PlotPeakDetection(frameArray(DEBUG_FRAME),TFParams,totalFrames);
             title(sprintf('Quadro %i de %i (%s)',DEBUG_FRAME,totalFrames,TFR_method))
         end
 
